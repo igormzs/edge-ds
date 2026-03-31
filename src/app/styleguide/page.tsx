@@ -7,7 +7,9 @@ import {
   Paper,
   Chip,
   Stack,
+  Snackbar,
 } from '@mui/material';
+import { useState } from 'react';
 
 interface SwatchProps {
   name: string;
@@ -17,60 +19,81 @@ interface SwatchProps {
 }
 
 function ColorSwatch({ name, token, color, textColor = '#fff' }: SwatchProps) {
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(color);
+    setCopied(true);
+  };
+
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 2,
-        overflow: 'hidden',
-        border: '1px solid rgba(0,0,0,0.08)',
-      }}
-    >
-      <Box
+    <>
+      <Paper
+        elevation={0}
+        onClick={handleCopy}
         sx={{
-          height: 96,
-          bgcolor: color,
-          display: 'flex',
-          alignItems: 'flex-end',
-          p: 1.5,
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '1px solid rgba(0,0,0,0.08)',
+          cursor: 'pointer',
+          transition: 'transform 0.1s ease',
+          '&:active': { transform: 'scale(0.98)' },
+          '&:hover': { borderColor: 'rgba(0,0,0,0.2)' }
         }}
       >
-        <Chip
-          label={color}
-          size="small"
+        <Box
           sx={{
-            bgcolor: 'rgba(0,0,0,0.25)',
-            color: textColor,
-            fontFamily: '"Open Sans", monospace',
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: 0.5,
-          }}
-        />
-      </Box>
-      <Box sx={{ px: 2, py: 1.5, bgcolor: '#fff' }}>
-        <Typography
-          sx={{
-            fontFamily: '"Open Sans", sans-serif',
-            fontWeight: 600,
-            fontSize: 13,
-            color: '#212121',
+            height: 96,
+            bgcolor: color,
+            display: 'flex',
+            alignItems: 'flex-end',
+            p: 1.5,
           }}
         >
-          {name}
-        </Typography>
-        <Typography
-          sx={{
-            fontFamily: '"Open Sans", sans-serif',
-            fontSize: 11,
-            color: '#9e9e9e',
-            mt: 0.25,
-          }}
-        >
-          {token}
-        </Typography>
-      </Box>
-    </Paper>
+          <Chip
+            label={color}
+            size="small"
+            sx={{
+              bgcolor: 'rgba(0,0,0,0.25)',
+              color: textColor,
+              fontFamily: '"Open Sans", monospace',
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: 0.5,
+            }}
+          />
+        </Box>
+        <Box sx={{ px: 2, py: 1.5, bgcolor: '#fff' }}>
+          <Typography
+            sx={{
+              fontFamily: '"Open Sans", sans-serif',
+              fontWeight: 600,
+              fontSize: 13,
+              color: '#212121',
+            }}
+          >
+            {name}
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: '"Open Sans", sans-serif',
+              fontSize: 11,
+              color: '#9e9e9e',
+              mt: 0.25,
+            }}
+          >
+            {token}
+          </Typography>
+        </Box>
+      </Paper>
+      <Snackbar
+        open={copied}
+        autoHideDuration={2500}
+        onClose={() => setCopied(false)}
+        message={`Copied ${color} to clipboard`}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
+    </>
   );
 }
 
@@ -110,40 +133,34 @@ function TypeSpecimen({ label, sample, spec, sx = {} }: TypeSpecimenProps) {
 export default function DesignTokensPage() {
   const colorGroups = [
     {
-      title: 'Primary — EDGE Turquoise',
+      title: 'Primary Branding',
       swatches: [
-        { name: 'Primary Main', token: 'primary.main', color: '#009f9b' },
-        { name: 'Primary Dark', token: 'primary.dark', color: '#00918c' },
-        { name: 'Button Active', token: 'EDGE-Turquoise/Button_Green', color: '#005d60' },
-        { name: 'Turquoise 300', token: 'EDGE-Turquoise/300', color: '#07bebe' },
+        { name: 'Primary Main', token: 'primary.main', color: '#009f9b', text: 'EDGE Turquoise 500' },
+        { name: 'Primary Dark', token: 'primary.dark', color: '#00918c', text: 'EDGE Turquoise 600' },
       ],
     },
     {
-      title: 'Secondary — EDGE Blue',
+      title: 'Secondary Branding',
       swatches: [
-        { name: 'Secondary Main', token: 'secondary.main', color: '#5e6e7d' },
-        { name: 'Secondary Dark', token: 'secondary.dark', color: '#515f6c' },
-        { name: 'Blue 800', token: 'EDGE-Blue/800', color: '#323940' },
+        { name: 'Secondary Main', token: 'secondary.main', color: '#5e6e7d', text: 'EDGE Blue 500' },
+        { name: 'Secondary Dark', token: 'secondary.dark', color: '#515f6c', text: 'EDGE Blue 600' },
       ],
     },
     {
-      title: 'Semantic',
+      title: 'Structural / Semantic',
       swatches: [
-        { name: 'Error', token: 'error.main', color: '#d32f2f' },
-        { name: 'Warning', token: 'warning.main', color: '#ef6c00' },
-        { name: 'Info', token: 'info.main', color: '#0057b2' },
-        { name: 'Success', token: 'success.main', color: '#2e7d32' },
+        { name: 'Surface Default', token: 'surface.default', color: '#fafafa', textColor: '#000', text: 'Grey 50' },
+        { name: 'Surface Disabled', token: 'surface.disabled', color: '#e0e0e0', textColor: '#000', text: 'Grey 300' },
+        { name: 'Background Default', token: 'background.default', color: '#ffffff', textColor: '#000', text: 'White' },
       ],
     },
     {
-      title: 'Greys & Neutrals',
+      title: 'Feedback',
       swatches: [
-        { name: 'Grey 50', token: 'grey.50', color: '#fafafa', textColor: '#000' },
-        { name: 'Grey 100', token: 'grey.100', color: '#f5f5f5', textColor: '#000' },
-        { name: 'Grey 300', token: 'grey.300', color: '#e0e0e0', textColor: '#000' },
-        { name: 'Grey 400', token: 'grey.400', color: '#bdbdbd', textColor: '#000' },
-        { name: 'Blue Grey 50', token: 'blueGrey.50', color: '#eceff1', textColor: '#000' },
-        { name: 'Blue Grey 100', token: 'blueGrey.100', color: '#cfd8dc', textColor: '#000' },
+        { name: 'Error Main', token: 'error.main', color: '#d32f2f', text: 'Red 700' },
+        { name: 'Warning Main', token: 'warning.main', color: '#ef6c00', text: 'Orange 800' },
+        { name: 'Info Main', token: 'info.main', color: '#1976d2', text: 'Blue 700' },
+        { name: 'Success Main', token: 'success.main', color: '#2e7d32', text: 'Green 800' },
       ],
     },
   ];
@@ -279,22 +296,24 @@ export default function DesignTokensPage() {
                 </Paper>
               </Grid>
             ))}
-            <Grid size={{ xs: 6, sm: 3 }}>
-              <Paper
-                elevation={0}
-                sx={{ p: 2, border: '1px solid rgba(0,0,0,0.08)', borderRadius: 2, bgcolor: '#fff', display: 'flex', alignItems: 'center', gap: 2 }}
-              >
-                <Box sx={{ width: 48, height: 48, bgcolor: '#009f9b', borderRadius: '4px', flexShrink: 0 }} />
-                <Box>
-                  <Typography sx={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600, fontSize: 13, color: '#212121' }}>
-                    Border Radius
-                  </Typography>
-                  <Typography sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 11, color: '#9e9e9e' }}>
-                    4px
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
+            {[4, 8, 16].map((val) => (
+              <Grid key={`radius-${val}`} size={{ xs: 6, sm: 3 }}>
+                <Paper
+                  elevation={0}
+                  sx={{ p: 2, border: '1px solid rgba(0,0,0,0.08)', borderRadius: 2, bgcolor: '#fff', display: 'flex', alignItems: 'center', gap: 2 }}
+                >
+                  <Box sx={{ width: 48, height: 48, bgcolor: '#009f9b', borderRadius: `${val}px`, flexShrink: 0 }} />
+                  <Box>
+                    <Typography sx={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600, fontSize: 13, color: '#212121' }}>
+                      Border {val}px
+                    </Typography>
+                    <Typography sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 11, color: '#9e9e9e' }}>
+                      {val}px Radius
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
           </Grid>
         </Box>
 

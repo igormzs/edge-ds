@@ -1,52 +1,120 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, alpha } from '@mui/material/styles';
+import { red, blue, amber, grey, blueGrey, green, lightBlue, orange } from '@mui/material/colors';
 
-const brandTheme = createTheme({
+declare module '@mui/material/Paper' {
+  interface PaperPropsVariantOverrides {
+    filters: true;
+  }
+}
+
+declare module '@mui/material/Accordion' {
+  interface AccordionPropsVariantOverrides {
+    filters: true;
+  }
+}
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    surface: {
+      default: string;
+      paper: string;
+      disabled: string;
+    };
+  }
+  interface PaletteOptions {
+    surface?: {
+      default?: string;
+      paper?: string;
+      disabled?: string;
+    };
+  }
+}
+
+// 1. Unified Color Warehouse
+// We merge MUI standard palettes and EDGE custom scales here.
+export const colors = {
+  red,
+  blue,
+  amber,
+  grey,
+  blueGrey,
+  green,
+  lightBlue,
+  orange,
+  edgeTurquoise: {
+    50: '#e0f3f2',
+    100: '#b3e0df',
+    200: '#80cccc',
+    300: '#07bebe',
+    400: '#26b2af',
+    500: '#009f9b',
+    600: '#00918c',
+    700: '#00807b',
+    800: '#006f6a',
+    900: '#005d60',
+  },
+  edgeBlue: {
+    50: '#eceff1',
+    100: '#cfd8dc',
+    200: '#b0bec5',
+    300: '#90a4ae',
+    400: '#78909c',
+    500: '#5e6e7d',
+    600: '#515f6c',
+    700: '#455a64',
+    800: '#323940',
+    900: '#263238',
+  },
+};
+
+// 2. Strict Semantic Mapping
+const baseTheme = createTheme({
   palette: {
     primary: {
-      main: '#009f9b',
-      dark: '#00918c',
+      main: colors.edgeTurquoise[500],
+      dark: colors.edgeTurquoise[600],
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#5e6e7d',
-      dark: '#515f6c',
+      main: colors.edgeBlue[500],
+      dark: colors.edgeBlue[600],
       contrastText: '#ffffff',
     },
     error: {
-      main: '#d32f2f',
-      dark: '#c62828',
+      main: colors.red[700],
+      dark: colors.red[800],
       contrastText: '#ffffff',
     },
     warning: {
-      main: '#ef6c00',
+      main: colors.orange[800],
       contrastText: '#ffffff',
     },
     info: {
-      main: '#0057b2',
-      dark: '#0d47a1',
+      main: '#0057b2', // from Figma variables
+      dark: colors.blue[900],
       contrastText: '#ffffff',
     },
     success: {
-      main: '#2e7d32',
-      dark: '#1b5e20',
+      main: colors.green[800],
+      dark: colors.green[900],
       contrastText: '#ffffff',
     },
     text: {
-      primary: '#212121',
-      secondary: '#00000099',
-      disabled: '#00000061',
+      primary: '#212121', // Semantic/Text/Primary
+      secondary: 'rgba(0, 0, 0, 0.6)',
+      disabled: colors.grey[500], // Semantic/Text/Disabled -> #9e9e9e
     },
     background: {
       default: '#ffffff',
       paper: '#ffffff',
     },
-    grey: {
-      50: '#fafafa',
-      100: '#f5f5f5',
-      300: '#e0e0e0',
-      400: '#bdbdbd',
+    grey: colors.grey,
+    divider: 'rgba(0, 0, 0, 0.12)',
+    surface: {
+      default: colors.grey[50], // Semantic/Surface/Default -> fafafa
+      paper: '#ffffff',
+      disabled: colors.grey[300], // e0e0e0
     },
-    divider: '#0000001f',
   },
   typography: {
     fontFamily: '"Open Sans", "Helvetica", "Arial", sans-serif',
@@ -112,107 +180,191 @@ const brandTheme = createTheme({
     borderRadius: 4,
   },
   spacing: 8,
+});
+
+const brandTheme = createTheme(baseTheme, {
   components: {
     MuiButton: {
       defaultProps: {
-        disableElevation: true, // Button.EDGE is flat — no shadow in Figma
+        disableElevation: true,
       },
       styleOverrides: {
         root: {
-          fontFamily: '"Open Sans", sans-serif',
-          fontWeight: 600,
+          fontFamily: baseTheme.typography.button.fontFamily,
+          fontWeight: baseTheme.typography.button.fontWeight,
           textTransform: 'uppercase',
-          borderRadius: 4,
+          borderRadius: baseTheme.shape.borderRadius,
           boxShadow: 'none',
           '&:hover': { boxShadow: 'none' },
           '&:active': { boxShadow: 'none' },
           '&:focus-visible': { boxShadow: 'none' },
         },
-
-        // ── Sizes: from Figma ─────────────────────────────────────────────
         sizeSmall: {
-          fontSize: '0.75rem',    // 12px — button/label-sm
+          fontSize: '0.75rem',
           letterSpacing: '0.6px',
-          padding: '10px 16px',
+          padding: `${baseTheme.spacing(1.25)} ${baseTheme.spacing(2)}`,
           height: 40,
           lineHeight: 1.66,
         },
         sizeMedium: {
-          fontSize: '0.875rem',   // 14px — button/label-md
+          fontSize: '0.875rem',
           letterSpacing: '0.7px',
-          padding: '10px 16px',
+          padding: `${baseTheme.spacing(1.25)} ${baseTheme.spacing(2)}`,
           height: 44,
           lineHeight: 1.43,
         },
         sizeLarge: {
-          fontSize: '1rem',       // 16px — button/label-lg
+          fontSize: '1rem',
           letterSpacing: '0.8px',
-          padding: '12px 16px',
+          padding: `${baseTheme.spacing(1.5)} ${baseTheme.spacing(2)}`,
           height: 48,
           lineHeight: 1.5,
         },
-
-        // ── Variant colours ───────────────────────────────────────────────
         containedPrimary: {
-          backgroundColor: '#009f9b',
-          color: '#ffffff',
-          '&:hover': { backgroundColor: '#00918c' },
-          '&:active': { backgroundColor: '#0e837d' },
+          backgroundColor: baseTheme.palette.primary.main,
+          color: baseTheme.palette.primary.contrastText,
+          '&:hover': { backgroundColor: baseTheme.palette.primary.dark },
+          '&:active': { backgroundColor: colors.edgeTurquoise[900] },
           '&.Mui-disabled': {
-            backgroundColor: '#e0e0e0 !important' as unknown as string,
-            color: '#9e9e9e !important' as unknown as string,
+            backgroundColor: `${baseTheme.palette.grey[300]} !important` as unknown as string,
+            color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
           },
         },
         containedSecondary: {
-          backgroundColor: '#5e6e7d',
-          color: '#ffffff',
-          '&:hover': { backgroundColor: '#515f6c' },
+          backgroundColor: baseTheme.palette.secondary.main,
+          color: baseTheme.palette.secondary.contrastText,
+          '&:hover': { backgroundColor: baseTheme.palette.secondary.dark },
           '&.Mui-disabled': {
-            backgroundColor: '#e0e0e0 !important' as unknown as string,
-            color: '#9e9e9e !important' as unknown as string,
+            backgroundColor: `${baseTheme.palette.grey[300]} !important` as unknown as string,
+            color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
           },
         },
         outlinedPrimary: {
-          borderColor: '#009f9b',
-          color: '#009f9b',
+          borderColor: baseTheme.palette.primary.main,
+          color: baseTheme.palette.primary.main,
           borderWidth: '1px',
           '&:hover': {
-            backgroundColor: 'rgba(0,159,155,0.06)',
-            borderColor: '#00918c',
+            backgroundColor: alpha(baseTheme.palette.primary.main, 0.06),
+            borderColor: baseTheme.palette.primary.dark,
             borderWidth: '1px',
           },
           '&.Mui-disabled': {
-            borderColor: '#e0e0e0',
-            color: '#9e9e9e',
+            borderColor: baseTheme.palette.grey[300],
+            color: baseTheme.palette.text.disabled,
             borderWidth: '1px',
           },
         },
         outlinedSecondary: {
-          borderColor: '#5e6e7d',
-          color: '#5e6e7d',
+          borderColor: baseTheme.palette.secondary.main,
+          color: baseTheme.palette.secondary.main,
           borderWidth: '1px',
           '&:hover': {
-            backgroundColor: 'rgba(94,110,125,0.06)',
+            backgroundColor: alpha(baseTheme.palette.secondary.main, 0.06),
             borderWidth: '1px',
           },
           '&.Mui-disabled': {
-            borderColor: '#e0e0e0',
-            color: '#9e9e9e',
+            borderColor: baseTheme.palette.grey[300],
+            color: baseTheme.palette.text.disabled,
             borderWidth: '1px',
           },
         },
         textPrimary: {
-          color: '#009f9b',
-          '&:hover': { backgroundColor: 'rgba(0,159,155,0.06)' },
-          '&.Mui-disabled': { color: '#9e9e9e' },
+          color: baseTheme.palette.primary.main,
+          '&:hover': { backgroundColor: alpha(baseTheme.palette.primary.main, 0.06) },
+          '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
-
-        // ── Icon sizing ───────────────────────────────────────────────────
         startIcon: {
           '& > *:nth-of-type(1)': { fontSize: '1.25rem' },
         },
         endIcon: {
           '& > *:nth-of-type(1)': { fontSize: '1.25rem' },
+        },
+      },
+    },
+    MuiAccordion: {
+      defaultProps: {
+        disableGutters: true,
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          backgroundColor: baseTheme.palette.surface.default,
+          padding: baseTheme.spacing(3),
+          '&:before': {
+            display: 'none',
+          },
+          '&.Mui-disabled': {
+            backgroundColor: baseTheme.palette.surface.disabled,
+          },
+        },
+      },
+      variants: [
+        {
+          props: { variant: 'filters' },
+          style: {
+            padding: 0,
+            backgroundColor: 'transparent',
+            border: 'none',
+            '&.Mui-expanded': {
+              border: `1px solid ${baseTheme.palette.divider}`,
+              backgroundColor: baseTheme.palette.background.paper,
+            },
+            '& .MuiAccordionSummary-root': {
+              padding: `${baseTheme.spacing(1)} ${baseTheme.spacing(2)}`,
+              backgroundColor: baseTheme.palette.grey[100],
+              borderRadius: 8,
+            },
+            '&.Mui-expanded .MuiAccordionSummary-root': {
+              borderBottom: `1px solid ${baseTheme.palette.divider}`,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+            },
+            '& .MuiAccordionSummary-content .MuiTypography-root': {
+              fontFamily: baseTheme.typography.body1.fontFamily,
+              fontWeight: 700,
+              fontSize: '14px',
+              color: baseTheme.palette.primary.dark, // 00918c map
+            },
+            '& .MuiAccordionDetails-root': {
+              padding: `${baseTheme.spacing(2)} ${baseTheme.spacing(1)}`,
+            },
+          },
+        },
+      ],
+    },
+    MuiAccordionSummary: {
+      styleOverrides: {
+        root: {
+          padding: 0,
+          minHeight: 'auto',
+          '&.Mui-expanded': {
+            minHeight: 'auto',
+          },
+          '& .MuiAccordionSummary-content': {
+            margin: 0,
+            '&.Mui-expanded': {
+              margin: 0,
+            },
+          },
+        },
+        content: {
+          '& .MuiTypography-root': {
+            fontFamily: baseTheme.typography.body1.fontFamily,
+            fontWeight: 400,
+            fontSize: '16px',
+            color: baseTheme.palette.text.primary,
+          },
+          '&.Mui-disabled .MuiTypography-root': {
+            color: baseTheme.palette.text.disabled,
+          },
+        },
+      },
+    },
+    MuiAccordionDetails: {
+      styleOverrides: {
+        root: {
+          padding: `${baseTheme.spacing(3)} 0 0 0`,
         },
       },
     },

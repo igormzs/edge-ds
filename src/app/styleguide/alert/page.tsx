@@ -92,53 +92,61 @@ export default function AlertPage() {
 
       {/* Severities */}
       <DocSection title="Severities">
-        <Stack spacing={1.5}>
-          <Alert severity="success">This is a success message — the action was completed.</Alert>
-          <Alert severity="info">This is an info message — here's something you should know.</Alert>
-          <Alert severity="warning">This is a warning — please review before continuing.</Alert>
-          <Alert severity="error">This is an error — the action could not be completed.</Alert>
-        </Stack>
+        <PreviewCanvas>
+          <Stack spacing={1.5} sx={{ width: '100%' }}>
+            <Alert severity="success">This is a success message — the action was completed.</Alert>
+            <Alert severity="info">This is an info message — here's something you should know.</Alert>
+            <Alert severity="warning">This is a warning — please review before continuing.</Alert>
+            <Alert severity="error">This is an error — the action could not be completed.</Alert>
+          </Stack>
+        </PreviewCanvas>
       </DocSection>
 
       {/* Variants */}
       <DocSection title="Variants">
-        <Stack spacing={3}>
-          <Box>
-            <Stack spacing={1.5}>
-              <Alert variant="standard" severity="info">Standard variant (default)</Alert>
-              <Alert variant="filled" severity="info">Filled variant — high emphasis</Alert>
-              <Alert variant="outlined" severity="info">Outlined variant — subtle emphasis</Alert>
-            </Stack>
-          </Box>
-        </Stack>
+        <PreviewCanvas>
+          <Stack spacing={3} sx={{ width: '100%' }}>
+            <Box>
+              <Stack spacing={1.5}>
+                <Alert variant="standard" severity="info">Standard variant (default)</Alert>
+                <Alert variant="filled" severity="info">Filled variant — high emphasis</Alert>
+                <Alert variant="outlined" severity="info">Outlined variant — subtle emphasis</Alert>
+              </Stack>
+            </Box>
+          </Stack>
+        </PreviewCanvas>
       </DocSection>
 
       {/* States */}
       <DocSection title="States">
-        <Stack spacing={1.5}>
-          <Alert severity="success">
-            <AlertTitle>Success</AlertTitle>
-            Your profile has been updated — with a title and no close button.
-          </Alert>
-          <Alert severity="warning" onClose={() => undefined}>
-            <AlertTitle>Action required</AlertTitle>
-            Your session is about to expire — with a title and close button.
-          </Alert>
-          <Alert severity="error" onClose={() => undefined}>
-            Dismissible error without a title.
-          </Alert>
-        </Stack>
+        <PreviewCanvas>
+          <Stack spacing={1.5} sx={{ width: '100%' }}>
+            <Alert severity="success">
+              <AlertTitle>Success</AlertTitle>
+              Your profile has been updated — with a title and no close button.
+            </Alert>
+            <Alert severity="warning" onClose={() => undefined}>
+              <AlertTitle>Action required</AlertTitle>
+              Your session is about to expire — with a title and close button.
+            </Alert>
+            <Alert severity="error" onClose={() => undefined}>
+              Dismissible error without a title.
+            </Alert>
+          </Stack>
+        </PreviewCanvas>
       </DocSection>
 
       {/* All filled severities */}
       <DocSection title="Filled — All Severities">
-        <Stack spacing={1.5}>
-          {(['success', 'info', 'warning', 'error'] as const).map((s) => (
-            <Alert key={s} variant="filled" severity={s}>
-              {s.charAt(0).toUpperCase() + s.slice(1)}: This is a filled alert.
-            </Alert>
-          ))}
-        </Stack>
+        <PreviewCanvas>
+          <Stack spacing={1.5} sx={{ width: '100%' }}>
+            {(['success', 'info', 'warning', 'error'] as const).map((s) => (
+              <Alert key={s} variant="filled" severity={s}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}: This is a filled alert.
+              </Alert>
+            ))}
+          </Stack>
+        </PreviewCanvas>
       </DocSection>
 
       {/* Code */}

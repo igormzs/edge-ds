@@ -11,16 +11,20 @@ export interface NavGroup {
 export const navigation: NavGroup[] = [
   {
     group: 'Foundations',
-    items: [{ label: 'Design Tokens', href: '/styleguide' }],
+    items: [
+      { label: 'Branding', href: '/styleguide' },
+      { label: 'Palette', href: '/styleguide/foundations/palette' },
+    ],
   },
   {
     group: 'Components',
     items: [
+      { label: 'Accordion', href: '/styleguide/accordion' },
+      { label: 'Alert', href: '/styleguide/alert' },
+      { label: 'Badge', href: '/styleguide/badge' },
       { label: 'Button', href: '/styleguide/button' },
       { label: 'Chip', href: '/styleguide/chip' },
       { label: 'TextField', href: '/styleguide/textfield' },
-      { label: 'Alert', href: '/styleguide/alert' },
-      { label: 'Badge', href: '/styleguide/badge' },
     ],
   },
 ];

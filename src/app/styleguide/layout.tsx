@@ -117,11 +117,11 @@ export default function StyleguideLayout({ children }: { children: React.ReactNo
         <Box
           component="main"
           sx={{
-            flex: 1,
-            ml: `${SIDEBAR_WIDTH}px`,
+            flexGrow: 1,
             minHeight: '100vh',
-            bgcolor: '#f8fafb',
-            p: { xs: 3, md: 5 },
+            bgcolor: 'surface.default', // Using Semantic/Surface/Default token
+            p: { xs: 3, md: 6 },
+            width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
           }}
         >
           {children}
