@@ -209,14 +209,14 @@ export default function BadgePage() {
         </PreviewCanvas>
       </DocSection>
 
-      {/* Code */}
-      <DocSection title="Usage">
-        <CodeBlock code={codeSnippet} />
-      </DocSection>
-
       {/* Props */}
       <DocSection title="Key Props">
         <PropsTable rows={propRows} />
+      </DocSection>
+
+      {/* Code */}
+      <DocSection title="Usage">
+        <CodeBlock code={codeSnippet} />
       </DocSection>
     </Box>
   );

@@ -71,5 +71,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the d
 
 All design tokens and component overrides are managed in `src/theme/brandTheme.ts`. To update a component's visual style globally, modify its `Mui[ComponentName]` style override within this file.
 
+## 📝 Component Documentation Standard
+
+To maintain a consistent developer experience, all individual component styleguide pages (located in `src/app/styleguide/[component]/page.tsx`) should follow this standard section order:
+
+1. **Page Header**: Brief description and MUI documentation link.
+2. **Visual Variants**: Core component variants (Contained, Outlined, etc.).
+3. **Interactive States**: Demos for Hover, Active, Disabled, and Icon states.
+4. **Key Props**: The `PropsTable` component documenting API surface.
+5. **Usage**: The `CodeBlock` component with copy-pastable implementation code.
+
 ---
 Built with ❤️ for the EDGE Design System.

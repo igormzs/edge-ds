@@ -129,12 +129,12 @@ export default function AccordionPage() {
         </PreviewCanvas>
       </DocSection>
 
-      <DocSection title="Usage">
-        <CodeBlock code={codeSnippet} />
-      </DocSection>
-
       <DocSection title="Key Props">
         <PropsTable rows={propRows} />
+      </DocSection>
+
+      <DocSection title="Usage">
+        <CodeBlock code={codeSnippet} />
       </DocSection>
     </Box>
   );

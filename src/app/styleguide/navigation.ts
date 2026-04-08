@@ -23,6 +23,7 @@ export const navigation: NavGroup[] = [
       { label: 'Alert', href: '/styleguide/alert' },
       { label: 'Badge', href: '/styleguide/badge' },
       { label: 'Button', href: '/styleguide/button' },
+      { label: 'Checkbox', href: '/styleguide/checkbox' },
       { label: 'Chip', href: '/styleguide/chip' },
       { label: 'TextField', href: '/styleguide/textfield' },
     ],

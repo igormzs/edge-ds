@@ -62,9 +62,9 @@ const propRows: PropRow[] = [
   },
   {
     prop: 'size',
-    type: '"small" | "medium" | "large"',
+    type: '"small" | "medium" | "large" | "icon"',
     default: '"medium"',
-    description: 'Adjusts padding, font size and icon size.',
+    description: 'Adjusts padding, font size and icon size. "icon" creates a 44x44 circular button.',
   },
   {
     prop: 'startIcon / endIcon',
@@ -105,7 +105,7 @@ export default function ButtonPage() {
             <PreviewGroup label="Outlined">
               <Button variant="outlined" color="primary">Outlined</Button>
             </PreviewGroup>
-            <PreviewGroup label="Text">
+            <PreviewGroup label="Text (Tertiary)">
               <Button variant="text" color="primary">Text</Button>
             </PreviewGroup>
             <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
@@ -114,6 +114,9 @@ export default function ButtonPage() {
             </PreviewGroup>
             <PreviewGroup label="Secondary Outlined">
               <Button variant="outlined" color="secondary">Outlined</Button>
+            </PreviewGroup>
+            <PreviewGroup label="Secondary Text">
+              <Button variant="text" color="secondary">Tertiary</Button>
             </PreviewGroup>
           </PreviewCanvas>
         </Stack>
@@ -130,6 +133,16 @@ export default function ButtonPage() {
           </PreviewGroup>
           <PreviewGroup label="Large">
             <Button variant="contained" size="large">Large</Button>
+          </PreviewGroup>
+          <PreviewGroup label="Icon (44px round)">
+            <Button variant="contained" size="icon">
+              <SendIcon />
+            </Button>
+          </PreviewGroup>
+          <PreviewGroup label="Icon Outlined">
+            <Button variant="outlined" size="icon">
+              <DeleteIcon />
+            </Button>
           </PreviewGroup>
         </PreviewCanvas>
       </DocSection>
@@ -149,6 +162,18 @@ export default function ButtonPage() {
           <PreviewGroup label="End Icon">
             <Button variant="outlined" endIcon={<DownloadIcon />}>Download</Button>
           </PreviewGroup>
+          <PreviewGroup label="Active (Simulated)">
+            <Button 
+              variant="contained" 
+              sx={(theme) => ({ 
+                backgroundColor: 'colors.edgeTurquoise.active',
+                // Forcing active state for preview
+                bgcolor: '#0e837d' 
+              })}
+            >
+              Active
+            </Button>
+          </PreviewGroup>
           <PreviewGroup label="Icon Only">
             <Button variant="outlined" sx={{ minWidth: 0, px: 1.25 }}>
               <DeleteIcon />
@@ -157,14 +182,14 @@ export default function ButtonPage() {
         </PreviewCanvas>
       </DocSection>
 
-      {/* Code */}
-      <DocSection title="Usage">
-        <CodeBlock code={codeSnippet} />
-      </DocSection>
-
       {/* Props */}
       <DocSection title="Key Props">
         <PropsTable rows={propRows} />
+      </DocSection>
+
+      {/* Code */}
+      <DocSection title="Usage">
+        <CodeBlock code={codeSnippet} />
       </DocSection>
     </Box>
   );

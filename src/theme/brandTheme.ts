@@ -13,6 +13,12 @@ declare module '@mui/material/Accordion' {
   }
 }
 
+declare module '@mui/material/Button' {
+  interface ButtonPropsSizeOverrides {
+    icon: true;
+  }
+}
+
 declare module '@mui/material/styles' {
   interface Palette {
     surface: {
@@ -52,6 +58,8 @@ export const colors = {
     700: '#00807b',
     800: '#006f6a',
     900: '#005d60',
+    subtle: '#ecfdfe', // Figma/Shared/Subtle
+    active: '#0e837d', // Figma/Shared/Active
   },
   edgeBlue: {
     50: '#eceff1',
@@ -220,11 +228,19 @@ const brandTheme = createTheme(baseTheme, {
           height: 48,
           lineHeight: 1.5,
         },
+        sizeIcon: {
+          width: 44,
+          height: 44,
+          borderRadius: '50%',
+          minWidth: 0,
+          padding: 0,
+          '& > *:nth-of-type(1)': { fontSize: '1.25rem' },
+        },
         containedPrimary: {
           backgroundColor: baseTheme.palette.primary.main,
           color: baseTheme.palette.primary.contrastText,
           '&:hover': { backgroundColor: baseTheme.palette.primary.dark },
-          '&:active': { backgroundColor: colors.edgeTurquoise[900] },
+          '&:active': { backgroundColor: colors.edgeTurquoise.active },
           '&.Mui-disabled': {
             backgroundColor: `${baseTheme.palette.grey[300]} !important` as unknown as string,
             color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
@@ -244,8 +260,13 @@ const brandTheme = createTheme(baseTheme, {
           color: baseTheme.palette.primary.main,
           borderWidth: '1px',
           '&:hover': {
-            backgroundColor: alpha(baseTheme.palette.primary.main, 0.06),
+            backgroundColor: colors.edgeTurquoise.subtle,
             borderColor: baseTheme.palette.primary.dark,
+            borderWidth: '1px',
+          },
+          '&:active': {
+            borderColor: colors.edgeTurquoise.active,
+            color: colors.edgeTurquoise.active,
             borderWidth: '1px',
           },
           '&.Mui-disabled': {
@@ -270,7 +291,13 @@ const brandTheme = createTheme(baseTheme, {
         },
         textPrimary: {
           color: baseTheme.palette.primary.main,
-          '&:hover': { backgroundColor: alpha(baseTheme.palette.primary.main, 0.06) },
+          '&:hover': { backgroundColor: colors.edgeTurquoise.subtle },
+          '&:active': { color: colors.edgeTurquoise.active },
+          '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
+        },
+        textSecondary: {
+          color: baseTheme.palette.secondary.main,
+          '&:hover': { backgroundColor: alpha(baseTheme.palette.secondary.main, 0.06) },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         startIcon: {
@@ -365,6 +392,30 @@ const brandTheme = createTheme(baseTheme, {
       styleOverrides: {
         root: {
           padding: `${baseTheme.spacing(3)} 0 0 0`,
+        },
+      },
+    },
+    MuiCheckbox: {
+      defaultProps: {
+        color: 'primary',
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: 4,
+          '&.Mui-checked': {
+            color: baseTheme.palette.primary.main,
+          },
+          '&.MuiCheckbox-indeterminate': {
+            color: baseTheme.palette.primary.main,
+          },
+          '&:hover': {
+            backgroundColor: alpha(baseTheme.palette.primary.main, 0.04),
+          },
+        },
+        colorPrimary: {
+          '&.Mui-checked': {
+            color: baseTheme.palette.primary.main,
+          },
         },
       },
     },
