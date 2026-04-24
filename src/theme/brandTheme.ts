@@ -395,6 +395,39 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          // keep indicator on primary color by default
+        },
+        indicator: {
+          backgroundColor: baseTheme.palette.primary.main,
+          height: 3,
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontFamily: baseTheme.typography.button.fontFamily,
+          fontWeight: 600,
+          fontSize: '0.875rem',
+          letterSpacing: 0.5,
+          textTransform: 'none',
+          color: baseTheme.palette.text.secondary,
+          '&.Mui-selected': {
+            color: baseTheme.palette.primary.main,
+          },
+          '&.Mui-disabled': {
+            color: baseTheme.palette.text.disabled,
+          },
+          '&:hover': {
+            color: baseTheme.palette.text.primary,
+            opacity: 1,
+          },
+        },
+      },
+    },
     MuiCheckbox: {
       defaultProps: {
         color: 'primary',
