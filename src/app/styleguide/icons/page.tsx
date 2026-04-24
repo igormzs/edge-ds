@@ -147,9 +147,9 @@ export default function IconsPage() {
             <CircularProgress size={32} sx={{ color: '#009f9b' }} />
           </Box>
         ) : filteredIcons.length > 0 ? (
-          <Grid container spacing={4} sx={{ mt: 1 }}>
-            {filteredIcons.map((icon) => (
-              <Grid item key={icon.name} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Grid container spacing={4} sx={{ mt: 1 }}>
+              {filteredIcons.map((icon) => (
+                <Grid key={icon.name} size="auto" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Box
                   sx={{
                     position: 'relative',
