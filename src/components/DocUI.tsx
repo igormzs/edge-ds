@@ -64,12 +64,14 @@ export function PreviewCanvas({ children }: { children: React.ReactNode }) {
 export function PreviewGroup({
   label,
   children,
+  sx,
 }: {
   label: string;
   children: React.ReactNode;
+  sx?: any;
 }) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, ...sx }}>
       {children}
       <Typography
         sx={{
@@ -78,6 +80,8 @@ export function PreviewGroup({
           color: '#9e9e9e',
           letterSpacing: 0.5,
           textTransform: 'none',
+          textAlign: 'center',
+          width: '100%',
         }}
       >
         {label}

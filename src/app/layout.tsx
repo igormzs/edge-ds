@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "EDGE Design System",
   description: "EDGE Design System Component Library & Style Guide",
+  icons: {
+    icon: "/assets/edge-ds-favicon.png",
+  },
 };
 
 export default function RootLayout({

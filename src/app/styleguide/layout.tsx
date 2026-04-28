@@ -31,22 +31,36 @@ export default function StyleguideLayout({ children }: { children: React.ReactNo
           }}
         >
           {/* Logo / Brand header */}
-          <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontFamily: '"Montserrat", sans-serif',
-                fontWeight: 700,
-                color: '#009f9b',
-                letterSpacing: 1,
-                fontSize: 18,
-              }}
-            >
-              EDGE Design System
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
-              Component Library
-            </Typography>
+          <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <img 
+              src="/assets/edge-ds-favicon.png" 
+              alt="Logo"
+              style={{ width: 32, height: 32, borderRadius: 4 }} 
+              suppressHydrationWarning
+            />
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: '"Montserrat", sans-serif',
+                  fontWeight: 700,
+                  color: '#009f9b',
+                  letterSpacing: 0.5,
+                  fontSize: 16,
+                  lineHeight: 1.2,
+                }}
+                suppressHydrationWarning
+              >
+                EDGE-DS
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, display: 'block' }}
+                suppressHydrationWarning
+              >
+                Documentation
+              </Typography>
+            </Box>
           </Box>
 
           {/* Navigation groups */}
