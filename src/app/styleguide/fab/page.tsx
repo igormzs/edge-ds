@@ -182,7 +182,7 @@ export default function FabPage() {
                       icon={<Box sx={{ display: 'none' }} />}
                       tooltipTitle={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          {action.icon}
+                          {React.cloneElement(action.icon as React.ReactElement, { sx: { ...(action.icon as React.ReactElement).props.sx, color: 'text.primary' } })}
                           <Typography variant="body2" sx={{ fontWeight: 600, textTransform: 'none', fontSize: '0.875rem' }}>{action.label}</Typography>
                         </Box>
                       }
@@ -220,57 +220,42 @@ export default function FabPage() {
                   sx={{ position: 'absolute', bottom: 16, right: 16 }}
                   icon={<SpeedDialIcon openIcon={<CloseIcon />} />}
                 >
-                  <SpeedDialAction 
-                    icon={<FileCopyIcon sx={{ fontSize: 20 }} />} 
-                    tooltipTitle="Copy"
-                    sx={{ mb: 1.5 }}
-                    FabProps={{ 
-                      sx: { 
-                        height: 40, 
-                        width: 40, 
-                        borderRadius: 2, 
-                        bgcolor: 'white', 
-                        color: 'text.primary',
-                        boxShadow: '0px 2px 8px rgba(0,0,0,0.12)',
-                        border: '1px solid rgba(0,0,0,0.08)',
-                        '&:hover': { bgcolor: '#f8f9fa' }
-                      } 
-                    }}
-                  />
-                  <SpeedDialAction 
-                    icon={<SaveIcon sx={{ fontSize: 20 }} />} 
-                    tooltipTitle="Save"
-                    sx={{ mb: 1.5 }}
-                    FabProps={{ 
-                      sx: { 
-                        height: 40, 
-                        width: 40, 
-                        borderRadius: 2, 
-                        bgcolor: 'white', 
-                        color: 'text.primary',
-                        boxShadow: '0px 2px 8px rgba(0,0,0,0.12)',
-                        border: '1px solid rgba(0,0,0,0.08)',
-                        '&:hover': { bgcolor: '#f8f9fa' }
-                      } 
-                    }}
-                  />
-                  <SpeedDialAction 
-                    icon={<PrintIcon sx={{ fontSize: 20 }} />} 
-                    tooltipTitle="Print"
-                    sx={{ mb: 1.5 }}
-                    FabProps={{ 
-                      sx: { 
-                        height: 40, 
-                        width: 40, 
-                        borderRadius: 2, 
-                        bgcolor: 'white', 
-                        color: 'text.primary',
-                        boxShadow: '0px 2px 8px rgba(0,0,0,0.12)',
-                        border: '1px solid rgba(0,0,0,0.08)',
-                        '&:hover': { bgcolor: '#f8f9fa' }
-                      } 
-                    }}
-                  />
+                  {[
+                    { icon: <FileCopyIcon sx={{ fontSize: 20 }} />, label: 'Copy' },
+                    { icon: <SaveIcon sx={{ fontSize: 20 }} />, label: 'Save' },
+                    { icon: <PrintIcon sx={{ fontSize: 20 }} />, label: 'Print' },
+                  ].map((action) => (
+                    <SpeedDialAction
+                      key={action.label}
+                      icon={<Box sx={{ display: 'none' }} />}
+                      tooltipTitle={
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {React.cloneElement(action.icon as React.ReactElement, { sx: { ...(action.icon as React.ReactElement).props.sx, color: 'text.primary' } })}
+                        </Box>
+                      }
+                      tooltipOpen
+                      sx={{
+                        mb: 1.5,
+                        '& .MuiSpeedDialAction-fab': { display: 'none' },
+                        '& .MuiSpeedDialAction-staticTooltipLabel': {
+                          position: 'static',
+                          bgcolor: 'white',
+                          color: 'text.primary',
+                          boxShadow: '0px 2px 8px rgba(0,0,0,0.12)',
+                          border: '1px solid rgba(0,0,0,0.08)',
+                          height: 40,
+                          width: 40,
+                          p: 0,
+                          borderRadius: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          '&:hover': { bgcolor: '#f8f9fa' }
+                        }
+                      }}
+                    />
+                  ))}
                 </SpeedDial>
               </Box>
             </PreviewGroup>
