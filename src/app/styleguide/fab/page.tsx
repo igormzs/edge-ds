@@ -173,16 +173,16 @@ export default function FabPage() {
                   icon={<SpeedDialIcon openIcon={<CloseIcon />} />}
                 >
                   {[
-                    { icon: <FileCopyIcon sx={{ fontSize: 20 }} />, label: 'Copy' },
-                    { icon: <SaveIcon sx={{ fontSize: 20 }} />, label: 'Save' },
-                    { icon: <PrintIcon sx={{ fontSize: 20 }} />, label: 'Print' },
+                    { icon: <FileCopyIcon sx={{ fontSize: 20, color: 'text.primary' }} />, label: 'Copy' },
+                    { icon: <SaveIcon sx={{ fontSize: 20, color: 'text.primary' }} />, label: 'Save' },
+                    { icon: <PrintIcon sx={{ fontSize: 20, color: 'text.primary' }} />, label: 'Print' },
                   ].map((action) => (
                     <SpeedDialAction
                       key={action.label}
                       icon={<Box sx={{ display: 'none' }} />}
                       tooltipTitle={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          {React.cloneElement(action.icon as React.ReactElement, { sx: { ...(action.icon as React.ReactElement).props.sx, color: 'text.primary' } })}
+                          {action.icon}
                           <Typography variant="body2" sx={{ fontWeight: 600, textTransform: 'none', fontSize: '0.875rem' }}>{action.label}</Typography>
                         </Box>
                       }
@@ -221,16 +221,16 @@ export default function FabPage() {
                   icon={<SpeedDialIcon openIcon={<CloseIcon />} />}
                 >
                   {[
-                    { icon: <FileCopyIcon sx={{ fontSize: 20 }} />, label: 'Copy' },
-                    { icon: <SaveIcon sx={{ fontSize: 20 }} />, label: 'Save' },
-                    { icon: <PrintIcon sx={{ fontSize: 20 }} />, label: 'Print' },
+                    { icon: <FileCopyIcon sx={{ fontSize: 20, color: 'text.primary' }} />, label: 'Copy' },
+                    { icon: <SaveIcon sx={{ fontSize: 20, color: 'text.primary' }} />, label: 'Save' },
+                    { icon: <PrintIcon sx={{ fontSize: 20, color: 'text.primary' }} />, label: 'Print' },
                   ].map((action) => (
                     <SpeedDialAction
                       key={action.label}
                       icon={<Box sx={{ display: 'none' }} />}
                       tooltipTitle={
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {React.cloneElement(action.icon as React.ReactElement, { sx: { ...(action.icon as React.ReactElement).props.sx, color: 'text.primary' } })}
+                          {action.icon}
                         </Box>
                       }
                       tooltipOpen
