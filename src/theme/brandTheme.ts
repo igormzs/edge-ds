@@ -1,5 +1,106 @@
 import { createTheme, alpha } from '@mui/material/styles';
+import type { CSSProperties } from 'react';
 import { red, blue, amber, grey, blueGrey, green, lightBlue, orange } from '@mui/material/colors';
+
+const MONTSERRAT = '"Montserrat", sans-serif';
+const OPEN_SANS = '"Open Sans", sans-serif';
+
+/**
+ * EDGE typography scale — single source of truth.
+ * Montserrat for headings/display; Open Sans for body text.
+ */
+export const edgeTypography = {
+  'display-lg': {
+    fontFamily: MONTSERRAT,
+    fontSize: 96,
+    fontWeight: 700,
+    lineHeight: 1.167,
+    letterSpacing: -1.44,
+  },
+  'heading-xl': {
+    fontFamily: MONTSERRAT,
+    fontSize: 60,
+    fontWeight: 700,
+    lineHeight: 1.2,
+    letterSpacing: -0.9,
+  },
+  'heading-lg': {
+    fontFamily: MONTSERRAT,
+    fontSize: 48,
+    fontWeight: 600,
+    lineHeight: 1.25,
+    letterSpacing: -0.48,
+  },
+  'heading-md': {
+    fontFamily: MONTSERRAT,
+    fontSize: 34,
+    fontWeight: 600,
+    lineHeight: 1.235,
+    letterSpacing: -0.34,
+  },
+  'heading-sm': {
+    fontFamily: MONTSERRAT,
+    fontSize: 24,
+    fontWeight: 600,
+    lineHeight: 1.33,
+    letterSpacing: -0.12,
+  },
+  'heading-xs': {
+    fontFamily: MONTSERRAT,
+    fontSize: 20,
+    fontWeight: 600,
+    lineHeight: 1.4,
+    letterSpacing: -0.1,
+  },
+  'body-lg': {
+    fontFamily: OPEN_SANS,
+    fontSize: 18,
+    fontWeight: 400,
+    lineHeight: 1.56,
+    letterSpacing: 0,
+  },
+  'body-md': {
+    fontFamily: OPEN_SANS,
+    fontSize: 16,
+    fontWeight: 400,
+    lineHeight: 1.5,
+    letterSpacing: 0,
+  },
+  'body-sm': {
+    fontFamily: OPEN_SANS,
+    fontSize: 14,
+    fontWeight: 400,
+    lineHeight: 1.43,
+    letterSpacing: 0.06,
+  },
+  'body-xs': {
+    fontFamily: OPEN_SANS,
+    fontSize: 12,
+    fontWeight: 400,
+    lineHeight: 1.66,
+    letterSpacing: 0.48,
+  },
+} as const satisfies Record<string, CSSProperties>;
+
+/** Figma `button/label-*` — semi-bold uppercase labels derived from the body scale. */
+const buttonLabelSm: CSSProperties = {
+  ...edgeTypography['body-xs'],
+  fontWeight: 600,
+  letterSpacing: 0.6,
+  textTransform: 'uppercase',
+};
+const buttonLabelMd: CSSProperties = {
+  ...edgeTypography['body-sm'],
+  fontWeight: 600,
+  letterSpacing: 0.7,
+  textTransform: 'uppercase',
+};
+const buttonLabelLg: CSSProperties = {
+  ...edgeTypography['body-md'],
+  fontWeight: 600,
+  letterSpacing: 0.8,
+  textTransform: 'uppercase',
+};
 
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {
@@ -20,11 +121,25 @@ declare module '@mui/material/Button' {
 }
 
 declare module '@mui/material/styles' {
+  interface PaletteColor {
+    active: string;
+    subtle: string;
+  }
+  interface SimplePaletteColorOptions {
+    active?: string;
+    subtle?: string;
+  }
+
+  interface TypeAction {
+    disabledBackground: string;
+  }
+
   interface Palette {
     surface: {
       default: string;
       paper: string;
       disabled: string;
+      subtle: string;
     };
   }
   interface PaletteOptions {
@@ -32,7 +147,49 @@ declare module '@mui/material/styles' {
       default?: string;
       paper?: string;
       disabled?: string;
+      subtle?: string;
     };
+  }
+
+  interface TypographyVariants {
+    'display-lg': CSSProperties;
+    'heading-xl': CSSProperties;
+    'heading-lg': CSSProperties;
+    'heading-md': CSSProperties;
+    'heading-sm': CSSProperties;
+    'heading-xs': CSSProperties;
+    'body-lg': CSSProperties;
+    'body-md': CSSProperties;
+    'body-sm': CSSProperties;
+    'body-xs': CSSProperties;
+  }
+
+  interface TypographyVariantsOptions {
+    'display-lg'?: CSSProperties;
+    'heading-xl'?: CSSProperties;
+    'heading-lg'?: CSSProperties;
+    'heading-md'?: CSSProperties;
+    'heading-sm'?: CSSProperties;
+    'heading-xs'?: CSSProperties;
+    'body-lg'?: CSSProperties;
+    'body-md'?: CSSProperties;
+    'body-sm'?: CSSProperties;
+    'body-xs'?: CSSProperties;
+  }
+}
+
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    'display-lg': true;
+    'heading-xl': true;
+    'heading-lg': true;
+    'heading-md': true;
+    'heading-sm': true;
+    'heading-xs': true;
+    'body-lg': true;
+    'body-md': true;
+    'body-sm': true;
+    'body-xs': true;
   }
 }
 
@@ -81,6 +238,8 @@ const baseTheme = createTheme({
     primary: {
       main: colors.edgeTurquoise[500],
       dark: colors.edgeTurquoise[600],
+      active: colors.edgeTurquoise.active,
+      subtle: colors.edgeTurquoise.subtle,
       contrastText: '#ffffff',
     },
     secondary: {
@@ -118,71 +277,41 @@ const baseTheme = createTheme({
     },
     grey: colors.grey,
     divider: 'rgba(0, 0, 0, 0.12)',
+    action: {
+      active: colors.edgeTurquoise.active,
+      hover: alpha(colors.edgeTurquoise[300], 0.08),
+      selected: colors.grey[100],
+      disabled: colors.grey[500],
+      disabledBackground: colors.grey[300],
+      focus: alpha(colors.edgeTurquoise[300], 0.12),
+    },
     surface: {
       default: colors.grey[50], // Semantic/Surface/Default -> fafafa
       paper: '#ffffff',
       disabled: colors.grey[300], // e0e0e0
+      subtle: colors.grey[100],
     },
   },
   typography: {
-    fontFamily: '"Open Sans", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontFamily: '"Montserrat", sans-serif',
-      fontSize: 60,
-      fontWeight: 700,
-      lineHeight: 1.2,
-      letterSpacing: -0.9,
-    },
-    h3: {
-      fontFamily: '"Montserrat", sans-serif',
-      fontSize: 34,
-      fontWeight: 600,
-      lineHeight: 1.235,
-      letterSpacing: -0.34,
-    },
-    h5: {
-      fontFamily: '"Montserrat", sans-serif',
-      fontSize: 24,
-      fontWeight: 600,
-      lineHeight: 1.33,
-      letterSpacing: -0.12,
-    },
-    body1: {
-      fontFamily: '"Open Sans", sans-serif',
-      fontSize: 16,
-      fontWeight: 400,
-      lineHeight: 1.5,
-      letterSpacing: 0,
-    },
-    body2: {
-      fontFamily: '"Open Sans", sans-serif',
-      fontSize: 14,
-      fontWeight: 400,
-      lineHeight: 1.43,
-      letterSpacing: 0.06,
-    },
+    fontFamily: `${OPEN_SANS}, "Helvetica", "Arial", sans-serif`,
+    ...edgeTypography,
+    // Legacy MUI aliases — keep existing component overrides working
+    h1: edgeTypography['heading-xl'],
+    h3: edgeTypography['heading-md'],
+    h5: edgeTypography['heading-sm'],
+    body1: edgeTypography['body-md'],
+    body2: edgeTypography['body-sm'],
     subtitle2: {
-      fontFamily: '"Open Sans", sans-serif',
+      fontFamily: OPEN_SANS,
       fontSize: 12,
       fontWeight: 600,
       lineHeight: 1.5,
       letterSpacing: 0.06,
     },
     button: {
-      fontFamily: '"Open Sans", sans-serif',
-      fontSize: 14,
-      fontWeight: 600,
-      lineHeight: 1.43,
-      letterSpacing: 0.7,
-      textTransform: 'uppercase',
+      ...buttonLabelMd,
     },
-    caption: {
-      fontFamily: '"Open Sans", sans-serif',
-      fontSize: 12,
-      fontWeight: 400,
-      lineHeight: 1.66,
-      letterSpacing: 0.48,
-    },
+    caption: edgeTypography['body-xs'],
   },
   shape: {
     borderRadius: 4,
@@ -198,9 +327,7 @@ const brandTheme = createTheme(baseTheme, {
       },
       styleOverrides: {
         root: {
-          fontFamily: baseTheme.typography.button.fontFamily,
-          fontWeight: baseTheme.typography.button.fontWeight,
-          textTransform: 'uppercase',
+          ...buttonLabelMd,
           borderRadius: baseTheme.shape.borderRadius,
           boxShadow: 'none',
           '&:hover': { boxShadow: 'none' },
@@ -208,25 +335,40 @@ const brandTheme = createTheme(baseTheme, {
           '&:focus-visible': { boxShadow: 'none' },
         },
         sizeSmall: {
-          fontSize: '0.75rem',
-          letterSpacing: '0.6px',
-          padding: `${baseTheme.spacing(1.25)} ${baseTheme.spacing(2)}`,
-          height: 40,
-          lineHeight: 1.66,
+          ...buttonLabelSm,
+          padding: '4px 12px',
+          '& .MuiButton-startIcon': {
+            marginRight: baseTheme.spacing(1),
+            marginLeft: 0,
+          },
+          '& .MuiButton-endIcon': {
+            marginLeft: baseTheme.spacing(1),
+            marginRight: 0,
+          },
         },
         sizeMedium: {
-          fontSize: '0.875rem',
-          letterSpacing: '0.7px',
-          padding: `${baseTheme.spacing(1.25)} ${baseTheme.spacing(2)}`,
-          height: 44,
-          lineHeight: 1.43,
+          ...buttonLabelMd,
+          padding: '8px 16px',
+          '& .MuiButton-startIcon': {
+            marginRight: baseTheme.spacing(1.25),
+            marginLeft: 0,
+          },
+          '& .MuiButton-endIcon': {
+            marginLeft: baseTheme.spacing(1.25),
+            marginRight: 0,
+          },
         },
         sizeLarge: {
-          fontSize: '1rem',
-          letterSpacing: '0.8px',
-          padding: `${baseTheme.spacing(1.5)} ${baseTheme.spacing(2)}`,
-          height: 48,
-          lineHeight: 1.5,
+          ...buttonLabelLg,
+          padding: '10px 16px',
+          '& .MuiButton-startIcon': {
+            marginRight: baseTheme.spacing(1.25),
+            marginLeft: 0,
+          },
+          '& .MuiButton-endIcon': {
+            marginLeft: baseTheme.spacing(1.25),
+            marginRight: 0,
+          },
         },
         sizeIcon: {
           width: 44,
@@ -234,15 +376,15 @@ const brandTheme = createTheme(baseTheme, {
           borderRadius: '50%',
           minWidth: 0,
           padding: 0,
-          '& > *:nth-of-type(1)': { fontSize: '1.25rem' },
+          '& > *:nth-of-type(1)': { fontSize: '1.5rem' },
         },
         containedPrimary: {
           backgroundColor: baseTheme.palette.primary.main,
           color: baseTheme.palette.primary.contrastText,
           '&:hover': { backgroundColor: baseTheme.palette.primary.dark },
-          '&:active': { backgroundColor: colors.edgeTurquoise.active },
+          '&:active': { backgroundColor: baseTheme.palette.primary.active },
           '&.Mui-disabled': {
-            backgroundColor: `${baseTheme.palette.grey[300]} !important` as unknown as string,
+            backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
             color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
           },
         },
@@ -251,7 +393,7 @@ const brandTheme = createTheme(baseTheme, {
           color: baseTheme.palette.secondary.contrastText,
           '&:hover': { backgroundColor: baseTheme.palette.secondary.dark },
           '&.Mui-disabled': {
-            backgroundColor: `${baseTheme.palette.grey[300]} !important` as unknown as string,
+            backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
             color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
           },
         },
@@ -260,17 +402,17 @@ const brandTheme = createTheme(baseTheme, {
           color: baseTheme.palette.primary.main,
           borderWidth: '1px',
           '&:hover': {
-            backgroundColor: colors.edgeTurquoise.subtle,
+            backgroundColor: baseTheme.palette.primary.subtle,
             borderColor: baseTheme.palette.primary.dark,
             borderWidth: '1px',
           },
           '&:active': {
-            borderColor: colors.edgeTurquoise.active,
-            color: colors.edgeTurquoise.active,
+            borderColor: baseTheme.palette.primary.active,
+            color: baseTheme.palette.primary.active,
             borderWidth: '1px',
           },
           '&.Mui-disabled': {
-            borderColor: baseTheme.palette.grey[300],
+            borderColor: baseTheme.palette.action.disabledBackground,
             color: baseTheme.palette.text.disabled,
             borderWidth: '1px',
           },
@@ -284,15 +426,15 @@ const brandTheme = createTheme(baseTheme, {
             borderWidth: '1px',
           },
           '&.Mui-disabled': {
-            borderColor: baseTheme.palette.grey[300],
+            borderColor: baseTheme.palette.action.disabledBackground,
             color: baseTheme.palette.text.disabled,
             borderWidth: '1px',
           },
         },
         textPrimary: {
           color: baseTheme.palette.primary.main,
-          '&:hover': { backgroundColor: colors.edgeTurquoise.subtle },
-          '&:active': { color: colors.edgeTurquoise.active },
+          '&:hover': { backgroundColor: baseTheme.palette.primary.subtle },
+          '&:active': { color: baseTheme.palette.primary.active },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         textSecondary: {
@@ -301,10 +443,10 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         startIcon: {
-          '& > *:nth-of-type(1)': { fontSize: '1.25rem' },
+          '& > *:nth-of-type(1)': { fontSize: '1.5rem' },
         },
         endIcon: {
-          '& > *:nth-of-type(1)': { fontSize: '1.25rem' },
+          '& > *:nth-of-type(1)': { fontSize: '1.5rem' },
         },
       },
     },
@@ -331,27 +473,30 @@ const brandTheme = createTheme(baseTheme, {
           props: { variant: 'filters' },
           style: {
             padding: 0,
-            backgroundColor: 'transparent',
+            backgroundColor: baseTheme.palette.surface.default,
             border: 'none',
+            borderRadius: 8,
             '&.Mui-expanded': {
               border: `1px solid ${baseTheme.palette.divider}`,
               backgroundColor: baseTheme.palette.background.paper,
             },
             '& .MuiAccordionSummary-root': {
+              minHeight: 40,
               padding: `${baseTheme.spacing(1)} ${baseTheme.spacing(2)}`,
-              backgroundColor: baseTheme.palette.grey[100],
+              backgroundColor: baseTheme.palette.surface.default,
               borderRadius: 8,
             },
             '&.Mui-expanded .MuiAccordionSummary-root': {
+              minHeight: 40,
+              backgroundColor: baseTheme.palette.surface.subtle,
               borderBottom: `1px solid ${baseTheme.palette.divider}`,
               borderBottomLeftRadius: 0,
               borderBottomRightRadius: 0,
             },
             '& .MuiAccordionSummary-content .MuiTypography-root': {
-              fontFamily: baseTheme.typography.body1.fontFamily,
+              ...edgeTypography['body-sm'],
               fontWeight: 700,
-              fontSize: '14px',
-              color: baseTheme.palette.primary.dark, // 00918c map
+              color: baseTheme.palette.primary.dark,
             },
             '& .MuiAccordionDetails-root': {
               padding: `${baseTheme.spacing(2)} ${baseTheme.spacing(1)}`,
@@ -377,9 +522,7 @@ const brandTheme = createTheme(baseTheme, {
         },
         content: {
           '& .MuiTypography-root': {
-            fontFamily: baseTheme.typography.body1.fontFamily,
-            fontWeight: 400,
-            fontSize: '16px',
+            ...edgeTypography['body-md'],
             color: baseTheme.palette.text.primary,
           },
           '&.Mui-disabled .MuiTypography-root': {
@@ -434,7 +577,14 @@ const brandTheme = createTheme(baseTheme, {
       },
       styleOverrides: {
         root: {
-          borderRadius: 4,
+          width: 46,
+          height: 46,
+          padding: baseTheme.spacing(1.125),
+          borderRadius: '50%',
+          color: baseTheme.palette.text.primary,
+          '& .MuiSvgIcon-root': {
+            fontSize: 28,
+          },
           '&.Mui-checked': {
             color: baseTheme.palette.primary.main,
           },
@@ -442,11 +592,28 @@ const brandTheme = createTheme(baseTheme, {
             color: baseTheme.palette.primary.main,
           },
           '&:hover': {
-            backgroundColor: alpha(baseTheme.palette.primary.main, 0.04),
+            backgroundColor: baseTheme.palette.action.hover,
+          },
+          '&.Mui-focusVisible': {
+            backgroundColor: baseTheme.palette.action.focus,
+          },
+          '&.Mui-disabled': {
+            color: baseTheme.palette.text.disabled,
+          },
+        },
+        sizeSmall: {
+          width: 38,
+          height: 38,
+          padding: baseTheme.spacing(1.125),
+          '& .MuiSvgIcon-root': {
+            fontSize: 20,
           },
         },
         colorPrimary: {
           '&.Mui-checked': {
+            color: baseTheme.palette.primary.main,
+          },
+          '&.MuiCheckbox-indeterminate': {
             color: baseTheme.palette.primary.main,
           },
         },
