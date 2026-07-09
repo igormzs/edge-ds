@@ -619,6 +619,135 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    MuiChip: {
+      styleOverrides: {
+        // Geometry: fully padding-driven, no fixed height — mirrors Figma's
+        // `Hug contents` rule. MUI's default Chip uses a hardcoded height
+        // (32/24) instead of vertical padding, so we unset it here and let
+        // root padding + line-height determine the box, same as MuiButton.
+        root: {
+          height: 'auto',
+          borderRadius: '100px',
+          boxSizing: 'border-box',
+        },
+        // `.MuiChip-label` normally carries MUI's default horizontal padding
+        // (12px/8px). We zero it out so root's padding below is the single
+        // source of truth for spacing — avoids double horizontal padding.
+        label: {
+          padding: 0,
+        },
+        sizeMedium: {
+          height: 'auto',
+          padding: '4px 12px',
+        },
+        sizeSmall: {
+          height: 'auto',
+          padding: '3px 8px',
+        },
+        // Per-color mapping. MUI v7's ChipClasses has no combined
+        // `filledError`/`outlinedError`-style slots beyond the deprecated
+        // filledPrimary/filledSecondary/outlinedPrimary/outlinedSecondary,
+        // so each color slot below targets both variants via the
+        // `.MuiChip-filled` / `.MuiChip-outlined` classes that are always
+        // present alongside it on the root element.
+        colorDefault: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.surface.subtle,
+            color: baseTheme.palette.text.primary,
+            '&:hover': { backgroundColor: baseTheme.palette.action.hover },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.divider,
+            borderWidth: '1px',
+            color: baseTheme.palette.text.primary,
+            '&:hover': { backgroundColor: baseTheme.palette.action.hover },
+          },
+        },
+        colorPrimary: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.primary.main,
+            color: baseTheme.palette.primary.contrastText,
+            '&:hover': { backgroundColor: baseTheme.palette.primary.dark },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.primary.main,
+            borderWidth: '1px',
+            color: baseTheme.palette.primary.main,
+            '&:hover': { backgroundColor: baseTheme.palette.primary.subtle },
+          },
+        },
+        colorSecondary: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.secondary.main,
+            color: baseTheme.palette.secondary.contrastText,
+            '&:hover': { backgroundColor: baseTheme.palette.secondary.dark },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.secondary.main,
+            borderWidth: '1px',
+            color: baseTheme.palette.secondary.main,
+            '&:hover': { backgroundColor: alpha(baseTheme.palette.secondary.main, 0.08) },
+          },
+        },
+        colorError: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.error.main,
+            color: baseTheme.palette.error.contrastText,
+            '&:hover': { backgroundColor: baseTheme.palette.error.dark },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.error.main,
+            borderWidth: '1px',
+            color: baseTheme.palette.error.main,
+            '&:hover': { backgroundColor: alpha(baseTheme.palette.error.main, 0.08) },
+          },
+        },
+        colorWarning: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.warning.main,
+            color: baseTheme.palette.warning.contrastText,
+            '&:hover': { backgroundColor: baseTheme.palette.warning.dark },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.warning.main,
+            borderWidth: '1px',
+            color: baseTheme.palette.warning.main,
+            '&:hover': { backgroundColor: alpha(baseTheme.palette.warning.main, 0.08) },
+          },
+        },
+        colorInfo: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.info.main,
+            color: baseTheme.palette.info.contrastText,
+            '&:hover': { backgroundColor: baseTheme.palette.info.dark },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.info.main,
+            borderWidth: '1px',
+            color: baseTheme.palette.info.main,
+            '&:hover': { backgroundColor: alpha(baseTheme.palette.info.main, 0.08) },
+          },
+        },
+        colorSuccess: {
+          '&.MuiChip-filled': {
+            backgroundColor: baseTheme.palette.success.main,
+            color: baseTheme.palette.success.contrastText,
+            '&:hover': { backgroundColor: baseTheme.palette.success.dark },
+          },
+          '&.MuiChip-outlined': {
+            borderColor: baseTheme.palette.success.main,
+            borderWidth: '1px',
+            color: baseTheme.palette.success.main,
+            '&:hover': { backgroundColor: alpha(baseTheme.palette.success.main, 0.08) },
+          },
+        },
+        // Disabled state intentionally has NO overrides here — per the Figma
+        // gap analysis, Chip.Mui-disabled relies on MUI's native opacity
+        // layer (action.disabledOpacity, 0.38) rather than swapped colors,
+        // matching real MUI Chip behavior (unlike MuiButton, which does
+        // swap to distinct disabled colors above).
+      },
+    },
   },
 });
 
