@@ -1,11 +1,18 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import {
   ButtonGroup,
   Button,
   Stack,
   Box,
   Divider,
+  ClickAwayListener,
+  Grow,
+  Paper,
+  Popper,
+  MenuItem,
+  MenuList,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {
@@ -17,6 +24,95 @@ import {
   PropsTable,
   type PropRow,
 } from '@/components/DocUI';
+
+// Live split-button demo — mirrors MUI's own Split Button pattern: an
+// anchored Popper + Grow + ClickAwayListener menu toggled by the small
+// caret button, so the Interactive States example actually opens/closes
+// instead of just being a static icon.
+const saveOptions = ['Save', 'Save and continue', 'Save as draft'];
+
+function SplitButtonDemo() {
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const handleMenuItemClick = (index: number) => {
+    setSelectedIndex(index);
+    setOpen(false);
+  };
+
+  const handleToggle = () => setOpen((prev) => !prev);
+
+  const handleClose = (event: MouseEvent | TouchEvent) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target as Node)) {
+      return;
+    }
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <ButtonGroup
+        variant="contained"
+        color="primary"
+        ref={anchorRef}
+        aria-label="split button"
+      >
+        <Button onClick={() => handleMenuItemClick(selectedIndex)}>
+          {saveOptions[selectedIndex]}
+        </Button>
+        <Button
+          size="small"
+          aria-controls={open ? 'split-button-menu' : undefined}
+          aria-expanded={open ? 'true' : undefined}
+          aria-label="more save options"
+          aria-haspopup="menu"
+          onClick={handleToggle}
+        >
+          <ArrowDropDownIcon
+            sx={{
+              transition: 'transform 0.15s ease',
+              transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+          />
+        </Button>
+      </ButtonGroup>
+      <Popper
+        sx={{ zIndex: 1 }}
+        open={open}
+        anchorEl={anchorRef.current}
+        transition
+        disablePortal
+        placement="bottom-end"
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin: placement === 'bottom-end' ? 'right top' : 'right bottom',
+            }}
+          >
+            <Paper elevation={3} sx={{ mt: 0.5 }}>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList id="split-button-menu" autoFocusItem>
+                  {saveOptions.map((option, index) => (
+                    <MenuItem
+                      key={option}
+                      selected={index === selectedIndex}
+                      onClick={() => handleMenuItemClick(index)}
+                    >
+                      {option}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+    </>
+  );
+}
 
 const codeSnippet = `import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
@@ -47,13 +143,25 @@ import Button from '@mui/material/Button';
 <ButtonGroup size="medium" variant="contained">...</ButtonGroup>
 <ButtonGroup size="large" variant="contained">...</ButtonGroup>
 
-// Split button (main action + secondary dropdown trigger)
-<ButtonGroup variant="contained" color="primary" aria-label="split button">
-  <Button>Save</Button>
-  <Button size="small" aria-label="more save options">
+// Split button (main action + secondary dropdown trigger) —
+// see MUI's "Split Button" recipe for the full open/close logic:
+// https://mui.com/material-ui/react-button-group/#split-button
+const anchorRef = useRef<HTMLDivElement>(null);
+const [open, setOpen] = useState(false);
+
+<ButtonGroup variant="contained" color="primary" ref={anchorRef} aria-label="split button">
+  <Button onClick={handleSave}>Save</Button>
+  <Button
+    size="small"
+    aria-label="more save options"
+    aria-haspopup="menu"
+    aria-expanded={open ? 'true' : undefined}
+    onClick={() => setOpen((prev) => !prev)}
+  >
     <ArrowDropDownIcon />
   </Button>
 </ButtonGroup>
+// ...anchored Popper + MenuList renders the option list when open
 
 // Disabled
 <ButtonGroup variant="contained" disabled>
@@ -221,13 +329,8 @@ export default function ButtonGroupPage() {
               <Button>Three</Button>
             </ButtonGroup>
           </PreviewGroup>
-          <PreviewGroup label="Split button (main action + dropdown)">
-            <ButtonGroup variant="contained" color="primary" aria-label="split button">
-              <Button>Save</Button>
-              <Button size="small" aria-label="more save options">
-                <ArrowDropDownIcon />
-              </Button>
-            </ButtonGroup>
+          <PreviewGroup label="Split button — click the caret to open/close">
+            <SplitButtonDemo />
           </PreviewGroup>
         </PreviewCanvas>
       </DocSection>
