@@ -32,6 +32,7 @@ export const navigation: NavGroup[] = [
       { label: 'Backdrop', href: '/styleguide/backdrop' },
       { label: 'Badge', href: '/styleguide/badge' },
     { label: 'Button', href: '/styleguide/button' },
+    { label: 'Button Group', href: '/styleguide/components/button-group' },
     { label: 'Checkbox', href: '/styleguide/checkbox' },
     { label: 'Chip', href: '/styleguide/chip' },
     { label: 'Dialog', href: '/styleguide/dialog' },
