@@ -17,6 +17,12 @@ export const navigation: NavGroup[] = [
     ],
   },
   {
+    group: 'Navigation & Structure',
+    items: [
+      { label: 'Breadcrumbs', href: '/styleguide/navigation-structure/breadcrumbs' },
+    ],
+  },
+  {
     group: 'Components',
     items: [
       { label: 'Accordion', href: '/styleguide/accordion' },
