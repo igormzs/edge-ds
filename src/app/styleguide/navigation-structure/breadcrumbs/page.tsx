@@ -8,18 +8,39 @@ import {
   Box,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import GrainIcon from '@mui/icons-material/Grain';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
+import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
   PageHeader,
   DocSection,
   PreviewCanvas,
-  PreviewGroup,
   CodeBlock,
   PropsTable,
   type PropRow,
 } from '@/components/DocUI';
+
+// Left-aligned example wrapper — PreviewGroup (DocUI) centers its content and
+// label, which doesn't suit Breadcrumbs (an inherently left-aligned,
+// horizontal component). Kept local to this page rather than changing the
+// shared DocUI primitive used by other component doc pages.
+function Example({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
+      {children}
+      <Typography
+        sx={{
+          fontFamily: '"Open Sans", sans-serif',
+          fontSize: 11,
+          color: '#9e9e9e',
+          letterSpacing: 0.5,
+        }}
+      >
+        {label}
+      </Typography>
+    </Box>
+  );
+}
 
 const codeSnippet = `import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -31,17 +52,17 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
   <Link underline="hover" color="inherit" href="/">
     Home
   </Link>
-  <Link underline="hover" color="inherit" href="/catalog">
-    Catalog
+  <Link underline="hover" color="inherit" href="/settings">
+    Settings
   </Link>
-  <Typography sx={{ color: 'text.primary' }}>Sneakers</Typography>
+  <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
 </Breadcrumbs>
 
 // Custom separator (icon)
 <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
   <Link underline="hover" color="inherit" href="/">Home</Link>
-  <Link underline="hover" color="inherit" href="/catalog">Catalog</Link>
-  <Typography sx={{ color: 'text.primary' }}>Sneakers</Typography>
+  <Link underline="hover" color="inherit" href="/settings">Settings</Link>
+  <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
 </Breadcrumbs>
 
 // With leading icons
@@ -51,18 +72,18 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
     Home
   </Link>
   <Typography sx={{ display: 'flex', alignItems: 'center', color: 'text.primary' }}>
-    <GrainIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-    Catalog
+    <SettingsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+    Settings
   </Typography>
 </Breadcrumbs>
 
 // Collapsed — long paths auto-collapse behind a "…" affordance
 <Breadcrumbs maxItems={3} aria-label="breadcrumb">
   <Link underline="hover" color="inherit" href="/">Home</Link>
-  <Link underline="hover" color="inherit" href="/catalog">Catalog</Link>
-  <Link underline="hover" color="inherit" href="/catalog/shoes">Shoes</Link>
-  <Link underline="hover" color="inherit" href="/catalog/shoes/sneakers">Sneakers</Link>
-  <Typography sx={{ color: 'text.primary' }}>Air Max 90</Typography>
+  <Link underline="hover" color="inherit" href="/profile">Profile</Link>
+  <Link underline="hover" color="inherit" href="/profile/settings">Settings</Link>
+  <Link underline="hover" color="inherit" href="/profile/settings/communication">Communication</Link>
+  <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
 </Breadcrumbs>`;
 
 const propRows: PropRow[] = [
@@ -111,31 +132,31 @@ export default function BreadcrumbsPage() {
       <DocSection title="Visual Variants">
         <PreviewCanvas>
           <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="Default separator">
+            <Example label="Default separator">
               <Breadcrumbs aria-label="breadcrumb">
                 <Link underline="hover" color="inherit" href="#">
                   Home
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Catalog
+                  Settings
                 </Link>
-                <Typography sx={{ color: 'text.primary' }}>Sneakers</Typography>
+                <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
               </Breadcrumbs>
-            </PreviewGroup>
+            </Example>
 
-            <PreviewGroup label="Custom separator (icon)">
+            <Example label="Custom separator (icon)">
               <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
                 <Link underline="hover" color="inherit" href="#">
                   Home
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Catalog
+                  Settings
                 </Link>
-                <Typography sx={{ color: 'text.primary' }}>Sneakers</Typography>
+                <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
               </Breadcrumbs>
-            </PreviewGroup>
+            </Example>
 
-            <PreviewGroup label="With leading icons">
+            <Example label="With leading icons">
               <Breadcrumbs aria-label="breadcrumb">
                 <Link
                   underline="hover"
@@ -152,15 +173,15 @@ export default function BreadcrumbsPage() {
                   href="#"
                   sx={{ display: 'flex', alignItems: 'center' }}
                 >
-                  <WhatshotIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-                  Catalog
+                  <SettingsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                  Settings
                 </Link>
                 <Typography sx={{ display: 'flex', alignItems: 'center', color: 'text.primary' }}>
-                  <GrainIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-                  Sneakers
+                  <NotificationsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                  Push Notifications
                 </Typography>
               </Breadcrumbs>
-            </PreviewGroup>
+            </Example>
           </Stack>
         </PreviewCanvas>
       </DocSection>
@@ -169,38 +190,38 @@ export default function BreadcrumbsPage() {
       <DocSection title="Interactive States">
         <PreviewCanvas>
           <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="Links vs. current page — hover the links">
+            <Example label="Links vs. current page — hover the links">
               <Breadcrumbs aria-label="breadcrumb">
                 <Link underline="hover" color="inherit" href="#">
                   Home
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Catalog
+                  Profile
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Shoes
+                  Settings
                 </Link>
-                <Typography sx={{ color: 'text.primary' }}>Sneakers</Typography>
+                <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
               </Breadcrumbs>
-            </PreviewGroup>
+            </Example>
 
-            <PreviewGroup label="Collapsed — maxItems={3}, click “…” to expand">
+            <Example label="Collapsed — maxItems={3}, click “…” to expand">
               <Breadcrumbs maxItems={3} aria-label="breadcrumb">
                 <Link underline="hover" color="inherit" href="#">
                   Home
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Catalog
+                  Profile
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Shoes
+                  Settings
                 </Link>
                 <Link underline="hover" color="inherit" href="#">
-                  Sneakers
+                  Communication
                 </Link>
-                <Typography sx={{ color: 'text.primary' }}>Air Max 90</Typography>
+                <Typography sx={{ color: 'text.primary' }}>Push Notifications</Typography>
               </Breadcrumbs>
-            </PreviewGroup>
+            </Example>
           </Stack>
         </PreviewCanvas>
       </DocSection>
