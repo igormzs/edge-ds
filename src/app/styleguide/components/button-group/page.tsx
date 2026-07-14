@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import {
   ButtonGroup,
   Button,
+  IconButton,
   Stack,
   Box,
   Divider,
@@ -15,6 +16,9 @@ import {
   MenuList,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import StarIcon from '@mui/icons-material/Star';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
   PageHeader,
   DocSection,
@@ -114,6 +118,20 @@ function SplitButtonDemo() {
   );
 }
 
+// IconButton isn't part of ButtonGroup's built-in "grouped" styling contract
+// (that mechanism only targets Button children), so when an IconButton sits
+// at an edge or in the middle of a group, its own circular default has to be
+// squared off by hand to match the position-aware corner rule established
+// for the rest of the component: outward edge keeps theme.shape.borderRadius,
+// every inward-facing corner is 0.
+const edgeStartSx = {
+  borderRadius: (theme: any) => `${theme.shape.borderRadius}px 0 0 ${theme.shape.borderRadius}px`,
+};
+const edgeEndSx = {
+  borderRadius: (theme: any) => `0 ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0`,
+};
+const middleSx = { borderRadius: 0 };
+
 const codeSnippet = `import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 
@@ -167,6 +185,28 @@ const [open, setOpen] = useState(false);
 <ButtonGroup variant="contained" disabled>
   <Button>One</Button>
   <Button>Two</Button>
+</ButtonGroup>
+
+// Hybrid composition — IconButton nested inside ButtonGroup.
+// ButtonGroup's built-in "grouped" styling only targets Button children,
+// so an IconButton's circular default has to be squared off by hand to
+// match the group's position-aware corner rule (outward edge keeps
+// theme.shape.borderRadius, every inward-facing corner is 0).
+import IconButton from '@mui/material/IconButton';
+import StarIcon from '@mui/icons-material/Star';
+
+const edgeStartSx = {
+  borderRadius: (theme) => \`\${theme.shape.borderRadius}px 0 0 \${theme.shape.borderRadius}px\`,
+};
+const edgeEndSx = {
+  borderRadius: (theme) => \`0 \${theme.shape.borderRadius}px \${theme.shape.borderRadius}px 0\`,
+};
+
+<ButtonGroup variant="contained" color="primary" aria-label="favorite and save actions">
+  <IconButton color="inherit" sx={edgeStartSx} aria-label="add to favorites" title="Add to favorites">
+    <StarIcon fontSize="small" />
+  </IconButton>
+  <Button sx={edgeEndSx}>Save</Button>
 </ButtonGroup>`;
 
 const propRows: PropRow[] = [
@@ -312,6 +352,61 @@ export default function ButtonGroupPage() {
         </PreviewCanvas>
       </DocSection>
 
+      {/* Hybrid Compositions */}
+      <DocSection title="Hybrid Compositions">
+        <PreviewCanvas>
+          <Stack spacing={3} sx={{ width: '100%' }}>
+            <PreviewGroup label="Icon + Button">
+              <ButtonGroup variant="contained" color="primary" aria-label="favorite and save actions">
+                <IconButton color="inherit" sx={edgeStartSx} aria-label="add to favorites" title="Add to favorites">
+                  <StarIcon fontSize="small" />
+                </IconButton>
+                <Button sx={edgeEndSx}>Save</Button>
+              </ButtonGroup>
+            </PreviewGroup>
+
+            <PreviewGroup label="Button + Icon">
+              <ButtonGroup variant="contained" color="primary" aria-label="save and delete actions">
+                <Button sx={edgeStartSx}>Save</Button>
+                <IconButton color="inherit" sx={edgeEndSx} aria-label="delete item" title="Delete item">
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </ButtonGroup>
+            </PreviewGroup>
+
+            <PreviewGroup label="Icon + Button + Icon">
+              <ButtonGroup variant="contained" color="primary" aria-label="copy, save, and delete actions">
+                <IconButton color="inherit" sx={edgeStartSx} aria-label="copy item" title="Copy item">
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+                <Button sx={middleSx}>Save</Button>
+                <IconButton color="inherit" sx={edgeEndSx} aria-label="delete item" title="Delete item">
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </ButtonGroup>
+            </PreviewGroup>
+
+            <Divider sx={{ my: 1 }} />
+
+            <PreviewGroup label="Sizing alignment — Small / Medium / Large">
+              <Stack direction="row" spacing={3} alignItems="center">
+                {(['small', 'medium', 'large'] as const).map((size) => (
+                  <ButtonGroup key={size} variant="contained" color="primary" size={size} aria-label={`${size} copy, save, and delete actions`}>
+                    <IconButton color="inherit" size={size} sx={edgeStartSx} aria-label="copy item" title="Copy item">
+                      <ContentCopyIcon fontSize="small" />
+                    </IconButton>
+                    <Button sx={middleSx}>Save</Button>
+                    <IconButton color="inherit" size={size} sx={edgeEndSx} aria-label="delete item" title="Delete item">
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </ButtonGroup>
+                ))}
+              </Stack>
+            </PreviewGroup>
+          </Stack>
+        </PreviewCanvas>
+      </DocSection>
+
       {/* Interactive States */}
       <DocSection title="Interactive States">
         <PreviewCanvas>
@@ -363,6 +458,12 @@ export default function ButtonGroupPage() {
             </Box>
             <Box sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 14, color: 'text.secondary' }}>
               • <code>disabled</code> on the group disables every child button and removes them all from the tab order — make sure surrounding copy explains why, the same as a standalone disabled Button.
+            </Box>
+            <Box sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 14, color: 'text.secondary' }}>
+              • Every icon-only <code>IconButton</code> in a hybrid group must carry both an <code>aria-label</code> (for screen readers) and a <code>title</code> (for sighted mouse users hovering without a visible text label) — an icon alone communicates nothing to either audience without them.
+            </Box>
+            <Box sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 14, color: 'text.secondary' }}>
+              • <code>ButtonGroup</code>'s automatic corner-radius and divider styling only applies to <code>Button</code> children — an <code>IconButton</code> sitting at an edge or in the middle needs its corners squared off by hand (see the Usage snippet) so it reads as part of the same continuous shape instead of a circular button bolted onto a rectangular one.
             </Box>
           </Stack>
         </PreviewCanvas>
