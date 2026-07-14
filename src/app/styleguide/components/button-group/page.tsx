@@ -124,17 +124,38 @@ function SplitButtonDemo() {
 // divider and corner-reset CSS) only recognizes Button children. Dropped in
 // unstyled, an IconButton renders with its own defaults: transparent
 // background, no border, icon-only color — which is exactly the "white bg /
-// generic stroke" breakage reported after testing. This helper rebuilds the
-// Contained/Outlined/Text look from the live theme palette (never hardcoded
-// hex) so a hybrid IconButton is pixel- and colour-matched to its Button
-// neighbours, with the same position-aware corner rule used everywhere else
-// in this component: outward edge keeps theme.shape.borderRadius, every
-// inward-facing corner is 0.
+// generic stroke" breakage reported after testing.
+//
+// Two follow-up bugs surfaced once that fix shipped, both rooted in the same
+// cause: native ButtonGroup CSS quietly assumes every child is a Button.
+// 1. The divider is drawn as a border-right that ButtonGroup/Button applies
+//    to itself — it never reaches an IconButton, so a [Icon | Button | Icon]
+//    row got a divider on the Button→Icon joint (Button drew its own) but
+//    NOT on the Icon→Button joint (the Icon has no such CSS at all). Fixed by
+//    making the divider a property of *position*, applied identically to
+//    both Button and IconButton via the shared getJointSx below, instead of
+//    leaving it to whichever component happens to support it.
+// 2. IconButton's native small/medium/large padding scale (34/40/48px) is
+//    its own independent size system — it doesn't line up with Button's real
+//    per-size height (28/36/44px), so an icon slot rendered visibly taller
+//    than its text neighbour. Fixed by overriding IconButton's padding to
+//    the exact value needed to land on Button's real height around its
+//    fixed 24px glyph.
 type HybridPosition = 'start' | 'middle' | 'end';
 type HybridColor = 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
 type HybridVariant = 'contained' | 'outlined' | 'text';
+type HybridSize = 'small' | 'medium' | 'large';
 
-function getHybridIconSx(variant: HybridVariant, color: HybridColor, position: HybridPosition) {
+const ICON_PADDING_BY_SIZE: Record<HybridSize, number> = {
+  small: 2,
+  medium: 6,
+  large: 10,
+};
+
+// Shared by every child in a hybrid row — Button and IconButton alike —
+// so both joints in a multi-item composition are guaranteed identical
+// regardless of which component type sits on either side of them.
+function getJointSx(position: HybridPosition, variant: HybridVariant, color: HybridColor) {
   return (theme: Theme) => {
     const radiusMap: Record<HybridPosition, string | number> = {
       start: `${theme.shape.borderRadius}px 0 0 ${theme.shape.borderRadius}px`,
@@ -142,32 +163,59 @@ function getHybridIconSx(variant: HybridVariant, color: HybridColor, position: H
       middle: 0,
     };
     const pal = theme.palette[color];
+
+    if (variant === 'outlined') {
+      // Outlined items already carry a full border on every side (Button
+      // natively, IconButton via getHybridIconSx below) — collapse the
+      // touching edge into a single 1px seam instead of a doubled line by
+      // overlapping every non-first item by exactly its own border width.
+      return {
+        borderRadius: radiusMap[position],
+        ...(position !== 'start' && { marginLeft: '-1px' }),
+      };
+    }
+    // Contained/Text: no native border to double up against, so the divider
+    // is simply an explicit border-right on every item except the last.
+    const dividerColor = variant === 'contained' ? pal.dark ?? pal.main : pal.main;
+    return {
+      borderRadius: radiusMap[position],
+      ...(position !== 'end' && { borderRight: `1px solid ${dividerColor}` }),
+    };
+  };
+}
+
+// IconButton-only: layers the Contained/Outlined/Text background/border/
+// colour on top of the shared joint treatment above (ButtonGroup's context
+// never reaches IconButton, so this has to be rebuilt from the theme
+// palette by hand), plus the size-matched padding described above.
+function getHybridIconSx(variant: HybridVariant, color: HybridColor, position: HybridPosition, size: HybridSize = 'medium') {
+  return (theme: Theme) => {
+    const pal = theme.palette[color];
+    const joint = getJointSx(position, variant, color)(theme);
+    const padding = `${ICON_PADDING_BY_SIZE[size]}px`;
     const hoverTint = (pal as any).subtle ?? alpha(pal.main, 0.08);
 
     if (variant === 'contained') {
       return {
-        borderRadius: radiusMap[position],
+        ...joint,
+        padding,
         backgroundColor: pal.main,
         color: pal.contrastText,
         '&:hover': { backgroundColor: pal.dark ?? pal.main },
       };
     }
     if (variant === 'outlined') {
-      // Zero out the inward-facing border edge so it doesn't double up with
-      // the neighbouring Button's own border at the shared seam.
-      const innerBorderReset =
-        position === 'start' ? { borderRight: 'none' } : position === 'end' ? { borderLeft: 'none' } : { borderLeft: 'none', borderRight: 'none' };
       return {
-        borderRadius: radiusMap[position],
+        ...joint,
+        padding,
         border: `1px solid ${pal.main}`,
-        ...innerBorderReset,
         color: pal.main,
         '&:hover': { backgroundColor: hoverTint },
       };
     }
-    // text
     return {
-      borderRadius: radiusMap[position],
+      ...joint,
+      padding,
       color: pal.main,
       '&:hover': { backgroundColor: hoverTint },
     };
@@ -231,17 +279,24 @@ const [open, setOpen] = useState(false);
 
 // Hybrid composition — IconButton nested inside ButtonGroup.
 // ButtonGroup's "grouped" context (color/variant/size + corner-reset +
-// divider CSS) only recognizes Button children, so a plain IconButton
-// renders with its own defaults — transparent background, no border,
-// unmatched icon colour. getHybridIconSx rebuilds the Contained/Outlined/
-// Text look from the live theme palette (color, hover state, position-aware
-// corner radius) so the IconButton is indistinguishable from a real grouped
-// Button of the same variant/colour.
+// divider CSS) only recognizes Button children. Two things break as a
+// result if left unstyled: (1) IconButton renders transparent, borderless,
+// unmatched to the group's colour/variant, and (2) the divider — drawn by
+// Button/ButtonGroup as a border-right on itself — never reaches an
+// IconButton, so a [Icon | Button | Icon] row gets a divider on the
+// Button→Icon joint but NOT the Icon→Button one. getJointSx fixes the
+// second problem by making the divider a property of *position*, applied
+// identically to Button and IconButton. getHybridIconSx layers the
+// Contained/Outlined/Text look on top for IconButton specifically, plus
+// padding matched to Button's real per-size height (IconButton's own
+// small/medium/large padding scale is a different, unrelated size system).
 import IconButton from '@mui/material/IconButton';
 import StarIcon from '@mui/icons-material/Star';
 import { alpha } from '@mui/material/styles';
 
-function getHybridIconSx(variant, color, position) {
+const ICON_PADDING_BY_SIZE = { small: 2, medium: 6, large: 10 }; // px, around IconButton's fixed 24px glyph
+
+function getJointSx(position, variant, color) {
   return (theme) => {
     const radiusMap = {
       start: \`\${theme.shape.borderRadius}px 0 0 \${theme.shape.borderRadius}px\`,
@@ -249,34 +304,42 @@ function getHybridIconSx(variant, color, position) {
       middle: 0,
     };
     const pal = theme.palette[color];
-    if (variant === 'contained') {
-      return {
-        borderRadius: radiusMap[position],
-        backgroundColor: pal.main,
-        color: pal.contrastText,
-        '&:hover': { backgroundColor: pal.dark ?? pal.main },
-      };
-    }
     if (variant === 'outlined') {
-      const innerBorderReset =
-        position === 'start' ? { borderRight: 'none' } : position === 'end' ? { borderLeft: 'none' } : { borderLeft: 'none', borderRight: 'none' };
-      return {
-        borderRadius: radiusMap[position],
-        border: \`1px solid \${pal.main}\`,
-        ...innerBorderReset,
-        color: pal.main,
-        '&:hover': { backgroundColor: pal.subtle ?? alpha(pal.main, 0.08) },
-      };
+      // Both items already carry a full border — collapse the touching
+      // edge into one 1px seam by overlapping every non-first item.
+      return { borderRadius: radiusMap[position], ...(position !== 'start' && { marginLeft: '-1px' }) };
     }
-    return { borderRadius: radiusMap[position], color: pal.main };
+    const dividerColor = variant === 'contained' ? pal.dark ?? pal.main : pal.main;
+    return {
+      borderRadius: radiusMap[position],
+      ...(position !== 'end' && { borderRight: \`1px solid \${dividerColor}\` }),
+    };
   };
 }
 
-<ButtonGroup variant="contained" color="primary" aria-label="favorite and save actions">
-  <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'start')} aria-label="add to favorites" title="Add to favorites">
-    <StarIcon fontSize="small" />
+function getHybridIconSx(variant, color, position, size = 'medium') {
+  return (theme) => {
+    const pal = theme.palette[color];
+    const joint = getJointSx(position, variant, color)(theme);
+    const padding = \`\${ICON_PADDING_BY_SIZE[size]}px\`;
+    if (variant === 'contained') {
+      return { ...joint, padding, backgroundColor: pal.main, color: pal.contrastText, '&:hover': { backgroundColor: pal.dark ?? pal.main } };
+    }
+    if (variant === 'outlined') {
+      return { ...joint, padding, border: \`1px solid \${pal.main}\`, color: pal.main, '&:hover': { backgroundColor: pal.subtle ?? alpha(pal.main, 0.08) } };
+    }
+    return { ...joint, padding, color: pal.main };
+  };
+}
+
+<ButtonGroup variant="contained" color="primary" aria-label="copy, save, and delete actions">
+  <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'start')} aria-label="copy item" title="Copy item">
+    <ContentCopyIcon fontSize="small" />
   </IconButton>
-  <Button sx={getHybridIconSx('contained', 'primary', 'end')}>Save</Button>
+  <Button sx={getJointSx('middle', 'contained', 'primary')}>Save</Button>
+  <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'end')} aria-label="delete item" title="Delete item">
+    <DeleteOutlineIcon fontSize="small" />
+  </IconButton>
 </ButtonGroup>`;
 
 const propRows: PropRow[] = [
@@ -390,13 +453,13 @@ export default function ButtonGroupPage() {
                   <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'start')} aria-label="add to favorites" title="Add to favorites">
                     <StarIcon fontSize="small" />
                   </IconButton>
-                  <Button sx={getHybridIconSx('contained', 'primary', 'end')}>Save</Button>
+                  <Button sx={getJointSx('end', 'contained', 'primary')}>Save</Button>
                 </ButtonGroup>
               </PreviewGroup>
 
               <PreviewGroup label="Button + Icon (Contained)">
                 <ButtonGroup variant="contained" color="primary" aria-label="save and delete actions">
-                  <Button sx={getHybridIconSx('contained', 'primary', 'start')}>Save</Button>
+                  <Button sx={getJointSx('start', 'contained', 'primary')}>Save</Button>
                   <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'end')} aria-label="delete item" title="Delete item">
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
@@ -408,7 +471,7 @@ export default function ButtonGroupPage() {
                   <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'start')} aria-label="copy item" title="Copy item">
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
-                  <Button sx={getHybridIconSx('contained', 'primary', 'middle')}>Save</Button>
+                  <Button sx={getJointSx('middle', 'contained', 'primary')}>Save</Button>
                   <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'end')} aria-label="delete item" title="Delete item">
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
@@ -422,7 +485,7 @@ export default function ButtonGroupPage() {
                   <IconButton color="inherit" sx={getHybridIconSx('outlined', 'secondary', 'start')} aria-label="add to favorites" title="Add to favorites">
                     <StarIcon fontSize="small" />
                   </IconButton>
-                  <Button sx={getHybridIconSx('outlined', 'secondary', 'end')}>Save</Button>
+                  <Button sx={getJointSx('end', 'outlined', 'secondary')}>Save</Button>
                 </ButtonGroup>
               </PreviewGroup>
 
@@ -431,7 +494,7 @@ export default function ButtonGroupPage() {
                   <IconButton color="inherit" sx={getHybridIconSx('outlined', 'secondary', 'start')} aria-label="copy item" title="Copy item">
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
-                  <Button sx={getHybridIconSx('outlined', 'secondary', 'middle')}>Save</Button>
+                  <Button sx={getJointSx('middle', 'outlined', 'secondary')}>Save</Button>
                   <IconButton color="inherit" sx={getHybridIconSx('outlined', 'secondary', 'end')} aria-label="delete item" title="Delete item">
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
@@ -443,7 +506,7 @@ export default function ButtonGroupPage() {
                   <IconButton color="inherit" sx={getHybridIconSx('contained', 'error', 'start')} aria-label="copy item" title="Copy item">
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
-                  <Button sx={getHybridIconSx('contained', 'error', 'middle')}>Delete</Button>
+                  <Button sx={getJointSx('middle', 'contained', 'error')}>Delete</Button>
                   <IconButton color="inherit" sx={getHybridIconSx('contained', 'error', 'end')} aria-label="delete item" title="Delete item">
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
@@ -457,11 +520,11 @@ export default function ButtonGroupPage() {
               <Stack direction="row" spacing={3} alignItems="center">
                 {(['small', 'medium', 'large'] as const).map((size) => (
                   <ButtonGroup key={size} variant="contained" color="primary" size={size} aria-label={`${size} copy, save, and delete actions`}>
-                    <IconButton color="inherit" size={size} sx={getHybridIconSx('contained', 'primary', 'start')} aria-label="copy item" title="Copy item">
+                    <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'start', size)} aria-label="copy item" title="Copy item">
                       <ContentCopyIcon fontSize="small" />
                     </IconButton>
-                    <Button sx={getHybridIconSx('contained', 'primary', 'middle')}>Save</Button>
-                    <IconButton color="inherit" size={size} sx={getHybridIconSx('contained', 'primary', 'end')} aria-label="delete item" title="Delete item">
+                    <Button sx={getJointSx('middle', 'contained', 'primary')}>Save</Button>
+                    <IconButton color="inherit" sx={getHybridIconSx('contained', 'primary', 'end', size)} aria-label="delete item" title="Delete item">
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>
                   </ButtonGroup>
@@ -577,6 +640,9 @@ export default function ButtonGroupPage() {
             </Box>
             <Box sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 14, color: 'text.secondary' }}>
               • <code>ButtonGroup</code> only passes its color/variant/size context to <code>Button</code> children — an <code>IconButton</code> gets none of it automatically. Left unstyled it renders transparent with no border, which reads as a visual bug, not a different button. Use the <code>getHybridIconSx</code> helper (see Usage) to rebuild the exact Contained/Outlined/Text look — background, text colour, hover state, and position-aware corner radius — from the same theme palette every other button in the group already uses.
+            </Box>
+            <Box sx={{ fontFamily: '"Open Sans", sans-serif', fontSize: 14, color: 'text.secondary' }}>
+              • The divider between items is drawn by <code>Button</code>/<code>ButtonGroup</code> as a border the component applies to itself — it never reaches an <code>IconButton</code>, so a three-item row can end up with a divider on one joint and not the other. <code>getJointSx</code> makes the divider a property of position instead, applied the same way to every child regardless of type, so both joints always match.
             </Box>
           </Stack>
         </PreviewCanvas>
