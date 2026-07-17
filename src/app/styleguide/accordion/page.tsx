@@ -35,14 +35,23 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
   </AccordionDetails>
 </Accordion>
 
-// Filters Variant
-<Accordion variant="filters" defaultExpanded>
+// Filters Variant — same Accordion/AccordionSummary/AccordionDetails structure
+// as Standard, styled only by the "filters" variant's active-teal label color.
+// Content is two official <Chip variant="outlined"> instances, not a custom box.
+const [filtersExpanded, setFiltersExpanded] = useState(true);
+
+<Accordion
+  variant="filters"
+  expanded={filtersExpanded}
+  onChange={(_, isExpanded) => setFiltersExpanded(isExpanded)}
+>
   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
     <Typography>Filters applied</Typography>
   </AccordionSummary>
   <AccordionDetails>
     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-      <Chip label="Filter Tag" onDelete={() => {}} size="small" />
+      <Chip variant="outlined" label="Survey question" onDelete={() => {}} />
+      <Chip variant="outlined" label="Level of responsibility" onDelete={() => {}} />
     </Box>
   </AccordionDetails>
 </Accordion>`;
@@ -64,6 +73,7 @@ const propRows: PropRow[] = [
 
 export default function AccordionPage() {
   const [expanded, setExpanded] = useState<string | false>(false);
+  const [filtersExpanded, setFiltersExpanded] = useState(true);
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -115,14 +125,19 @@ export default function AccordionPage() {
 
       <DocSection title="Filters Variant">
         <PreviewCanvas>
-          <Accordion variant="filters" defaultExpanded sx={{ width: '100%' }}>
+          <Accordion
+            variant="filters"
+            expanded={filtersExpanded}
+            onChange={(event, isExpanded) => setFiltersExpanded(isExpanded)}
+            sx={{ width: '100%' }}
+          >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>Filters applied</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip size="small" label="Survey question" onDelete={() => {}} />
-                <Chip size="small" label="Level of responsibility" onDelete={() => {}} />
+                <Chip variant="outlined" label="Survey question" onDelete={() => {}} />
+                <Chip variant="outlined" label="Level of responsibility" onDelete={() => {}} />
               </Box>
             </AccordionDetails>
           </Accordion>

@@ -470,36 +470,19 @@ const brandTheme = createTheme(baseTheme, {
       },
       variants: [
         {
+          // "filters" is intentionally a thin variant: it inherits the exact same
+          // background, height, padding and border as a standard Accordion row
+          // (see MuiAccordion.styleOverrides.root above) — the only difference is
+          // the header label color, which uses the active brand teal token to
+          // signal an "applied" state. Do not reintroduce custom background/
+          // border/height overrides here; that was the legacy pattern this
+          // variant replaced (see the Figma Accordion doc's FILTERS VARIANT
+          // section, which is now built from the real Accordion + Chip
+          // components rather than a bespoke layout).
           props: { variant: 'filters' },
           style: {
-            padding: 0,
-            backgroundColor: baseTheme.palette.surface.default,
-            border: 'none',
-            borderRadius: 8,
-            '&.Mui-expanded': {
-              border: `1px solid ${baseTheme.palette.divider}`,
-              backgroundColor: baseTheme.palette.background.paper,
-            },
-            '& .MuiAccordionSummary-root': {
-              minHeight: 40,
-              padding: `${baseTheme.spacing(1)} ${baseTheme.spacing(2)}`,
-              backgroundColor: baseTheme.palette.surface.default,
-              borderRadius: 8,
-            },
-            '&.Mui-expanded .MuiAccordionSummary-root': {
-              minHeight: 40,
-              backgroundColor: baseTheme.palette.surface.subtle,
-              borderBottom: `1px solid ${baseTheme.palette.divider}`,
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-            },
             '& .MuiAccordionSummary-content .MuiTypography-root': {
-              ...edgeTypography['body-sm'],
-              fontWeight: 700,
-              color: baseTheme.palette.primary.dark,
-            },
-            '& .MuiAccordionDetails-root': {
-              padding: `${baseTheme.spacing(2)} ${baseTheme.spacing(1)}`,
+              color: baseTheme.palette.primary.active,
             },
           },
         },
