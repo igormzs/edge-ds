@@ -321,6 +321,31 @@ const baseTheme = createTheme({
 
 const brandTheme = createTheme(baseTheme, {
   components: {
+    // Page-level scrollbar hiding, scoped to the two real scrolling
+    // regions in the app rather than a blanket `*` selector. `*` would
+    // also silently reach into things like code blocks (CodeBlock's
+    // horizontal-scroll <pre>) and any future component that legitimately
+    // wants a visible scrollbar, and a universal selector with this many
+    // `!important` declarations is expensive for the browser to match on
+    // every element, every paint. `html`/`body` covers the app's one real
+    // page-level scroll (the `main` content area has no overflow of its
+    // own — it scrolls via body); the sidebar's own internal scroll region
+    // is handled directly on that Box in styleguide/layout.tsx, since
+    // that's a specific, identifiable element rather than an unknown one.
+    MuiCssBaseline: {
+      styleOverrides: {
+        'html, body': {
+          scrollbarWidth: 'none !important', // Firefox
+          msOverflowStyle: 'none !important', // IE, Edge
+        },
+        'html::-webkit-scrollbar, body::-webkit-scrollbar': {
+          display: 'none !important', // Chrome, Safari, Opera
+          width: '0px !important',
+          height: '0px !important',
+          background: 'transparent !important',
+        },
+      },
+    },
     MuiButton: {
       defaultProps: {
         disableElevation: true,
@@ -622,10 +647,27 @@ const brandTheme = createTheme(baseTheme, {
         sizeMedium: {
           height: 'auto',
           padding: '4px 12px',
+          // Deletable chips (onDelete set → MUI's own `.MuiChip-deletable`
+          // class) need the label's right edge pulled back in, because
+          // `.MuiChip-deleteIcon` ships a built-in negative left margin
+          // (~-6px) that assumes the label still carries its native
+          // right padding. With that padding zeroed out above for the
+          // common (non-deletable) case, the icon's negative margin was
+          // landing directly on top of the label text — the "delete icon
+          // overlaps chip label" bug reported in Autocomplete tag chips.
+          // Restoring padding scoped to `.MuiChip-deletable` only fixes
+          // the overlap without reintroducing the double-padding this
+          // block was originally written to avoid.
+          '&.MuiChip-deletable .MuiChip-label': {
+            paddingRight: '10px',
+          },
         },
         sizeSmall: {
           height: 'auto',
           padding: '3px 8px',
+          '&.MuiChip-deletable .MuiChip-label': {
+            paddingRight: '8px',
+          },
         },
         // Per-color mapping. MUI v7's ChipClasses has no combined
         // `filledError`/`outlinedError`-style slots beyond the deprecated
@@ -729,6 +771,47 @@ const brandTheme = createTheme(baseTheme, {
         // layer (action.disabledOpacity, 0.38) rather than swapped colors,
         // matching real MUI Chip behavior (unlike MuiButton, which does
         // swap to distinct disabled colors above).
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        // The options dropdown (`.MuiAutocomplete-listbox`, wrapped in
+        // `.MuiAutocomplete-paper`) renders inside a Popper that portals to
+        // `document.body` by default — it is NOT a DOM descendant of the
+        // Autocomplete root element, even though it's a descendant in the
+        // React tree. Component-level `sx` selectors like `& .MuiAutocomplete-listbox`
+        // compile to a scoped CSS rule (`.css-xxxx & .MuiAutocomplete-listbox`)
+        // that only matches actual DOM descendants, so they silently never
+        // apply to the portaled node — this is why the scrollbar kept
+        // showing even after adding that rule to the doc page's `sx`.
+        // Theme `styleOverrides` don't have this problem: MUI applies the
+        // resulting class straight onto each slot's own DOM node wherever
+        // it ends up rendering, portal or not. Fixing it here also means
+        // every Autocomplete in the app gets the same treatment, not just
+        // this doc page.
+        paper: {
+          overflow: 'hidden',
+          scrollbarWidth: 'none !important', // Firefox
+          '&::-webkit-scrollbar': {
+            display: 'none !important', // Chrome, Safari, Opera
+          },
+        },
+        listbox: {
+          // Bounded height (rather than growing unbounded with the option
+          // count) so the panel always scrolls internally instead of ever
+          // pushing past the viewport edge — most visible at small window
+          // sizes, where an unbounded listbox has more room to overflow.
+          maxHeight: '40vh',
+          overflowY: 'auto !important',
+          scrollbarWidth: 'none !important', // Firefox
+          msOverflowStyle: 'none !important', // IE, Edge
+          '&::-webkit-scrollbar': {
+            display: 'none !important', // Chrome, Safari, Opera
+            width: '0px !important',
+            height: '0px !important',
+            background: 'transparent !important',
+          },
+        },
       },
     },
   },

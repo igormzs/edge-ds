@@ -64,7 +64,23 @@ export default function StyleguideLayout({ children }: { children: React.ReactNo
           </Box>
 
           {/* Navigation groups */}
-          <Box sx={{ overflowY: 'auto', flex: 1, py: 1 }}>
+          <Box
+            sx={{
+              overflowY: 'auto',
+              flex: 1,
+              py: 1,
+              // This is the sidebar's actual scrolling element (the list
+              // can run longer than the viewport) — hide the scrollbar
+              // chrome while keeping scroll (wheel/trackpad/keyboard) fully
+              // functional. See MuiCssBaseline in brandTheme.ts for the
+              // matching page-level (html/body) rule.
+              scrollbarWidth: 'none', // Firefox
+              msOverflowStyle: 'none', // IE, Edge
+              '&::-webkit-scrollbar': {
+                display: 'none', // Chrome, Safari, Opera
+              },
+            }}
+          >
             {navigation.map((group) => (
               <Box key={group.group}>
                 <List
