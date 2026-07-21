@@ -1,0 +1,154 @@
+# Switcher (Toggle Switch)
+
+**Status:** Figma documentation canvas built 2026-07-21; `Indeterminate` variant added to the master component set same day, with a dedicated `components/switch/slideFillIndeterminate` token (§0.2). **Web styleguide page now live** at `src/app/styleguide/form-controls/switcher/page.tsx`, registered under a new "Form Controls / Inputs" nav group in `src/app/styleguide/navigation.ts`. Custom `MuiSwitch` theme override, sidebar sticky-header fix, and page restructure done same day (§5); thumb-color bug fixed (§5.1). Off-track color root-caused to Figma itself - 14 Off/Enabled Slide rectangles sat on an orphaned unbound literal instead of the `slideFill` token their own sibling states already used, fixed at the source (§5.3). A full Figma-vs-web parity audit then found and fixed three more Figma-side bugs: `Color=Secondary` bound to the wrong token (`primary/main` instead of `secondary/main`), `Color=Primary`'s checked track carrying a stray 38% opacity, and every named-color checked knob matching its track instead of going white/near-white like the web already did - all fixed live in Figma with screenshot verification, plus a small web-side adjustment (Off/Indeterminate thumb → grey/50 to match Figma's `knobFillEnabled` token exactly) (§5.4). Verified with a clean `next build` (all 25 routes compile, type-check, and statically prerender - see §4/§5/§5.1/§5.3/§5.4).
+**Figma:** `EDGE Design System - New` (`fLQNXhHQhKBZzWnJGtUcwn`), page `     Switch ✅`, live component set `<Switch>` (`6564:39128`, now 94 variant combinations - 88 original + 6 new `Checked=Indeterminate`), new documentation canvas `Switcher — Documentation` (`820:264509`).
+**Web:** `src/app/styleguide/form-controls/switcher/page.tsx` · nav: `src/app/styleguide/navigation.ts` ("Form Controls / Inputs" group) · shared doc primitives: `src/components/DocUI.tsx` · theme override: `src/theme/brandTheme.ts` (`MuiSwitch`) · sidebar fix: `src/app/styleguide/layout.tsx`.
+
+## 0. Indeterminate variant (added 2026-07-21)
+
+Added `Indeterminate` as a third value on the `Checked` variant property (previously `False`/`True` only - now `False` / `True` / `Indeterminate`). Built 6 new components: **Default color only**, Small + Medium, × Enabled/Hovered/Focused (no Disabled - see gap note below).
+
+- **Thumb centering:** unlike the existing Off/On components (which position the knob with a manually-computed absolute `x` offset inside a `layoutMode: NONE` frame), the new Indeterminate components wrap the knob in a dedicated "Knob Centerer" frame - same footprint as the track, `layoutMode: HORIZONTAL`, `primaryAxisAlignItems`/`counterAxisAlignItems: CENTER`. The knob has zero manual offset; Figma's auto-layout engine centers it, so the same structure works unchanged at both Small (44×22 track / 18×18 knob) and Medium (58×32 track / 24×24 knob) - verified visually at 4x scale for both sizes.
+- **Track/thumb fills:** copied exactly (including bound variable IDs where the source had them) from the existing `Checked=False, Color=Default` components per state, per the "standard neutral surface token (same as Off/Default state)" instruction - not a new token.
+- **Color sweep intentionally not built:** only `Color=Default` exists for Indeterminate. Indeterminate has no "on" position to color-code, so a 7-color sweep wasn't fabricated - flagged inline in the Visual Variants matrix note.
+- **Disabled combo intentionally not built:** no `Checked=False/True, Color=Default, State=Disabled` variant exists anywhere in this component set today (Disabled only exists for `Color=Primary` - a pre-existing gap documented below in §3). Fabricating a one-off `Indeterminate + Disabled + Default` variant would have invented a token pairing that doesn't exist elsewhere in the set, so it was skipped for consistency rather than built ad hoc.
+- **Documentation canvas:** Visual Variants matrix gained an "Indeterminate" row (Default swatch + explanatory note); Interactive States gained an "Indeterminate" cell between Default and Active; Key Props `checked` row updated (`Type: boolean | 'indeterminate'`, `Default: 'indeterminate'`); Overview & Usage and Accessibility callouts both got a new sentence (`aria-checked="mixed"` mapping).
+
+### 0.1 Track color fix (same day, follow-up)
+
+Initial build reused the Off/Default track fill for Indeterminate, which made the two states visually indistinguishable (both rendered the same blue-grey). First fix rebound the `Slide` rectangle fill on all 6 Indeterminate components to `grey/200` (`VariableID:760:93272`) - user feedback on that result was that it read as too light/washed out. Re-bound a second time to **`grey/400`** (`VariableID:767:93256`, `material/colors` collection, `rgb(0.741, 0.741, 0.741)`) - darker and more visible than `grey/200`, while still landing slightly lighter than the Off state's blue-grey track tone (`rgb(0.580, 0.639, 0.722)`, unbound literal on `Checked=False, Color=Default, State=Enabled`).
+
+Initially this was bound directly to the raw `grey/400` primitive as a scoped, one-off exception. Per follow-up request, this was then promoted to a proper dedicated token so Indeterminate has the same first-class token treatment as every other switch state:
+
+### 0.2 Dedicated token: `components/switch/slideFillIndeterminate`
+
+Created a new variable, `components/switch/slideFillIndeterminate` (`VariableID:825:265376`), in the **MUI palette** collection (`VariableCollectionId:759:93255`) - the same collection that already holds `components/switch/slideFill`, `components/switch/knobFillEnabled`, and `components/switch/knowFillDisabled` (note the pre-existing typo in that last one - left as-is, not this pass's concern). Aliased to `grey/400` for both the `Light` (`759:0`) and `Dark` (`759:1`) modes - matching how `slideFill` itself resolves identically across both modes today (no light/dark differentiation exists yet for switch track colors in this system).
+
+All 6 Indeterminate `Slide` rectangles were rebound from the raw `grey/400` primitive to this new token. Visually identical result (same resolved color), but now:
+
+- Indeterminate has its own first-class token, parallel to `slideFill` (Off/On tracks) and `knobFillEnabled`/`knowFillDisabled` (knob).
+- If the design system's neutral grey scale is ever retuned, `slideFillIndeterminate` can be redirected independently of `slideFill` - it is not a hardcoded value baked into 6 separate components.
+- Doc canvas (Visual Variants note + Anatomy & Token Specs paragraph) both updated to name the token explicitly rather than describing a bound primitive.
+
+---
+
+## 1. What was archived
+
+No frame was literally named `[Doc] Switcher` - the page's closest legacy equivalent was the frame named **`Switch`** (`11022:144509`), an untouched MUI Community Figma library import (`_Library / Component Heading` + variant `Grid`, 2127×4183). This frame was:
+
+1. Duplicated in place.
+2. Renamed to `_Archive / Switcher / 2026-07-21`.
+3. Moved to a new page, `🗄️ _Archive / Deprecated Docs` (`818:262258`) - created fresh, since no archive page previously existed in this file.
+4. Locked (`locked: true`).
+
+The **original** `Switch` frame was left untouched on the `     Switch ✅` page (not deleted) because the real `<Switch>` component set used to build the new documentation canvas lives nested inside it - deleting it would have broken the source of truth the new canvas instantiates from. This mirrors how the Backdrop pass kept its baseline component in place rather than archiving the only live copy.
+
+## 2. What was built
+
+A new frame, `Switcher — Documentation` (`820:264509`), instantiated from the shared master template (`751:165195` on the `📘 Component Documentation Template` page) per `docs/DOCUMENTATION_STANDARDS.md`, then **detached to a plain frame** - the Plugin API refuses structural changes (new children, reparenting) inside a live instance, and this pass needed to add badges to the title row and extra callout pairs to the Specs card. Same tradeoff already recorded for Backdrop: this page will not auto-inherit future master-template structural changes.
+
+Section-by-section:
+
+- **Intro Block** - Title "Switcher", description, plus three pill badges added to the title row (not part of the stock master template): a neutral **Category** badge ("Form Controls / Inputs"), an amber **Status** badge ("In Design / In Progress"), and the existing teal "MUI Docs ↗" badge.
+- **Visual Variants** - a live Checked × Color matrix (Off/On rows × Default/Primary/Secondary/Error/Warning/Info/Success columns, 14 real instances of `<Switch>`) at Medium size.
+- **Orientation** - hidden (`visible: false`). Switch has no orientation axis; nothing was fabricated to fill the slot.
+- **Sizing** - Small vs. Medium, both Checked states, Default color (4 real instances).
+- **Interactive States** - Default, Active, Hover (Off/On), Focus (Off/On), and Disabled (Off/On) - 8 real instances. Disabled is flagged with an asterisk: **the component set only has a real Disabled variant on the Primary color**, not Default. No Default-color Disabled swatch was fabricated to fill the gap.
+- **Key Props** - 5 rows (`checked`, `onChange`, `disabled`, `size`, `color`) written against the standard MUI `Switch` API shape, since no EDGE-DS web wrapper exists yet to source real prop names from.
+- **Specs & Accessibility Notes** - four callouts (expanded from the template's stock two): **Overview & Usage** (when to use / when not to use / label-alignment called out as a usage pattern, not a variant), **Anatomy & Token Specs** (Track/Thumb/Label/Focus Ring → token mapping), **Accessibility** (44×44px touch target, keyboard, ARIA `role="switch"` / `aria-checked`), **Micro-Interactions** (thumb slide, hover state-layer, focus ring, disabled).
+
+## 3. Known gaps (flagged, not fabricated)
+
+- No Default-color `Disabled` variant exists in the component set (Primary is the only color with a real Disabled state).
+- No `Label Alignment` variant/anatomy exists on the component - it's documented as a consumer-side usage pattern in Overview & Usage, not shown as Figma swatches.
+- No `Loading` state exists - not mentioned in Interactive States, consistent with not inventing structure.
+- Key Props are inferred from the standard MUI `Switch` prop shape, not verified against an EDGE-DS `.tsx` wrapper (none exists yet).
+
+## 4. Web implementation (2026-07-21)
+
+Created `src/app/styleguide/form-controls/switcher/page.tsx` and registered it under a new **"Form Controls / Inputs"** nav group in `src/app/styleguide/navigation.ts` (previously this group didn't exist - `Switcher` is its first member). Built with the same shared `DocUI.tsx` primitives (`PageHeader`, `DocSection`, `PreviewCanvas`, `PreviewGroup`, `CodeBlock`, `PropsTable`) every other styleguide page uses - `PageHeader` already supported `categoryBadge`/`statusBadge` props from prior work, so no changes to shared components were needed.
+
+Section order: Page Header → Overview & Usage → Visual Variants (Off/On color matrix + Indeterminate row) → Sizing (Small/Medium × Off/On/Indeterminate) → Interactive States (Default/Active, live Hover/Focus, Disabled) → Key Props → Design Tokens → Accessibility → Usage code snippets.
+
+**Indeterminate on the web:** MUI's stock `<Switch>` has no `indeterminate` prop (unlike `<Checkbox>`), so there's no real DOM element to render. A static `IndeterminateSwatch` component simulates it - flex/absolute-centered thumb over a `grey[400]` track (`@mui/material/colors`), the literal value matching the Figma `components/switch/slideFillIndeterminate` token (§0.2). This is clearly labeled as a simulated preview (`role="img"`, descriptive `aria-label`), not a real interactive control - and the Usage section includes a snippet showing the proposed `<Switcher checked="indeterminate">` API a real wrapper would need, since it doesn't exist today.
+
+**Gaps this page surfaced (new, web-side):**
+
+- **No `MuiSwitch` override in `brandTheme.ts`** - the live `<Switch>` instances on this page render MUI's stock default track/thumb styling, not the Figma `slideFill`/`knobFillEnabled` tokens. Checked-state thumb color does pick up the theme's palette automatically (MUI reads `theme.palette[color].main`), so colors are on-brand even without a dedicated override - but track color is not. Documented in the Design Tokens table rather than silently ignored.
+- **"Label & Subtext: Satoshi" (as originally briefed) does not exist in this codebase** - `brandTheme.ts` has no Satoshi typeface anywhere; body copy is Open Sans, headings are Montserrat. The Design Tokens table documents the corrected, actual token (`Body/Medium`, Open Sans) rather than repeating the inaccurate brief.
+- **Disabled-color asymmetry does NOT carry over to the web**: Figma only has a real `Disabled` variant on the Primary color, but MUI's `.Mui-disabled` class applies uniformly regardless of `color` prop - so every color/disabled combination already renders correctly on the web even though Figma hasn't built every swatch. Called out explicitly so the Figma gap isn't mistaken for a web gap.
+- **No 1:1 Figma/Web parity audit doc exists yet** for Switcher (unlike Backdrop's `docs/Backdrop_Figma_Web_Audit.md`) - flagged in the Design Tokens section intro rather than fabricating one.
+
+**Build verification:** `next build` cannot run directly against the mounted project folder in this environment - it's FUSE-mounted (synced from the user's Mac) and Turbopack needs to unlink/replace files in `.next` that the mount rejects with `EPERM`. Worked around by rsync-copying the repo (with `node_modules`) to a real local path and building there. Result: clean build, zero TypeScript errors (`tsc --noEmit` also passes standalone), all 25 routes compile and statically prerender, including `/styleguide/form-controls/switcher`. Verified the MUI Docs link resolves (`https://mui.com/material-ui/react-switch/`). No dark/light theme check was meaningful here - `brandTheme.ts` has no `palette.mode`/dark theme anywhere in this codebase (site-wide, not a Switcher-specific gap), so there's no dark mode to diverge from. Responsive behavior follows the same `flexWrap`/`Stack` patterns already used by every other styleguide page - not stress-tested at specific breakpoints beyond what the shared `DocUI` primitives already provide.
+
+## 5. Web refinement pass (2026-07-21, same day)
+
+Three follow-up fixes to the web implementation from §4:
+
+**1. Custom `MuiSwitch` theme override** (`src/theme/brandTheme.ts`) - the web page had been rendering stock MUI's default Switch (thin 34×14 track, 20px thumb) instead of the Figma-spec'd geometry, and §4's own Design Tokens table candidly flagged this gap. Fixed by adding a real `MuiSwitch` entry to the shared theme (affects every `<Switch>` in the app, not just this page):
+
+- **Geometry**, derived from reading MUI's actual `Switch.js` source rather than guessed: root padding set to `0` (so root === the visible track, no separate touch-target box - see the accessibility trade-off note below), giving Medium 58×32 / thumb 24×24 / 4px inset and Small 44×22 / thumb 18×18 / 2px inset - exactly matching the Figma component set. Checked-state `translateX` is `trackWidth − trackHeight` (26px medium, 22px small), which falls out of the same geometry relationship Figma's own dimensions already satisfy (`trackHeight = thumbSize + 2×inset`).
+- **Color**: off-track resolves to `baseTheme.palette.surface.disabled` (grey/300) - the same token Figma's `components/switch/slideFill` resolves to - rather than stock MUI's translucent black-at-38%-opacity default. Off-thumb is grey/500 (Figma's knob is neutral grey, not stock's white). Checked, `color="default"`: track/thumb go near-black (grey/900). Checked, named colors (`primary`/`secondary`/`error`/`warning`/`info`/`success`): solid `theme.palette[color].main`, following the same "resolved brand color, not a translucent overlay" convention already used by this theme's `MuiButton`/`MuiChip` overrides. Disabled state uses lighter greys (grey/100 track, grey/200 thumb) than the enabled-off state, so a disabled switch reads as visibly muted rather than identical-looking.
+- **Trade-off, stated explicitly in the page copy**: root padding is `0`, meaning the *clickable* area equals the *visual* track exactly - there is no baked-in larger touch-target zone. The Accessibility & Micro-Interactions note in Specs & Accessibility Notes (§ below) says this plainly: padding the hit area to 44×44px is a per-usage layout responsibility (e.g. via `FormControlLabel` spacing), not something forced onto every `Switch` instance globally. This was a deliberate choice to keep the override change scoped and verifiable without a browser in this sandbox, rather than risk an unverified interaction between root padding and MUI's absolute-positioning geometry.
+- The `IndeterminateSwatch` (simulated preview, still used since MUI's stock `<Switch>` has no real `indeterminate` prop) was resized to match: single `box`/`height`/`thumb` numbers per size, no separate outer-vs-track distinction, since the real `Switch` no longer has one either.
+
+**2. Sidebar sticky-header bleed-through** (`src/app/styleguide/layout.tsx`) - root cause: MUI's `ListSubheader` is `position: sticky` **by default** (confirmed in `ListSubheader.js` - `disableSticky` was never passed here), but the sidebar's own `sx` explicitly set `bgcolor: 'transparent'` on top of that default, which otherwise would have been `theme.palette.background.paper` (white - wrong for a dark sidebar anyway). Sticky + transparent is what let scrolled `ListItem`s show through underneath a pinned section title. Fixed by setting `bgcolor: '#0e1a1f'` (matching the `Drawer`'s own paper background) and an explicit `zIndex: 2`, keeping `position: sticky` / `top: 0`.
+
+**3. Page structure standardized** - removed the standalone top-of-page "Overview & Usage" `DocSection` (which every other current-generation page, e.g. `autocomplete/page.tsx`, does not have as a separate top section). Its three sub-topics (when to use, when to use Checkbox/Radio instead, label alignment) were folded into a new bottom `Specs & Accessibility Notes` section, built with the same `SpecRow` heading+body pattern `autocomplete/page.tsx` already established, alongside `Anatomy & Token Specs` (updated to describe the now-real theme override instead of flagging its absence) and `Accessibility & Micro-Interactions`. Final order: **Header → Visual Variants → Sizing → Interactive States → Key Props → Usage → Specs & Accessibility Notes**, matching the explicit standard and mirroring `autocomplete/page.tsx`'s own section order 1:1 (Key Props → Usage → Specs & Accessibility Notes at the end).
+
+**Verification**: same FUSE-mount workaround as §4 (rsync repo + `node_modules` to `/tmp`, build there) - clean `next build`, 0 TypeScript errors, all 25 routes prerender. Additionally ran `next start` against the production build and `curl`'d both `/styleguide/form-controls/switcher` and `/styleguide` to confirm the actual rendered output: `width:58px` present (confirms the Switch override is really being emitted, not just compiling), `0e1a1f` and `position:sticky` both present in the sidebar's rendered styles, and the six section headings appear in the exact required order with `Overview & Usage`/`Anatomy & Token Specs`/`Accessibility & Micro-Interactions` nested inside `Specs & Accessibility Notes` rather than as top-level sections.
+
+### 5.1 Thumb color bug fix (2026-07-21, same day)
+
+Follow-up bug report: after §5's theme override shipped, the thumb rendered dark/black on every colored + checked variant instead of white. Root cause: `MuiSwitch-thumb`'s `backgroundColor` was left on stock MUI's `currentColor` default, and `switchBase`'s own `color` property (set per-color for the ripple/focus color, same convention MUI itself uses) was bleeding into the thumb fill via inheritance - the named color was "winning" the thumb, when only the track should carry it.
+
+Fix, scoped to `src/theme/brandTheme.ts`:
+
+- Removed the `color` property from `switchBase`'s base and checked rules entirely, since that's what was propagating into the thumb via `currentColor`.
+- `thumb.backgroundColor` hardcoded to `'#ffffff'` unconditionally as the base fill - matches the Figma reference, where the thumb is pure white for Off and every On color variant.
+- Preserved the one real exception confirmed against the Figma component: `color="default"` (the base/unnamed color) checked state has both track *and* thumb going near-black (grey/900), via a `'&.Mui-checked .MuiSwitch-thumb'` rule scoped inside `switchBase`.
+- Each of the six named-color slots (`colorPrimary`/`colorSecondary`/`colorError`/`colorWarning`/`colorInfo`/`colorSuccess`) got a matching `'&.Mui-checked .MuiSwitch-thumb': { backgroundColor: '#ffffff' }` rule added alongside their existing checked-track rule, so the thumb reliably resolves back to white for every named color. This relies on MUI's own `overridesResolver` order (`ownerState.color !== 'default'` appends the `colorX` slot's styles *after* root/base styles), the same mechanism stock `Switch.js` uses - not a specificity hack.
+- `IndeterminateSwatch` (web page, simulated preview) thumb fill updated from grey/900 to `'#ffffff'` to match; the "Anatomy & Token Specs" `SpecRow` copy updated to state the white-thumb-except-default rule explicitly.
+
+**Verification**: same rsync-to-`/tmp` build workaround as §4/§5. Clean `next build`, 0 TypeScript errors, all 25 routes prerender. Ran `next start` and `curl`'d the built Switcher page, then inspected the raw emitted CSS directly (not just a successful compile): for every named-color instance, both the base `.Mui-checked .MuiSwitch-thumb{background-color:#212121;}` rule and the color-slot `.Mui-checked .MuiSwitch-thumb{background-color:#ffffff;}` rule appear under the *same* Emotion-generated class, with the `#ffffff` rule written after the `#212121` one in source order - confirming the white rule wins the cascade (equal specificity, later declaration wins). Instances with no color slot (`color="default"`) show only the single `#212121` rule, confirming the exception is scoped correctly and not leaking into named colors.
+
+### 5.2 Off-track color fix, take 1 - superseded (2026-07-21, same day)
+
+First pass, made from a screenshot comparison alone (web looked lighter/warmer than the Figma canvas screenshot's visible blue-grey): changed `track.backgroundColor` from `baseTheme.palette.surface.disabled` (grey/300, `#e0e0e0`) to `colors.grey[200]` (`#eeeeee`), reasoning the existing value read "too dark/borrowed." **This was wrong** - see §5.3. Recorded here only so the reasoning trail isn't lost; the actual root cause turned out to be in Figma, not in the web theme.
+
+### 5.3 Off-track color fix, take 2 - actual root cause found in Figma (2026-07-21, same day)
+
+User asked to make the web match "the exact same color and token as Figma," which prompted inspecting the live component set directly via the Plugin API instead of reasoning from screenshots. That inspection found the real story: the Off-state ("Checked=False") track rectangles at **State=Enabled** across all 7 colors and both sizes (14 variants total) had an **orphaned, unbound literal** fill - `rgb(0.580, 0.639, 0.722)` / `#94a3b8`, a blue-grey, `boundVariables: {}`. Meanwhile the *same* Off variants at State=Hovered, State=Focused, and State=Disabled were already correctly bound to `components/switch/slideFill` → `Semantic/Surface/Disabled` → `grey/300` (`#e0e0e0`). In other words: the rest state alone had drifted off its own component's token at some earlier point, while every other state of that same component stayed correctly wired - not a case of "Figma intentionally uses blue-grey," but a straightforward binding gap in one state.
+
+Given that, take 1's fix (retuning the web theme to `#eeeeee`) would have made the web match neither the (buggy) Figma screenshot nor the (correct) Figma token - it was a third, unrelated value. Corrected in two places:
+
+1. **Figma**: bound all 14 unbound Slide rectangles (Checked=False, State=Enabled, every Color × both Sizes) to the `Semantic/Surface/Disabled` variable (`VariableID:390:8696`) via `figma.variables.setBoundVariableForPaint` - the same variable their Hovered/Focused/Disabled siblings already use, restoring consistency within the component rather than inventing a new binding pattern. The `Switcher — Documentation` canvas frame needed no edits: its Visual Variants matrix uses live instances of these master components, so the fix propagated automatically (confirmed via screenshot - Off row now renders light grey/300, matching every colored column).
+2. **Web** (`src/theme/brandTheme.ts`): `MuiSwitch.styleOverrides.track.backgroundColor` reverted to `baseTheme.palette.surface.disabled` (grey/300, `#e0e0e0`) - the original pre-take-1 value, which was correct all along once Figma's own inconsistency is accounted for.
+
+The Indeterminate token (`slideFillIndeterminate`, grey/400/`#bdbdbd`) and the Disabled-track override (grey/100/`#f5f5f5`) were untouched in both passes - they were never part of the bug.
+
+**Verification**: Figma side confirmed via `figma_capture_screenshot` on both an individual Off/Default/Enabled component and the Documentation canvas's Visual Variants Matrix - both now render light grey/300 uniformly across every color column. Web side used the same rsync-to-`/tmp` build workaround: clean `next build`, 0 TypeScript errors, all 25 routes prerender; `next start` + `curl` + a raw-CSS grep confirmed the base `.MuiSwitch-track` rule now emits `background-color:#e0e0e0;opacity:1;` in the shared Emotion class, with 2 total `#e0e0e0` occurrences on the page (base track rule + one duplicate reference). `page.tsx`'s "Anatomy & Token Specs" copy rewritten to describe the full `slideFill → Semantic/Surface/Disabled → grey/300` chain and name the Figma-side fix explicitly, rather than just citing a hex value.
+
+### 5.4 Full parity audit + three confirmed fixes (2026-07-21, same day)
+
+Asked for a full Figma-vs-web parity audit. Geometry and the §5.3 Off-track fix held up 1:1. Digging into the live component set's actual variable bindings (not just screenshots) turned up three real, separate issues, all fixed in this pass:
+
+**Bug A - `Color=Secondary` bound to the wrong token.** Every Secondary checked variant (both sizes × Enabled/Hovered/Focused, 6 total) was bound to `primary/main` (teal) instead of the real `secondary/main` token, which resolves to `EDGE-Blue/500` (`#5e6e7d`) - exactly what the web page's `colorSecondary` already rendered. So the web was arguably "correct" and Figma's Secondary swatch was simply a second Primary. Fixed by rebinding all 6 track rectangles to `secondary/main` (`VariableID:772:93255`) via `figma.variables.setBoundVariableForPaint`. Confirmed visually: Secondary now renders blue-grey, distinct from Primary's teal.
+
+**Bug B - `Color=Primary` checked track visually broken.** All 6 Primary-checked variants (both sizes × Enabled/Hovered/Focused) had a stray `opacity: 0.38` on the track paint plus a stale cached fallback color (`rgb(0.5,0.5,0.5)`), rendering as a washed-out grey pill despite being correctly bound to `primary/main`. Simply rebinding the paint didn't force a visual refresh (Figma's plugin-sandbox export appears to cache the resolved color separately from the live variable graph in some cases) - the fix that worked was rebinding *and* explicitly overwriting the paint's local `color` fallback with the variable's actual resolved value (`rgb(0,0.6235,0.6078)` / `#009f9b`) plus `opacity: 1`. Confirmed visually: Primary now renders solid teal.
+
+**Bug C - checked named-color knobs matched the track instead of going white/near-white.** This one reversed something built earlier in this same session: back in §5.1, the web thumb was made pure white for every checked color based on an explicit description of "the Figma reference canvas." Live inspection now showed the actual file didn't do that - checked Error/Warning/Info/Success/Secondary all had their knob bound to the *same* variable as the track (solid-on-solid), and the Off-state knob resolved through `components/switch/knobFillEnabled` to `grey/50` (`#fafafa`), not pure white. Rather than reverting the web, this was resolved by fixing Figma to match the already-shipped web behavior (which is what was asked for): all 36 named-color checked-variant knobs (6 colors × 2 sizes × 3 states) were rebound to `knobFillEnabled` instead of the track's color variable.
+
+**Web changes to close the remaining gap:** `MuiSwitch.styleOverrides.thumb.backgroundColor` changed from `'#ffffff'` to `colors.grey[50]` (`#fafafa`) as the *base* (Off-state) fill, matching `knobFillEnabled` exactly - the six `colorX` slots' `'&.Mui-checked .MuiSwitch-thumb': { backgroundColor: '#ffffff' }` overrides were left untouched (pure white for checked, per explicit spec), and the `color="default"` checked exception (near-black) is unaffected. `IndeterminateSwatch` (page.tsx) thumb changed from `'#ffffff'` to `grey[50]` too, since Figma's Indeterminate knob uses the identical `knobFillEnabled` token as Off.
+
+One deliberate, accepted 1-shade gap remains: Figma's checked-colored knob resolves to `#fafafa` (via `knobFillEnabled`) while the web's checked-colored thumb is pure `#ffffff`, per explicit instruction to keep those specific states pure white on the web side. Visually indistinguishable at this size, but noted here in case someone later asks for exact-value parity there too.
+
+**Verification**: every Figma change was confirmed with `figma_capture_screenshot` on the individual component *and* the `Switcher — Documentation` canvas (which auto-updated via its live instances, no manual edit needed). Web changes went through the same rsync-to-`/tmp` build workaround: clean `next build`, 0 TypeScript errors, all 25 routes prerender; `next start` + `curl` + raw-CSS grep confirmed the base `.MuiSwitch-thumb` rule now emits `#fafafa`, the `IndeterminateSwatch` emits `#fafafa` in both sizes, all six named-color checked-thumb rules still emit `#ffffff`, and all six checked-track colors are unaffected.
+
+## 6. References
+
+- Archived legacy frame: `🗄️ _Archive / Deprecated Docs` page, `_Archive / Switcher / 2026-07-21` (`818:262259`).
+- EDGE-DS documentation standard: `docs/DOCUMENTATION_STANDARDS.md`.
+- Master template: `751:165195` on `📘 Component Documentation Template` (`348:63053`).
+- Web page: `src/app/styleguide/form-controls/switcher/page.tsx`.
+- Nav registration: `src/app/styleguide/navigation.ts` ("Form Controls / Inputs" group).

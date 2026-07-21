@@ -627,6 +627,175 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // Custom Switch geometry, matching the EDGE-DS Figma `<Switch>` component
+    // set rather than stock MUI's thin-track/small-thumb default. Figma spec
+    // (docs/components/Switcher.md): Medium track 58x32, thumb 24x24, 4px
+    // inset; Small track 44x22, thumb 18x18, 2px inset.
+    //
+    // Geometry mechanics (why these exact numbers): MUI's SwitchTrack is a
+    // normal-flow flex child, so it always fills root's content box exactly
+    // — root padding is set to 0 here so root === the visible track, with no
+    // separate (larger) touch-target box. SwitchBase (the thumb's wrapper)
+    // is absolutely positioned relative to root's outer edge (root padding
+    // does NOT offset it — only switchBase's own padding does), and its
+    // rendered box is a (thumb + 2×padding) square. For the thumb to look
+    // correctly vertically centered and horizontally inset, that square's
+    // side must equal the track height — which is exactly Figma's own
+    // relationship (trackHeight = thumbSize + 2×inset: 32 = 24+2×4,
+    // 22 = 18+2×2). The checked-state `translateX` distance is then simply
+    // `trackWidth − trackHeight` (58−32=26, 44−22=22) so the thumb ends up
+    // flush against the opposite edge, mirroring its flush-start rest
+    // position. Verified against MUI's own Switch.js source before writing
+    // these values, not guessed.
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          width: 58,
+          height: 32,
+          padding: 0,
+          overflow: 'visible',
+        },
+        switchBase: {
+          padding: 4,
+          '&.Mui-checked': {
+            transform: 'translateX(26px)',
+          },
+          // color="default" (base/unnamed) checked state: BOTH track and
+          // thumb go near-black — this is the one specifically-Figma'd
+          // exception (confirmed against the real component: the Default
+          // color's checked knob is near-black, not white). Named colors
+          // (colorPrimary, etc. below) override the thumb rule back to
+          // white — MUI applies those slots after these root styles, same
+          // resolution order stock Switch.js itself relies on, so the
+          // override is reliable regardless of source order here.
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: colors.grey[900],
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: colors.grey[900],
+          },
+          '&:hover': {
+            backgroundColor: baseTheme.palette.action.hover,
+          },
+          // Disabled thumb/track are muted lighter greys regardless of
+          // color/checked state, so a disabled switch reads as visibly
+          // non-interactive rather than identical to an enabled one.
+          '&.Mui-disabled .MuiSwitch-thumb': {
+            backgroundColor: colors.grey[200],
+          },
+          '&.Mui-disabled + .MuiSwitch-track': {
+            backgroundColor: colors.grey[100],
+            opacity: 1,
+          },
+        },
+        thumb: {
+          width: 24,
+          height: 24,
+          boxShadow: baseTheme.shadows[1],
+          // Off-state (base) thumb fill: grey/50 (#fafafa), matching Figma's
+          // `components/switch/knobFillEnabled` token exactly (confirmed
+          // live against the file) — not pure white. Every checked named
+          // color still overrides this back to pure `#ffffff` via the
+          // colorX slots below (per explicit spec: Off = near-white
+          // grey/50, checked-colored = pure white); `color="default"`
+          // checked keeps the near-black exception via switchBase above.
+          backgroundColor: colors.grey[50],
+        },
+        track: {
+          borderRadius: 16,
+          // Off-track fill: components/switch/slideFill → Semantic/Surface/
+          // Disabled → grey/300 (#e0e0e0) — confirmed directly against the
+          // live Figma file (not guessed): the Off/Enabled variants across
+          // every color had an orphaned, UNBOUND blue-grey literal
+          // (rgb(148,163,184)/#94a3b8) that never matched this token, while
+          // every other state (Hovered/Focused/Disabled) of the same
+          // Off/Checked=False variants WAS already correctly bound to it.
+          // That Figma-side inconsistency was fixed by binding all 14
+          // Enabled-state Slide rectangles to the token (matching their
+          // sibling states) rather than copying the stray literal into the
+          // theme — so this value is genuinely 1:1 with Figma's token now,
+          // not just its (previously buggy) screenshot.
+          backgroundColor: baseTheme.palette.surface.disabled, // grey/300, #e0e0e0
+          opacity: 1, // solid fills throughout, not stock MUI's translucent black/38%
+        },
+        sizeSmall: {
+          width: 44,
+          height: 22,
+          padding: 0,
+          '& .MuiSwitch-switchBase': {
+            padding: 2,
+            '&.Mui-checked': {
+              transform: 'translateX(22px)',
+            },
+          },
+          '& .MuiSwitch-thumb': {
+            width: 18,
+            height: 18,
+          },
+          '& .MuiSwitch-track': {
+            borderRadius: 11,
+          },
+        },
+        // Per-color checked-track fills — solid `main`, matching the
+        // pattern already established for MuiButton/MuiChip in this theme
+        // (resolved brand color, not stock MUI's translucent overlay).
+        // Each named color slot also overrides the thumb rule back to white
+        // for its checked state. `switchBase`'s own `'&.Mui-checked
+        // .MuiSwitch-thumb'` rule (above) darkens the thumb for the
+        // color="default" case — these slots are resolved AFTER root/base
+        // styles by MUI's overridesResolver (ownerState.color !== 'default'
+        // appends `styles['color' + capitalize(color)]` last), so this
+        // reliably wins and keeps the thumb white for every named color.
+        colorPrimary: {
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: baseTheme.palette.primary.main,
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: '#ffffff',
+          },
+        },
+        colorSecondary: {
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: baseTheme.palette.secondary.main,
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: '#ffffff',
+          },
+        },
+        colorError: {
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: baseTheme.palette.error.main,
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: '#ffffff',
+          },
+        },
+        colorWarning: {
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: baseTheme.palette.warning.main,
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: '#ffffff',
+          },
+        },
+        colorInfo: {
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: baseTheme.palette.info.main,
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: '#ffffff',
+          },
+        },
+        colorSuccess: {
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: baseTheme.palette.success.main,
+          },
+          '&.Mui-checked .MuiSwitch-thumb': {
+            backgroundColor: '#ffffff',
+          },
+        },
+      },
+    },
     MuiChip: {
       styleOverrides: {
         // Geometry: fully padding-driven, no fixed height — mirrors Figma's

@@ -87,7 +87,24 @@ export default function StyleguideLayout({ children }: { children: React.ReactNo
                   subheader={
                     <ListSubheader
                       sx={{
-                        bgcolor: 'transparent',
+                        // MUI's ListSubheader is `position: sticky` by default
+                        // (disableSticky is not set here) — that's exactly
+                        // what we want, so a section title stays pinned while
+                        // its items scroll underneath. The bug was that this
+                        // was previously `bgcolor: 'transparent'`: sticky +
+                        // transparent means the scrolling list items behind
+                        // it show straight through instead of being covered.
+                        // Solid, matching the sidebar's own dark background
+                        // (`Drawer`'s `.MuiDrawer-paper` bgcolor above) fixes
+                        // it — and an explicit zIndex keeps it reliably above
+                        // the ListItem links, which don't set one of their
+                        // own (relying on the default stacking order alone
+                        // would still work today, but that's incidental, not
+                        // guaranteed against future changes to this list).
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 2,
+                        bgcolor: '#0e1a1f',
                         color: 'rgba(255,255,255,0.35)',
                         fontFamily: '"Open Sans", sans-serif',
                         fontWeight: 600,
