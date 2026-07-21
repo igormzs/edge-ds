@@ -245,14 +245,34 @@ export function PageHeader({
   title,
   description,
   muiLink,
+  categoryBadge,
+  statusBadge,
 }: {
   title: string;
   description: string;
   muiLink: string;
+  /** Optional pill badge, e.g. "Form Controls / Inputs" - neutral tone. */
+  categoryBadge?: string;
+  /** Optional pill badge, e.g. "In Design / In Progress" - amber tone. */
+  statusBadge?: string;
 }) {
+  const pillSx = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    fontSize: 12,
+    fontFamily: '"Open Sans", sans-serif',
+    fontWeight: 600,
+    textDecoration: 'none',
+    borderRadius: 999,
+    px: 1.5,
+    py: 0.5,
+    border: '1px solid',
+    whiteSpace: 'nowrap' as const,
+  };
+
   return (
     <Box sx={{ mb: 5 }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1, gap: 2, flexWrap: 'wrap' }}>
         <Typography
           sx={{
             fontFamily: '"Montserrat", sans-serif',
@@ -264,29 +284,32 @@ export function PageHeader({
         >
           {title}
         </Typography>
-        <Box
-          component="a"
-          href={muiLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 0.5,
-            mt: 1,
-            fontSize: 12,
-            fontFamily: '"Open Sans", sans-serif',
-            fontWeight: 600,
-            color: '#009f9b',
-            textDecoration: 'none',
-            border: '1px solid #009f9b',
-            borderRadius: 1,
-            px: 1.5,
-            py: 0.5,
-            '&:hover': { bgcolor: 'rgba(0,159,155,0.06)' },
-          }}
-        >
-          MUI Docs ↗
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+          {categoryBadge && (
+            <Box sx={{ ...pillSx, color: '#5e6e7d', borderColor: '#5e6e7d' }}>
+              {categoryBadge}
+            </Box>
+          )}
+          {statusBadge && (
+            <Box sx={{ ...pillSx, color: '#e5890a', borderColor: '#e5890a' }}>
+              {statusBadge}
+            </Box>
+          )}
+          <Box
+            component="a"
+            href={muiLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              ...pillSx,
+              gap: 0.5,
+              color: '#009f9b',
+              borderColor: '#009f9b',
+              '&:hover': { bgcolor: 'rgba(0,159,155,0.06)' },
+            }}
+          >
+            MUI Docs ↗
+          </Box>
         </Box>
       </Box>
       <Typography

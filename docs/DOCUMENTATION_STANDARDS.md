@@ -41,7 +41,7 @@ Every component gets exactly **one master frame** simulating a browser viewport.
 | Property | Value |
 |---|---|
 | Layout | Auto-Layout `VERTICAL` |
-| Padding | `40px` top/bottom, **`48px` left/right** (the page margin — `64px` is acceptable for wider layouts, but must match whatever the Top Header visually implies) |
+| Padding | `40px` top, `120px` bottom (extra breathing room after the final section — raised from `40px` on 2026-07-15 for the master template), **`48px` left/right** (the page margin — `64px` is acceptable for wider layouts, but must match whatever the Top Header visually implies) |
 | Item spacing | `64px` between every direct child (Title Intro Block, each Section Wrapper) |
 | Width | `Fill container` (spans the master frame's full 1440px) |
 | Background | none (transparent — the master frame's grey shows through) |
