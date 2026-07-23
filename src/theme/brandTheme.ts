@@ -703,19 +703,17 @@ const brandTheme = createTheme(baseTheme, {
         },
         track: {
           borderRadius: 16,
-          // Off-track fill: components/switch/slideFill → Semantic/Surface/
-          // Disabled → grey/300 (#e0e0e0) — confirmed directly against the
-          // live Figma file (not guessed): the Off/Enabled variants across
-          // every color had an orphaned, UNBOUND blue-grey literal
-          // (rgb(148,163,184)/#94a3b8) that never matched this token, while
-          // every other state (Hovered/Focused/Disabled) of the same
-          // Off/Checked=False variants WAS already correctly bound to it.
-          // That Figma-side inconsistency was fixed by binding all 14
-          // Enabled-state Slide rectangles to the token (matching their
-          // sibling states) rather than copying the stray literal into the
-          // theme — so this value is genuinely 1:1 with Figma's token now,
-          // not just its (previously buggy) screenshot.
-          backgroundColor: baseTheme.palette.surface.disabled, // grey/300, #e0e0e0
+          // Off-track fill: components/switch/slideFill → grey/400 (#bdbdbd).
+          // Deliberately darker than Indeterminate's grey/300 (see
+          // slideFillIndeterminate on the IndeterminateSwatch, page.tsx) —
+          // Off is a real, determinate choice the user made, Indeterminate
+          // is a lighter, "not yet decided" pre-interaction state that can
+          // never be returned to once the user acts. slideFill previously
+          // routed through Semantic/Surface/Disabled (grey/300) before this
+          // flip; it now points directly at grey/400 instead, since "Off"
+          // and "Disabled" are different concepts that only coincidentally
+          // shared a color before.
+          backgroundColor: colors.grey[400],
           opacity: 1, // solid fills throughout, not stock MUI's translucent black/38%
         },
         sizeSmall: {

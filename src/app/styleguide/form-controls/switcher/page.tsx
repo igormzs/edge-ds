@@ -21,11 +21,16 @@ import {
 // 58x32/44x22 with a 24/18px thumb and zero extra root padding, this swatch
 // uses the exact same numbers (outer box === track box, no separate
 // touch-target inset) so the two sit flush at the same size in a row.
-// Track color is `grey[400]`, the same literal value bound to the Figma
-// `components/switch/slideFillIndeterminate` token. Thumb is `grey[50]`
-// (#fafafa) — confirmed against the live Figma file that Indeterminate's
-// knob is bound to the same `components/switch/knobFillEnabled` token as
-// the Off state (not pure white), so this swatch matches that exactly.
+// Track color is `grey[300]`, matching the Figma `components/switch/
+// slideFillIndeterminate` token - deliberately lighter than the Off track
+// (`grey[400]`, in the theme's `MuiSwitch` track override): Indeterminate
+// is a "not yet decided" pre-interaction state, while Off is a real,
+// determinate choice, and a switch can never revert to Indeterminate once
+// interacted with - the lighter fill reinforces that it's the quieter,
+// pre-decision state of the two. Thumb is `grey[50]` (#fafafa) - confirmed
+// against the live Figma file that Indeterminate's knob is bound to the
+// same `components/switch/knobFillEnabled` token as the Off state (not
+// pure white), so this swatch matches that exactly.
 
 function IndeterminateSwatch({ size = 'medium' }: { size?: 'small' | 'medium' }) {
   const dims =
@@ -42,7 +47,7 @@ function IndeterminateSwatch({ size = 'medium' }: { size?: 'small' | 'medium' })
         width: dims.box,
         height: dims.height,
         borderRadius: dims.height / 2,
-        bgcolor: grey[400],
+        bgcolor: grey[300],
       }}
     >
       <Box
@@ -375,16 +380,14 @@ export default function SwitcherPage() {
                   override (<code>src/theme/brandTheme.ts</code>) instead of stock MUI defaults:
                   Medium is 58×32 track / 24×24 thumb / 4px inset, Small is 44×22 track / 18×18
                   thumb / 2px inset - matching the Figma <code>&lt;Switch&gt;</code> component set
-                  1:1. The Off-state track resolves to grey/300 (<code>#e0e0e0</code>), via Figma&apos;s{' '}
-                  <code>components/switch/slideFill</code> → <code>Semantic/Surface/Disabled</code>{' '}
-                  → <code>grey/300</code> chain - the same token every other state of the Off
-                  variant (Hovered/Focused/Disabled) already used; the rest-state Slide rectangles
-                  in Figma had drifted onto an unbound literal instead, fixed at the source rather
-                  than matched in code only. Each per-color checked track resolves to that
-                  color&apos;s <code>theme.palette[color].main</code>, solid. Indeterminate sits
-                  visually between the two, on its own dedicated{' '}
-                  <code>components/switch/slideFillIndeterminate</code> token (grey/400) - lighter
-                  than any active color, darker than the Off-state grey/300. The thumb resolves to
+                  1:1. The Off-state track resolves to grey/400 (<code>#bdbdbd</code>) via Figma&apos;s{' '}
+                  <code>components/switch/slideFill</code> token, and Indeterminate resolves to the
+                  lighter grey/300 (<code>#e0e0e0</code>) via its own dedicated{' '}
+                  <code>components/switch/slideFillIndeterminate</code> token - Indeterminate is
+                  deliberately the lighter of the two: it represents a pre-interaction, not-yet-decided
+                  state, while Off is a real, determinate choice the user has already made, and a
+                  switch can never revert to Indeterminate once toggled. Each per-color checked track
+                  resolves to that color&apos;s <code>theme.palette[color].main</code>, solid. The thumb resolves to
                   grey/50 (<code>#fafafa</code>) for Off and Indeterminate, matching Figma&apos;s{' '}
                   <code>components/switch/knobFillEnabled</code> token exactly, then goes pure
                   white (<code>#ffffff</code>) for every checked named color - color=&quot;default&quot;
