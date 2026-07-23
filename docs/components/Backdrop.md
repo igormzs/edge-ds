@@ -1,7 +1,7 @@
 # Backdrop
 
-**Status:** Documented 2026-07-21. Web implementation is stable and unchanged (stock `@mui/material/Backdrop`, no breaking prop changes). A Figma documentation canvas now exists; the underlying Figma variant set is still a known gap - see [Figma & Code Tokens Matrix](#figma--code-tokens-matrix) and `docs/Backdrop_Figma_Web_Audit.md`.
-**Web source:** `src/app/styleguide/backdrop/page.tsx` · **Code Connect:** `src/components/Backdrop.figma.tsx` · **Figma:** `EDGE Design System - New` (`fLQNXhHQhKBZzWnJGtUcwn`), page `     Backdrop✅📃`, baseline component `6643:52207`, documentation canvas `815:262127`.
+**Status:** Documented 2026-07-21, Figma variant set added 2026-07-23. Web implementation is stable and unchanged (stock `@mui/material/Backdrop`, no breaking prop changes). The Figma documentation canvas now shows a real 8-variant `Style x Visibility` matrix instead of a single baseline swatch - see [Figma & Code Tokens Matrix](#figma--code-tokens-matrix) and `docs/Backdrop_Figma_Web_Audit.md`. Remaining gap: Blur radius and the Inverted scrim color are literal values on both sides, not tokens.
+**Web source:** `src/app/styleguide/backdrop/page.tsx` · **Code Connect:** `src/components/Backdrop.figma.tsx` · **Figma:** `EDGE Design System - New` (`fLQNXhHQhKBZzWnJGtUcwn`), page `     Backdrop✅📃`, baseline component `6643:52207` (now the `Style=Default, Visibility=Visible` variant of component set `845:266424`), documentation canvas `815:262127`.
 
 ---
 
@@ -36,22 +36,22 @@ stack rather than a component tree:
 
 | Prop | Type | Default | Figma variant counterpart | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `open` | `boolean` | `false` (required) | **None.** No Visible/Hidden variant exists on the Figma component today. | Mounts the backdrop and fades it in/out. |
-| `invisible` | `boolean` | `false` | **None.** | Renders a fully transparent backdrop that still captures pointer events - the *Transparent / click-catcher* variant. |
-| `onClick` | `func` | - | **None.** | Click handler. Its presence is what makes a given usage *Dismissible*; omitting it makes it *Persistent*. |
+| `open` | `boolean` | `false` (required) | **`Visibility` axis** (`Visible` / `Hidden`) on the variant set (`845:266424`). | Mounts the backdrop and fades it in/out. |
+| `invisible` | `boolean` | `false` | **`Style=Transparent`** variant - renders as an empty placeholder (nothing to paint), matching the prop's own visual result. | Renders a fully transparent backdrop that still captures pointer events - the *Transparent / click-catcher* variant. |
+| `onClick` | `func` | - | **None.** Still a usage pattern, not a variant axis - not in scope for the 2026-07-23 build. | Click handler. Its presence is what makes a given usage *Dismissible*; omitting it makes it *Persistent*. |
 | `transitionDuration` | `number \| { enter?: number, exit?: number }` | `{ enter: 225, exit: 195 }` | N/A (static canvas, expected asymmetry) | Fade transition timing, in milliseconds. |
 | `children` | `ReactNode` | - | **None.** Figma's node has no content slot. | Content centered inside the overlay. |
 | `component` | `ElementType` | `"div"` | N/A | Root element override. |
-| `sx` | `SxProps<Theme>` | - | **None.** | System prop. Currently the *only* way to reach Blur/Frost and Inverted/Light Scrim - see below. |
+| `sx` | `SxProps<Theme>` | - | **`Style=Blur` / `Style=Inverted`** variants now exist for these two, using literal (non-tokenized) fill/effect values. | System prop. Currently the *only* way to reach Blur/Frost and Inverted/Light Scrim in code - see below. |
 
 ### Style variants (usage patterns, not separate props)
 
 | Variant | How it's achieved | Notes |
 | :--- | :--- | :--- |
-| Default (Dark Scrim) | `<Backdrop open={open} />` | Matches Figma's `components/backdrop/fill` token exactly (`rgba(0,0,0,0.5)`), see token matrix below. |
-| Blur / Frost | `sx={{ backgroundColor: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(6px)' }}` | No dedicated prop or design token yet - ad hoc per usage. |
-| Transparent / Click-catcher | `invisible` prop | Dedicated, first-class prop. |
-| Inverted / Light Scrim | `sx={{ backgroundColor: 'rgba(255,255,255,0.6)' }}` | For dark-surface contexts. No dedicated prop or token. |
+| Default (Dark Scrim) | `<Backdrop open={open} />` | Matches Figma's `components/backdrop/fill` token exactly (`rgba(0,0,0,0.5)`), see token matrix below. Figma: `Style=Default` variant. |
+| Blur / Frost | `sx={{ backgroundColor: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(6px)' }}` | No dedicated prop or design token yet - ad hoc per usage. Figma: `Style=Blur` variant (literal `rgba(0,0,0,0.25)` fill + background-blur effect, also untokenized). |
+| Transparent / Click-catcher | `invisible` prop | Dedicated, first-class prop. Figma: `Style=Transparent` variant (renders empty - no visible paint on either side, by design). |
+| Inverted / Light Scrim | `sx={{ backgroundColor: 'rgba(255,255,255,0.6)' }}` | For dark-surface contexts. No dedicated prop or token. Figma: `Style=Inverted` variant (literal fill, shown against a dark backing swatch in the docs canvas so it's actually visible). |
 
 ### Interactivity
 
@@ -66,11 +66,11 @@ stack rather than a component tree:
 
 | Property | Figma | Web | Status |
 | :--- | :--- | :--- | :--- |
-| Overlay color/opacity | `components/backdrop/fill` variable (`MUI palette` collection, Light & Dark modes identical) = `rgba(0, 0, 0, 0.5)` | MUI's stock hardcoded default = `rgba(0, 0, 0, 0.5)` | **Values match, but the wiring doesn't.** `brandTheme.ts` has no `MuiBackdrop` entry, so the web side isn't actually reading the Figma token - it's coincidentally the same because neither side has customized it yet. |
-| Backdrop blur | No property or effect exists on the Figma node | `sx={{ backdropFilter: 'blur(Npx)' }}`, no standard radius | **Gap.** No design token backs any specific blur value on either side. |
+| Overlay color/opacity | `components/backdrop/fill` variable (`MUI palette` collection, Light & Dark modes identical) = `rgba(0, 0, 0, 0.5)`, bound on the `Style=Default` variant | MUI's stock hardcoded default = `rgba(0, 0, 0, 0.5)` | **Values match, but the wiring doesn't.** `brandTheme.ts` has no `MuiBackdrop` entry, so the web side isn't actually reading the Figma token - it's coincidentally the same because neither side has customized it yet. |
+| Backdrop blur | `Style=Blur` variant: literal `rgba(0, 0, 0, 0.25)` fill + `BACKGROUND_BLUR` effect (radius `12`), not bound to any variable | `sx={{ backdropFilter: 'blur(6px)' }}`, no standard radius | **Gap narrowed, not closed.** Both sides can represent it now; no design token backs a specific blur value on either side. |
 | Transitions (duration/easing) | N/A - static canvas | `transitionDuration = { enter: 225, exit: 195 }` | Expected platform asymmetry, not a defect. |
 | Z-index stacking | N/A | `theme.zIndex.modal` / `theme.zIndex.drawer + 1`, set per usage via `sx` | No dedicated backdrop-specific stacking token in `brandTheme.ts`. |
-| Visibility / Style / Interactivity variants | **None exist.** The Figma component is a single, unmodified MUI Community library swatch with zero variant properties. | Fully expressed via `open`, `invisible`, `onClick`, and `sx` | **Structural gap**, not a value mismatch - see `docs/Backdrop_Figma_Web_Audit.md` for the full write-up and a proposed variant-set plan (deferred, not built this pass). |
+| Visibility / Style / Interactivity variants | **Resolved (structurally), 2026-07-23.** Component set `845:266424` models `Style` (Default/Blur/Transparent/Inverted) x `Visibility` (Visible/Hidden) as 8 real variants. `Transparent` and every `Hidden` variant render as an empty placeholder rather than a fabricated fill. | Fully expressed via `open`, `invisible`, `onClick`, and `sx` | **Structural gap closed**; token gap remains for Blur radius and the Inverted fill color (both literal on both sides). Dismissible/Persistent stays a documented usage pattern, not a variant axis, on both sides. Full write-up: `docs/Backdrop_Figma_Web_Audit.md`. |
 
 ---
 
