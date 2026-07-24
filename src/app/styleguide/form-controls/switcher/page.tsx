@@ -12,6 +12,7 @@ import {
   PropsTable,
   type PropRow,
 } from '@/components/DocUI';
+import { FormControlLabel } from '@/components/FormControlLabel';
 
 // ─── Simulated Indeterminate swatch ──────────────────────────────────────
 // MUI's stock <Switch> has no `indeterminate` prop (unlike <Checkbox>), so
@@ -102,6 +103,25 @@ const variantsSnippet = `// Sizes
 // Disabled
 <Switch disabled />
 <Switch disabled defaultChecked />`;
+
+const dualLabelSnippet = `import { Switch } from '@mui/material';
+import { FormControlLabel } from '@/components/FormControlLabel';
+
+<FormControlLabel
+  labelPlacement="dual"
+  leftLabel="No"
+  rightLabel="Yes"
+  control={<Switch checked={checked} onChange={onChange} />}
+/>
+
+// Disabled dims both labels the same way single-label placements do:
+<FormControlLabel
+  labelPlacement="dual"
+  leftLabel="No"
+  rightLabel="Yes"
+  disabled
+  control={<Switch checked={checked} onChange={onChange} />}
+/>`;
 
 const indeterminateSnippet = `// Proposed API - not implemented today. MUI's stock <Switch> has
 // no third "indeterminate" state (unlike <Checkbox indeterminate />).
@@ -322,6 +342,52 @@ export default function SwitcherPage() {
         </Typography>
       </DocSection>
 
+      {/* Label Placement (FormControlLabel) */}
+      <DocSection title="Label Placement (FormControlLabel)">
+        <PreviewCanvas>
+          <Stack spacing={3} sx={{ width: '100%' }}>
+            <PreviewGroup label="End / Start / Top / Bottom - single label, unchanged">
+              <Stack direction="row" spacing={4} flexWrap="wrap" alignItems="center">
+                <FormControlLabel labelPlacement="end" label="Label" control={<Switch />} />
+                <FormControlLabel labelPlacement="start" label="Label" control={<Switch />} />
+                <FormControlLabel labelPlacement="top" label="Label" control={<Switch />} />
+                <FormControlLabel labelPlacement="bottom" label="Label" control={<Switch />} />
+              </Stack>
+            </PreviewGroup>
+            <PreviewGroup label="Dual - new: a label on each side, e.g. No / Yes">
+              <Stack direction="row" spacing={4} alignItems="center">
+                <PreviewGroup label="Enabled">
+                  <FormControlLabel
+                    labelPlacement="dual"
+                    leftLabel="No"
+                    rightLabel="Yes"
+                    control={<Switch defaultChecked />}
+                  />
+                </PreviewGroup>
+                <PreviewGroup label="Disabled">
+                  <FormControlLabel
+                    labelPlacement="dual"
+                    leftLabel="No"
+                    rightLabel="Yes"
+                    disabled
+                    control={<Switch defaultChecked />}
+                  />
+                </PreviewGroup>
+              </Stack>
+            </PreviewGroup>
+          </Stack>
+        </PreviewCanvas>
+        <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
+          Matches the Figma <code>&lt;FormControlLabel&gt; | Switch</code> component set&apos;s new{' '}
+          <code>Label Placement = Dual</code> variant (node <code>642:114423</code>, added
+          2026-07-24): <code>[Left Label] [Switch] [Right Label]</code>, centered, with an 8px gap
+          on each side (<code>theme.spacing(1)</code> - matching Figma&apos;s <code>sizing/1</code>{' '}
+          variable, the closest thing this file has to a <code>space/100</code> token). Disabled
+          dims both labels to <code>theme.palette.text.disabled</code>, matching Figma&apos;s
+          disabled-grey binding on the same variant.
+        </Typography>
+      </DocSection>
+
       {/* Key Props */}
       <DocSection title="Key Props">
         <PropsTable rows={propRows} />
@@ -341,6 +407,12 @@ export default function SwitcherPage() {
               Sizes, colors, disabled
             </Typography>
             <CodeBlock code={variantsSnippet} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
+              Dual label placement (FormControlLabel)
+            </Typography>
+            <CodeBlock code={dualLabelSnippet} />
           </Box>
           <Box>
             <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
