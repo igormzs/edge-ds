@@ -89,13 +89,13 @@ const propRows: PropRow[] = [
     prop: 'open',
     type: 'boolean',
     default: 'false',
-    description: 'Required. If true, the backdrop is mounted and fades in. Figma counterpart: none - the canvas has no Visible/Hidden variant today.',
+    description: 'Required. If true, the backdrop is mounted and fades in. Figma counterpart: the Visibility variant (Visible/Hidden) on the Backdrop component set.',
   },
   {
     prop: 'invisible',
     type: 'boolean',
     default: 'false',
-    description: 'If true, the backdrop renders fully transparent while still capturing pointer events - the Transparent / click-catcher variant. No Figma counterpart.',
+    description: 'If true, the backdrop renders fully transparent while still capturing pointer events - the Transparent / click-catcher variant. Figma counterpart: the Style=Transparent variant (renders as an empty placeholder - nothing to paint on either side).',
   },
   {
     prop: 'onClick',
@@ -125,7 +125,7 @@ const propRows: PropRow[] = [
     prop: 'sx',
     type: 'SxProps<Theme>',
     default: 'N/A',
-    description: 'System prop for overrides. Used today to reach Blur/Frost and Inverted/Light Scrim, since neither has a first-class prop or design token.',
+    description: 'System prop for overrides. Used today to reach Blur/Frost and Inverted/Light Scrim, since neither has a first-class prop or design token. Both now have a Figma counterpart (Style=Blur / Style=Inverted variants), still using literal, non-tokenized values on both sides.',
   },
 ];
 
@@ -136,13 +136,13 @@ const tokenRows: PropRow[] = [
     prop: 'components/backdrop/fill',
     type: 'Figma variable (MUI palette, Light & Dark)',
     default: 'rgba(0,0,0,0.5)',
-    description: 'Web renders the identical rgba(0,0,0,0.5) as MUI’s stock default, but brandTheme.ts has no MuiBackdrop override that actually reads this token - the match is coincidental, not wired. See docs/Backdrop_Figma_Web_Audit.md.',
+    description: 'Web renders the identical rgba(0,0,0,0.5) as MUI’s stock default, but brandTheme.ts has no MuiBackdrop override that actually reads this token - the match is coincidental, not wired. Bound on the Style=Default variant of the real Figma variant set (added 2026-07-23). See docs/Backdrop_Figma_Web_Audit.md.',
   },
   {
     prop: 'backdrop-filter: blur()',
     type: 'No Figma token exists',
     default: 'sx-only, e.g. blur(6px)',
-    description: 'Blur/Frost variant has no design-system-owned value on either side. Flagged as a future token candidate, not created in this pass.',
+    description: 'Blur/Frost is now a real Figma variant (Style=Blur, literal rgba(0,0,0,0.25) fill + a background-blur effect), but neither side reads from a shared token yet. Flagged as a future token candidate, not created in this pass.',
   },
   {
     prop: 'transitionDuration',
@@ -244,7 +244,7 @@ export default function BackdropPage() {
               </Box>
             </PreviewGroup>
 
-            <PreviewGroup label="Blur / Frost (sx-only, no design token yet)">
+            <PreviewGroup label="Blur / Frost (Figma: Style=Blur variant, no design token yet)">
               <Box sx={demoBoxSx}>
                 <Box sx={{ position: 'absolute', inset: 0, p: 2, fontFamily: '"Open Sans", sans-serif', fontSize: 13, color: '#5e6e7d' }}>
                   Content behind the frosted layer stays legible but softened.
@@ -267,7 +267,7 @@ export default function BackdropPage() {
               </Box>
             </PreviewGroup>
 
-            <PreviewGroup label="Transparent / Click-catcher (invisible prop)">
+            <PreviewGroup label="Transparent / Click-catcher (invisible prop; Figma: Style=Transparent variant)">
               <Box sx={demoBoxSx}>
                 <Box sx={{ position: 'absolute', inset: 0, p: 2, fontFamily: '"Open Sans", sans-serif', fontSize: 13, color: '#5e6e7d' }}>
                   No visible scrim - click anywhere in this box to close. Useful for
@@ -287,7 +287,7 @@ export default function BackdropPage() {
               </Box>
             </PreviewGroup>
 
-            <PreviewGroup label="Inverted / Light Scrim (sx-only, no design token yet)">
+            <PreviewGroup label="Inverted / Light Scrim (Figma: Style=Inverted variant, no design token yet)">
               <Box sx={{ ...demoBoxSx, bgcolor: '#20262b' }}>
                 <Backdrop
                   open={openStates.inverted}
