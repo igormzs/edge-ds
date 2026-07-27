@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Switch, Box, Typography, Stack } from '@mui/material';
+import { Switch, Box, Typography, Stack, FormGroup } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import {
   PageHeader,
@@ -16,28 +16,21 @@ import { FormControlLabel } from '@/components/FormControlLabel';
 
 // ─── Simulated Indeterminate swatch ──────────────────────────────────────
 // MUI's stock <Switch> has no `indeterminate` prop (unlike <Checkbox>), so
-// there is no real DOM element to render here. This is a static visual
-// mock, sized to match the real <Switch> next to it - now that the
-// MuiSwitch theme override (src/theme/brandTheme.ts) makes the real track
-// 58x32/44x22 with a 24/18px thumb and zero extra root padding, this swatch
-// uses the exact same numbers (outer box === track box, no separate
-// touch-target inset) so the two sit flush at the same size in a row.
-// Track color is `grey[300]`, matching the Figma `components/switch/
-// slideFillIndeterminate` token - deliberately lighter than the Off track
-// (`grey[400]`, in the theme's `MuiSwitch` track override): Indeterminate
-// is a "not yet decided" pre-interaction state, while Off is a real,
-// determinate choice, and a switch can never revert to Indeterminate once
-// interacted with - the lighter fill reinforces that it's the quieter,
-// pre-decision state of the two. Thumb is `grey[50]` (#fafafa) - confirmed
-// against the live Figma file that Indeterminate's knob is bound to the
-// same `components/switch/knobFillEnabled` token as the Off state (not
-// pure white), so this swatch matches that exactly.
-
+// there is no real DOM element to render here. Sized to match the real
+// <Switch> (58x32/44x22 track, 24/18px thumb, brandTheme.ts MuiSwitch
+// override) so the two sit flush at the same size in a row. Track is
+// grey[300] (`components/switch/track/indeterminate` in Figma) - lighter
+// than the Off track (grey[400]): Indeterminate is a "not yet decided"
+// pre-interaction state, while Off is a real, determinate choice, and a
+// switch can never revert to Indeterminate once interacted with. Knob is
+// grey[50] with a horizontal dash mark (#616161) instead of sliding to a
+// position - exact geometry read off the live Figma asset: dash width is
+// always half the knob's diameter, centered, fully rounded.
 function IndeterminateSwatch({ size = 'medium' }: { size?: 'small' | 'medium' }) {
   const dims =
     size === 'small'
-      ? { box: 44, height: 22, thumb: 18 }
-      : { box: 58, height: 32, thumb: 24 };
+      ? { box: 44, height: 22, knob: 18, dashW: 9, dashH: 2 }
+      : { box: 58, height: 32, knob: 24, dashW: 12, dashH: 2.5 };
 
   return (
     <Box
@@ -57,14 +50,27 @@ function IndeterminateSwatch({ size = 'medium' }: { size?: 'small' | 'medium' })
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: dims.thumb,
-          height: dims.thumb,
+          width: dims.knob,
+          height: dims.knob,
           borderRadius: '50%',
           bgcolor: grey[50],
           boxShadow:
             '0 2px 1px -1px rgba(0,0,0,0.2), 0 1px 1px 0 rgba(0,0,0,0.14), 0 1px 3px 0 rgba(0,0,0,0.12)',
         }}
-      />
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: dims.dashW,
+            height: dims.dashH,
+            borderRadius: dims.dashH / 2,
+            bgcolor: '#616161',
+          }}
+        />
+      </Box>
     </Box>
   );
 }
@@ -92,9 +98,10 @@ const variantsSnippet = `// Sizes
 
 // Colors - custom MuiSwitch theme override (src/theme/brandTheme.ts)
 // resolves these to solid theme.palette[color].main tracks/thumbs,
-// matching the Figma <Switch> component set rather than stock MUI.
+// matching the Figma <Switch> component set 1:1. "secondary" is EDGE-DS's
+// "Neutral" status - same prop, design-system-level rename only.
 <Switch color="primary" defaultChecked />
-<Switch color="secondary" defaultChecked />
+<Switch color="secondary" defaultChecked /> {/* Neutral */}
 <Switch color="error" defaultChecked />
 <Switch color="warning" defaultChecked />
 <Switch color="info" defaultChecked />
@@ -122,6 +129,15 @@ import { FormControlLabel } from '@/components/FormControlLabel';
   disabled
   control={<Switch checked={checked} onChange={onChange} />}
 />`;
+
+const formGroupSnippet = `import { Switch, FormGroup } from '@mui/material';
+import { FormControlLabel } from '@/components/FormControlLabel';
+
+<FormGroup>
+  <FormControlLabel control={<Switch defaultChecked />} label="Email notifications" />
+  <FormControlLabel control={<Switch />} label="SMS notifications" />
+  <FormControlLabel control={<Switch defaultChecked />} label="Push notifications" />
+</FormGroup>`;
 
 const indeterminateSnippet = `// Proposed API - not implemented today. MUI's stock <Switch> has
 // no third "indeterminate" state (unlike <Checkbox indeterminate />).
@@ -165,16 +181,12 @@ const propRows: PropRow[] = [
     prop: 'color',
     type: "'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success'",
     default: "'default'",
-    description: 'The color of the track/thumb when checked.',
+    description:
+      'The color of the track/thumb/Focus Halo when checked. "secondary" reads as "Neutral" in EDGE-DS naming.',
   },
 ];
 
-// ─── Specs & Accessibility Notes ─────────────────────────────────────────
-// Same SpecRow pattern used by autocomplete/page.tsx and the other
-// standardized doc pages - a bordered PreviewCanvas containing one
-// teal-heading + body pair per row, folding usage guidance, anatomy/token
-// mapping, and accessibility into a single bottom section instead of a
-// standalone top-of-page "Overview & Usage" block.
+// ─── Section body row (heading + paragraph) ──────────────────────────────
 
 function SpecRow({ heading, body }: { heading: string; body: React.ReactNode }) {
   return (
@@ -210,10 +222,15 @@ function SpecRow({ heading, body }: { heading: string; body: React.ReactNode }) 
 export default function SwitcherPage() {
   const [activeChecked, setActiveChecked] = useState(true);
 
-  const colorRow: Array<{ label: string; color: any }> = [
-    { label: 'Default', color: 'default' },
+  // "Neutral" is EDGE-DS's design-language name for MUI's "secondary" -
+  // same prop, renamed per docs/EDGE-DS-Component-Migration-Playbook.md's
+  // status vocabulary (MUI "secondary" is a neutral grey-blue, not a second
+  // brand hue). Matches the Figma Documentation frame's "Color Statuses
+  // Row" group labels exactly (Primary / Neutral / Error / Warning / Info /
+  // Success - Default is shown separately in Base States, not here).
+  const statusColorRow: Array<{ label: string; color: any }> = [
     { label: 'Primary', color: 'primary' },
-    { label: 'Secondary', color: 'secondary' },
+    { label: 'Neutral', color: 'secondary' },
     { label: 'Error', color: 'error' },
     { label: 'Warning', color: 'warning' },
     { label: 'Info', color: 'info' },
@@ -230,46 +247,146 @@ export default function SwitcherPage() {
         statusBadge="In Design / In Progress"
       />
 
-      {/* Visual Variants */}
-      <DocSection title="Visual Variants">
+      {/* Visual Preview — mirrors the Figma "Switch - Documentation" frame's
+          Visual Preview Section 1:1: Base States row, Color Statuses row
+          (6 statuses), then Composed Examples (FormControlLabel/FormGroup).
+          The exhaustive per-color × per-state matrix lives in the Figma
+          "Switch - Component Gallery" frame instead, per
+          docs/DOCUMENTATION_STANDARDS.md §0 - this section stays a
+          representative preview, not a full variant dump. */}
+      <DocSection title="Visual Preview">
         <PreviewCanvas>
           <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="Off">
-              <Stack direction="row" spacing={3} flexWrap="wrap">
-                {colorRow.map(({ label, color }) => (
-                  <PreviewGroup key={label} label={label} sx={{ gap: 0.5 }}>
-                    <Switch color={color} checked={false} />
-                  </PreviewGroup>
-                ))}
-              </Stack>
-            </PreviewGroup>
-            <PreviewGroup label="On">
-              <Stack direction="row" spacing={3} flexWrap="wrap">
-                {colorRow.map(({ label, color }) => (
-                  <PreviewGroup key={label} label={label} sx={{ gap: 0.5 }}>
-                    <Switch color={color} checked />
-                  </PreviewGroup>
-                ))}
-              </Stack>
-            </PreviewGroup>
-            <PreviewGroup label="Indeterminate (Default color only - simulated, see Key Props below)">
+            <PreviewGroup label="Base States (Default color, Medium)">
               <Stack direction="row" spacing={3} flexWrap="wrap" alignItems="center">
-                <PreviewGroup label="Default">
+                <PreviewGroup label="Off">
+                  <Switch checked={false} />
+                </PreviewGroup>
+                <PreviewGroup label="On">
+                  <Switch checked />
+                </PreviewGroup>
+                <PreviewGroup label="Indeterminate (simulated - see Key Props below)">
                   <IndeterminateSwatch />
+                </PreviewGroup>
+              </Stack>
+            </PreviewGroup>
+
+            <PreviewGroup label="Color Statuses (Medium, Checked)">
+              <Stack direction="row" spacing={4} flexWrap="wrap">
+                {statusColorRow.map(({ label, color }) => (
+                  <PreviewGroup key={label} label={label} sx={{ gap: 0.5 }}>
+                    <Stack direction="row" spacing={1.5}>
+                      <Switch color={color} checked={false} />
+                      <Switch color={color} checked />
+                    </Stack>
+                  </PreviewGroup>
+                ))}
+              </Stack>
+            </PreviewGroup>
+
+            <PreviewGroup label="Composed Examples">
+              <Stack direction="row" spacing={6} flexWrap="wrap" alignItems="flex-start">
+                <PreviewGroup label="<FormControlLabel>">
+                  <FormControlLabel control={<Switch defaultChecked />} label="Notifications" />
+                </PreviewGroup>
+                <PreviewGroup label="<FormGroup>">
+                  <FormGroup>
+                    <FormControlLabel control={<Switch defaultChecked />} label="Email" />
+                    <FormControlLabel control={<Switch />} label="SMS" />
+                    <FormControlLabel control={<Switch defaultChecked />} label="Push" />
+                  </FormGroup>
                 </PreviewGroup>
               </Stack>
             </PreviewGroup>
           </Stack>
         </PreviewCanvas>
-        <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
-          These now render the custom <code>MuiSwitch</code> theme override in{' '}
-          <code>brandTheme.ts</code> - 58×32 track / 24×24 thumb (Medium), matching the Figma{' '}
-          <code>&lt;Switch&gt;</code> component set 1:1, rather than stock MUI&apos;s thinner
-          default. See Specs &amp; Accessibility Notes below for the full token mapping.
-        </Typography>
       </DocSection>
 
-      {/* Sizing */}
+      {/* Anatomy & Token Architecture */}
+      <DocSection title="Anatomy & Token Architecture">
+        <PreviewCanvas>
+          <Box sx={{ width: '100%' }}>
+            <SpecRow
+              heading="Anatomy"
+              body={
+                <>
+                  <strong>Knob</strong>: the circular thumb that slides between Off and On
+                  positions, centered within the Track at both sizes (Small 44×22 track / 18×18
+                  knob, Medium 58×32 track / 24×24 knob). When <code>checked=&quot;indeterminate&quot;</code>,
+                  the Knob shows a horizontal dash mark (grey <code>#616161</code>, width = half the
+                  knob&apos;s diameter, fully rounded) instead of sliding, visually distinguishing it
+                  from Off. <strong>Track</strong>: the pill-shaped background whose fill color
+                  reflects the current checked/color state - and stays visually stable across
+                  Hover and Focus; the Track itself never changes color on interaction.{' '}
+                  <strong>Focus Halo</strong>: a circle centered behind the Knob (diameter = knob
+                  size × 5/3 - 40px Medium, 30px Small), shown on both Hover and Focus - all
+                  interactive feedback lives here, not on the Track.
+                </>
+              }
+            />
+            <SpecRow
+              heading="Token Architecture"
+              body={
+                <>
+                  <strong>Knob</strong>: <code>Components/Switch/Knob/Default</code> (idle fill,
+                  grey/50), <code>Components/Switch/Knob/Disabled</code>.{' '}
+                  <strong>Track</strong>: <code>Components/Switch/Track/Off</code> (neutral grey,
+                  shared across all colors when unchecked), a dedicated{' '}
+                  <code>Components/Switch/Track/Indeterminate</code>, and per-status{' '}
+                  <code>Components/Switch/Track/{'{'}Status{'}'}/On</code> for Primary, Neutral,
+                  Error, Warning, Info, and Success (Neutral reuses the same binding pattern MUI
+                  calls &quot;secondary&quot;). Confirmed directly against the live component set: the
+                  Track keeps this exact same binding across Enabled/Hovered/Focused - there is no
+                  separate Hover/Focus Track token, matching the Anatomy note above.{' '}
+                  <strong>Focus Halo</strong>: reuses the checked Track&apos;s own color token for
+                  named colors (e.g. <code>Track/Primary/On</code> at 12% opacity Hover / 20%
+                  Focus); the neutral/unchecked Halo is currently an <em>unbound literal</em> black
+                  at 8% Hover / 12% Focus - a real gap worth a dedicated{' '}
+                  <code>Components/Switch/Halo/Neutral</code> token per the Token Governance Rule
+                  in <code>EDGE-DS Documentation Pattern.md</code>, not yet created since it wasn&apos;t
+                  in scope for this pass.
+                </>
+              }
+            />
+          </Box>
+        </PreviewCanvas>
+      </DocSection>
+
+      {/* Usage Guidelines & Accessibility */}
+      <DocSection title="Usage Guidelines & Accessibility">
+        <PreviewCanvas>
+          <Box sx={{ width: '100%' }}>
+            <SpecRow
+              heading="Usage Guidelines"
+              body={
+                <>
+                  Use Switch for a single binary setting that takes effect immediately, with no
+                  separate &quot;submit&quot; step (e.g. notification toggles, dark mode). Use{' '}
+                  <code>Radio Group</code> when choosing one option among several, or{' '}
+                  <code>Checkbox</code> when the choice is confirmed later via a form submit, or a
+                  true tri-state control is needed - <code>Checkbox</code> has a native{' '}
+                  <code>indeterminate</code> prop today; <code>Switch</code> does not (see Key
+                  Props above). Supports an Indeterminate state for settings requiring explicit
+                  resolution before landing on On or Off. Label placement (before/after the
+                  control, or no visible label with an <code>aria-label</code>) is a usage
+                  pattern applied via <code>FormControlLabel</code>, not a variant of the Switch
+                  itself. <strong>Accessibility</strong>: maintain a 44×44px minimum touch target
+                  even at Small size by padding the hit area in layout, not resizing the visual
+                  control. <strong>Keyboard</strong>: <code>Tab</code> focuses, <code>Space</code>
+                  /<code>Enter</code> toggles. <strong>ARIA</strong>:{' '}
+                  <code>role=&quot;switch&quot;</code> with <code>aria-checked</code> reflecting state
+                  (<code>true</code>/<code>false</code>/<code>&quot;mixed&quot;</code> for Indeterminate)
+                  and a visible label or <code>aria-label</code>.
+                </>
+              }
+            />
+          </Box>
+        </PreviewCanvas>
+      </DocSection>
+
+      {/* Sizing — Small vs Medium × Off/On, matching the Figma Sizing Matrix
+          1:1 (2 columns, not 3 - Indeterminate is shown once in Base States
+          above rather than duplicated in every size table). */}
       <DocSection title="Sizing">
         <PreviewCanvas>
           <Stack spacing={3} sx={{ width: '100%' }}>
@@ -281,9 +398,6 @@ export default function SwitcherPage() {
                 <PreviewGroup label="On">
                   <Switch size="small" checked />
                 </PreviewGroup>
-                <PreviewGroup label="Indeterminate">
-                  <IndeterminateSwatch size="small" />
-                </PreviewGroup>
               </Stack>
             </PreviewGroup>
             <PreviewGroup label="Medium">
@@ -294,16 +408,25 @@ export default function SwitcherPage() {
                 <PreviewGroup label="On">
                   <Switch size="medium" checked />
                 </PreviewGroup>
-                <PreviewGroup label="Indeterminate">
-                  <IndeterminateSwatch size="medium" />
-                </PreviewGroup>
               </Stack>
             </PreviewGroup>
           </Stack>
         </PreviewCanvas>
+        <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
+          Indeterminate at both sizes is shown once in Visual Preview above rather than repeated
+          here, matching the Figma Documentation frame&apos;s Sizing table exactly (Off/On only).
+        </Typography>
       </DocSection>
 
-      {/* Interactive States */}
+      {/* Key Props */}
+      <DocSection title="Key Props">
+        <PropsTable rows={propRows} />
+      </DocSection>
+
+      {/* Interactive States — live demo. This section has no Figma
+          equivalent (the Documentation frame is a static canvas), but it's
+          the only place the real Focus Halo can actually be demonstrated:
+          hover with a mouse or Tab to a control below to see it. */}
       <DocSection title="Interactive States">
         <PreviewCanvas>
           <Stack spacing={3} sx={{ width: '100%' }}>
@@ -321,8 +444,11 @@ export default function SwitcherPage() {
                 </PreviewGroup>
               </Stack>
             </PreviewGroup>
-            <PreviewGroup label="Hover / Focus - this is a real, live control: hover with a mouse or Tab to it to see both states directly, no static mock needed">
-              <Switch defaultChecked />
+            <PreviewGroup label="Hover / Focus - hover with a mouse or Tab to it to see the circular Focus Halo appear behind the knob (grey for Off, status color for On)">
+              <Stack direction="row" spacing={4}>
+                <Switch defaultChecked={false} />
+                <Switch color="primary" defaultChecked />
+              </Stack>
             </PreviewGroup>
             <PreviewGroup label="Disabled (Off / On)">
               <Stack direction="row" spacing={4}>
@@ -354,7 +480,7 @@ export default function SwitcherPage() {
                 <FormControlLabel labelPlacement="bottom" label="Label" control={<Switch />} />
               </Stack>
             </PreviewGroup>
-            <PreviewGroup label="Dual - new: a label on each side, e.g. No / Yes">
+            <PreviewGroup label="Dual - a label on each side, e.g. No / Yes">
               <Stack direction="row" spacing={4} alignItems="center">
                 <PreviewGroup label="Enabled">
                   <FormControlLabel
@@ -378,19 +504,37 @@ export default function SwitcherPage() {
           </Stack>
         </PreviewCanvas>
         <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
-          Matches the Figma <code>&lt;FormControlLabel&gt; | Switch</code> component set&apos;s new{' '}
-          <code>Label Placement = Dual</code> variant (node <code>642:114423</code>, added
-          2026-07-24): <code>[Left Label] [Switch] [Right Label]</code>, centered, with an 8px gap
-          on each side (<code>theme.spacing(1)</code> - matching Figma&apos;s <code>sizing/1</code>{' '}
-          variable, the closest thing this file has to a <code>space/100</code> token). Disabled
-          dims both labels to <code>theme.palette.text.disabled</code>, matching Figma&apos;s
-          disabled-grey binding on the same variant.
+          Matches the Figma <code>&lt;FormControlLabel&gt; | Switch</code> component set&apos;s{' '}
+          <code>Label Placement = Dual</code> variant (node <code>642:114423</code>):{' '}
+          <code>[Left Label] [Switch] [Right Label]</code>, centered, with an 8px gap on each side
+          (<code>theme.spacing(1)</code>). Disabled dims both labels to{' '}
+          <code>theme.palette.text.disabled</code>, matching Figma&apos;s disabled-grey binding on
+          the same variant.
         </Typography>
       </DocSection>
 
-      {/* Key Props */}
-      <DocSection title="Key Props">
-        <PropsTable rows={propRows} />
+      {/* FormGroup — mirrors the Figma <FormGroup> | <Switch> component set
+          (node 642:108242): vertically stacked switches, sharing a common
+          Enabled/Disabled state. */}
+      <DocSection title="FormGroup">
+        <PreviewCanvas>
+          <Stack direction="row" spacing={6} flexWrap="wrap">
+            <PreviewGroup label="Enabled">
+              <FormGroup>
+                <FormControlLabel control={<Switch defaultChecked />} label="Email notifications" />
+                <FormControlLabel control={<Switch />} label="SMS notifications" />
+                <FormControlLabel control={<Switch defaultChecked />} label="Push notifications" />
+              </FormGroup>
+            </PreviewGroup>
+            <PreviewGroup label="Disabled">
+              <FormGroup>
+                <FormControlLabel disabled control={<Switch defaultChecked />} label="Email notifications" />
+                <FormControlLabel disabled control={<Switch />} label="SMS notifications" />
+                <FormControlLabel disabled control={<Switch defaultChecked />} label="Push notifications" />
+              </FormGroup>
+            </PreviewGroup>
+          </Stack>
+        </PreviewCanvas>
       </DocSection>
 
       {/* Usage */}
@@ -416,91 +560,17 @@ export default function SwitcherPage() {
           </Box>
           <Box>
             <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
+              FormGroup
+            </Typography>
+            <CodeBlock code={formGroupSnippet} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
               Indeterminate - proposed API, not implemented today
             </Typography>
             <CodeBlock code={indeterminateSnippet} />
           </Box>
         </Stack>
-      </DocSection>
-
-      {/* Specs & Accessibility Notes */}
-      <DocSection title="Specs & Accessibility Notes">
-        <PreviewCanvas>
-          <Box sx={{ width: '100%' }}>
-            <SpecRow
-              heading="Overview & Usage"
-              body={
-                <>
-                  Use a Switcher for a single, binary setting that takes effect immediately, with no
-                  separate &quot;submit&quot; step - notification toggles, dark mode, feature flags
-                  a user controls directly. Reach for <code>Radio Group</code> when selecting one
-                  option among several, or <code>Checkbox</code> when the choice will be confirmed
-                  later via a form submit, multiple independent options can be selected at once, or
-                  a true tri-state control is needed - <code>Checkbox</code> has a native{' '}
-                  <code>indeterminate</code> prop today; <code>Switch</code> does not (see Key Props
-                  above). Label placement (before/after the control, or no visible label with an{' '}
-                  <code>aria-label</code>) is a usage pattern applied via{' '}
-                  <code>FormControlLabel</code>, not a variant of the Switch itself.
-                </>
-              }
-            />
-            <SpecRow
-              heading="Anatomy & Token Specs"
-              body={
-                <>
-                  Track and Thumb now read from this app&apos;s <code>MuiSwitch</code> theme
-                  override (<code>src/theme/brandTheme.ts</code>) instead of stock MUI defaults:
-                  Medium is 58×32 track / 24×24 thumb / 4px inset, Small is 44×22 track / 18×18
-                  thumb / 2px inset - matching the Figma <code>&lt;Switch&gt;</code> component set
-                  1:1. The Off-state track resolves to grey/400 (<code>#bdbdbd</code>) via Figma&apos;s{' '}
-                  <code>components/switch/slideFill</code> token, and Indeterminate resolves to the
-                  lighter grey/300 (<code>#e0e0e0</code>) via its own dedicated{' '}
-                  <code>components/switch/slideFillIndeterminate</code> token - Indeterminate is
-                  deliberately the lighter of the two: it represents a pre-interaction, not-yet-decided
-                  state, while Off is a real, determinate choice the user has already made, and a
-                  switch can never revert to Indeterminate once toggled. Each per-color checked track
-                  resolves to that color&apos;s <code>theme.palette[color].main</code>, solid. The thumb resolves to
-                  grey/50 (<code>#fafafa</code>) for Off and Indeterminate, matching Figma&apos;s{' '}
-                  <code>components/switch/knobFillEnabled</code> token exactly, then goes pure
-                  white (<code>#ffffff</code>) for every checked named color - color=&quot;default&quot;
-                  is the one exception, where the checked thumb and track both go near-black.
-                  A live-file audit also caught two Figma-side binding bugs this now matches:
-                  <code>Color=Secondary</code> had been wired to the <code>primary/main</code> token
-                  instead of <code>secondary/main</code>, and <code>Color=Primary</code>&apos;s
-                  checked track carried a stray 38% opacity that rendered it as a washed-out grey
-                  instead of solid teal - both fixed at the source in Figma, not patched around in
-                  code. Label &amp;
-                  Subtext (when composed by a consumer) should use the standard Body/Medium type
-                  token - this design system has no &quot;Satoshi&quot; typeface anywhere in{' '}
-                  <code>brandTheme.ts</code>; body copy is Open Sans, headings are Montserrat.
-                </>
-              }
-            />
-            <SpecRow
-              heading="Accessibility & Micro-Interactions"
-              body={
-                <>
-                  Maintain a minimum 44×44px touch target around the visible track/thumb, even at
-                  the Small size, by padding the hit area in layout (e.g. via{' '}
-                  <code>FormControlLabel</code> spacing) rather than resizing the visual control -
-                  the theme override intentionally keeps the component&apos;s own root sized to the
-                  visual track, so this padding is a per-usage layout responsibility, not baked into
-                  every <code>Switch</code> instance. <code>Tab</code> moves focus to the switch;{' '}
-                  <code>Spacebar</code> or <code>Enter</code> toggles it. Apply{' '}
-                  <code>role=&quot;switch&quot;</code> with{' '}
-                  <code>aria-checked=&quot;true|false&quot;</code> reflecting the current state, and
-                  either a visible <code>&lt;label&gt;</code> (via <code>FormControlLabel</code>) or
-                  an <code>aria-label</code> when none is present. When Indeterminate, set{' '}
-                  <code>aria-checked=&quot;mixed&quot;</code> instead of <code>&quot;true&quot;</code>
-                  /<code>&quot;false&quot;</code> until the user makes an explicit choice. The thumb
-                  slides between Off/On positions via the theme&apos;s transform transition; hover
-                  applies MUI&apos;s built-in state-layer, and <code>:focus-visible</code> keeps its
-                  default ring (no dedicated Focus/Border token wired in yet).
-                </>
-              }
-            />
-          </Box>
-        </PreviewCanvas>
       </DocSection>
     </Box>
   );

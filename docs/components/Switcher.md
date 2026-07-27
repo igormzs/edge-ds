@@ -166,7 +166,34 @@ Real fix: rebound all 44 Off-state Slide rectangles (7 colors × 2 sizes × Enab
 
 **Lesson worth repeating** (echoes §5.4's Primary-opacity finding): when a Figma token change doesn't show up visually, don't assume the screenshot is stale or trust that "the token exists and I changed it" is sufficient - check what the actual node's `boundVariables` points to. A token can exist, be correctly aliased, and still not be the thing rendering anything.
 
-## 6. References
+## 6. Phase 4 web sync — Two-Frame Documentation parity + Focus Halo (2026-07-27)
+
+Applied `EDGE-DS Documentation Pattern.md`'s Phase 4 to bring the web page 1:1 with the live Figma `Switch - Documentation` frame (the Two-Frame Canvas Architecture built earlier the same day, per `docs/DOCUMENTATION_STANDARDS.md` §0).
+
+**Section order** restructured to match Figma's backbone exactly — Visual Preview → Anatomy & Token Architecture → Usage Guidelines & Accessibility → Sizing → Key Props — with the page's existing live-interaction sections (Interactive States, Label Placement, FormGroup, Usage) appended after that backbone rather than removed, since a static Figma canvas has no equivalent for real hover/focus demonstration.
+
+**Focus Halo implemented for real** (`src/theme/brandTheme.ts`): the live component set has a genuine "Focus Halo" ellipse behind the knob (diameter = knob size × 5/3 — 40px Medium, 30px Small) on both Hovered and Focused variants, confirmed via per-node `get_variable_defs` and by downloading the exported SVG assets directly. Exact values read off the assets, not estimated: neutral/unchecked halo is black at `fill-opacity: 0.08` (Hover) / `0.12` (Focus); checked-with-named-color halo reuses that color's own Track token at `0.12` (Hover) / `0.2` (Focus). Also confirmed the Track's own fill is bound identically across Enabled/Hovered/Focused — it never changes color on interaction; all feedback lives in the halo. Implemented as a `::before` pseudo-element on `.MuiSwitch-switchBase`, with the stock MUI ripple disabled (`defaultProps: { disableRipple: true }`) since it would otherwise show a conflicting rectangular hover background over the same area.
+
+**Bug found, not fixed:** the Figma Documentation frame's own "Anatomy & Token Architecture" text currently describes the interaction mechanism incorrectly — "a solid outline traced around the Track's exact silhouette, added only on Focus (not Hover)" — which does not match the live component (a halo behind the knob, present on both Hover and Focus). The web page's copy was written to describe the *real* component, not the stale Figma prose; the Figma text itself was left untouched pending a decision on whether to correct it (a Figma edit, out of scope for this web-only pass).
+
+**Indeterminate dash mark added** to `IndeterminateSwatch` (previously a plain circle): a horizontal rounded-rect dash, `#616161`, width = half the knob's diameter (12×2.5px Medium, 9×2px Small) — geometry read directly off the Figma-exported knob asset, matching the live component exactly.
+
+**Color Statuses reorganized**: "Visual Preview" now separates Base States (Off/On/Indeterminate, Default color only) from a dedicated Color Statuses row of exactly 6 statuses — Primary, Neutral, Error, Warning, Info, Success — labeled "Neutral" rather than "Secondary" to match both Figma's group label and `EDGE-DS-Component-Migration-Playbook.md`'s status vocabulary (the `color="secondary"` prop itself is unchanged; only the display label changed).
+
+**FormGroup added** as its own section (Enabled/Disabled groups of 3 switches), mirroring the Figma `<FormGroup> | <Switch>` component set that didn't have a web equivalent before this pass.
+
+**Verification**: `npx tsc --noEmit` clean; `next build` clean, all 25 routes prerender. Started a production server and `curl`'d the rendered page directly: confirmed `opacity:0.08`/`0.12`/`0.2` and the halo's `width:30px;height:30px` (Small) rule are actually emitted (not just compiling), confirmed zero `MuiTouchRipple` markup remains (ripple genuinely disabled), and confirmed `#616161` appears in the rendered HTML for the dash mark.
+
+### 6.1 Figma Anatomy & Token Architecture text corrected (2026-07-27, same day)
+
+Per user approval, edited the two body-text nodes in the `Switch - Documentation` frame's Anatomy & Token Architecture section directly (`927:91230` Anatomy, `927:91232` Token Architecture) via a `use_figma` script - loaded each node's existing fonts through `getStyledTextSegments(['fontName'])` before mutating `characters`, per the canonical text-edit recipe, so no "unloaded font" errors.
+
+- **Anatomy**: replaced "Focus Ring: a solid outline traced around the Track's exact silhouette, added only on Focus (not Hover)..." with a Focus Halo description matching the real component - a circle centered behind the Knob (diameter = knob size × 5/3), shown on **both** Hover and Focus. Also added an explicit sentence that the Track never changes color on interaction, since that was previously only implied.
+- **Token Architecture**: removed references to nonexistent `Track/{Status}/Hover` / `Track/{Status}/Focus` tokens and a `Components/Switch/Shared/Focus` "outer ring" token - neither is actually bound anywhere in the live component set (confirmed via per-node `get_variable_defs` before writing the correction, not assumed). Replaced with the real mechanism: the Focus Halo reuses the checked Track's own status-color token (12% Hover / 20% Focus), and the neutral/unchecked Halo is an honestly-flagged unbound literal, not a fabricated token name.
+
+**Verification**: `get_screenshot` on the Anatomy & Token Architecture section (`929:36`) post-edit confirmed both paragraphs render fully inside their text boxes with no clipping or overflow. Full-frame screenshot of `Switch - Documentation` (`924:84566`) taken for final parity record. Re-confirmed the web page's five backbone section titles (Visual Preview, Anatomy & Token Architecture, Usage Guidelines & Accessibility, Sizing, Key Props) all render, in that order, via a fresh `next start` + `curl` pass. Figma copy and web copy now describe the identical, real mechanism - no remaining discrepancy between design source and implementation.
+
+## 7. References
 
 - Archived legacy frame: `🗄️ _Archive / Deprecated Docs` page, `_Archive / Switcher / 2026-07-21` (`818:262259`).
 - EDGE-DS documentation standard: `docs/DOCUMENTATION_STANDARDS.md`.

@@ -648,6 +648,13 @@ const brandTheme = createTheme(baseTheme, {
     // position. Verified against MUI's own Switch.js source before writing
     // these values, not guessed.
     MuiSwitch: {
+      // Stock ripple disabled: hover/focus feedback is the circular Focus
+      // Halo below instead, matching Figma's actual mechanism (confirmed
+      // live against the file, not the "outline around the Track" the
+      // Documentation frame's own copy currently — incorrectly — describes).
+      defaultProps: {
+        disableRipple: true,
+      },
       styleOverrides: {
         root: {
           width: 58,
@@ -674,9 +681,6 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: colors.grey[900],
           },
-          '&:hover': {
-            backgroundColor: baseTheme.palette.action.hover,
-          },
           // Disabled thumb/track are muted lighter greys regardless of
           // color/checked state, so a disabled switch reads as visibly
           // non-interactive rather than identical to an enabled one.
@@ -686,6 +690,46 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-disabled + .MuiSwitch-track': {
             backgroundColor: colors.grey[100],
             opacity: 1,
+          },
+          // Focus/Hover Halo: a circle centered behind the Knob, diameter
+          // = knob size × 5/3 (24×5/3=40 Medium, 18×5/3=30 Small — exact
+          // ratio read off the live Figma ellipse geometry, which is
+          // identical at both sizes). Track color never changes on
+          // hover/focus — verified via the file's own bound variables,
+          // every Track fill (Track/Off, Track/Primary/On, etc.) resolves
+          // identically across Enabled/Hovered/Focused. All interactive
+          // feedback lives in this halo alone.
+          //
+          // Base (unchecked, or checked with color="default") halo is
+          // black: 8% opacity on Hover, 12% on Focus — exact values read
+          // from the Figma asset's own `fill-opacity` (not estimated).
+          // Named colors (colorPrimary, etc. below) override both the
+          // halo's color AND its opacity scale to 12%/20% for their
+          // checked state — also read directly off the Figma asset
+          // (Color=Primary, Checked=True: fill-opacity 0.12 Hovered,
+          // 0.2 Focused).
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#000000',
+            opacity: 0,
+            pointerEvents: 'none',
+            transition: 'opacity 0.15s ease',
+          },
+          '&:hover::before': {
+            opacity: 0.08,
+          },
+          '&.Mui-focusVisible::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-disabled::before': {
+            opacity: '0 !important',
           },
         },
         thumb: {
@@ -725,6 +769,10 @@ const brandTheme = createTheme(baseTheme, {
             '&.Mui-checked': {
               transform: 'translateX(22px)',
             },
+            '&::before': {
+              width: 30,
+              height: 30,
+            },
           },
           '& .MuiSwitch-thumb': {
             width: 18,
@@ -738,18 +786,29 @@ const brandTheme = createTheme(baseTheme, {
         // pattern already established for MuiButton/MuiChip in this theme
         // (resolved brand color, not stock MUI's translucent overlay).
         // Each named color slot also overrides the thumb rule back to white
-        // for its checked state. `switchBase`'s own `'&.Mui-checked
+        // for its checked state, and the Focus Halo's color + opacity scale
+        // (12% Hover / 20% Focus, vs the neutral 8%/12% default) for its
+        // checked state. `switchBase`'s own `'&.Mui-checked
         // .MuiSwitch-thumb'` rule (above) darkens the thumb for the
         // color="default" case — these slots are resolved AFTER root/base
         // styles by MUI's overridesResolver (ownerState.color !== 'default'
         // appends `styles['color' + capitalize(color)]` last), so this
-        // reliably wins and keeps the thumb white for every named color.
+        // reliably wins regardless of source order here.
         colorPrimary: {
           '&.Mui-checked + .MuiSwitch-track': {
             backgroundColor: baseTheme.palette.primary.main,
           },
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: '#ffffff',
+          },
+          '&.Mui-checked::before': {
+            backgroundColor: baseTheme.palette.primary.main,
+          },
+          '&.Mui-checked:hover::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-checked.Mui-focusVisible::before': {
+            opacity: 0.2,
           },
         },
         colorSecondary: {
@@ -759,6 +818,15 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: '#ffffff',
           },
+          '&.Mui-checked::before': {
+            backgroundColor: baseTheme.palette.secondary.main,
+          },
+          '&.Mui-checked:hover::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-checked.Mui-focusVisible::before': {
+            opacity: 0.2,
+          },
         },
         colorError: {
           '&.Mui-checked + .MuiSwitch-track': {
@@ -766,6 +834,15 @@ const brandTheme = createTheme(baseTheme, {
           },
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: '#ffffff',
+          },
+          '&.Mui-checked::before': {
+            backgroundColor: baseTheme.palette.error.main,
+          },
+          '&.Mui-checked:hover::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-checked.Mui-focusVisible::before': {
+            opacity: 0.2,
           },
         },
         colorWarning: {
@@ -775,6 +852,15 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: '#ffffff',
           },
+          '&.Mui-checked::before': {
+            backgroundColor: baseTheme.palette.warning.main,
+          },
+          '&.Mui-checked:hover::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-checked.Mui-focusVisible::before': {
+            opacity: 0.2,
+          },
         },
         colorInfo: {
           '&.Mui-checked + .MuiSwitch-track': {
@@ -783,6 +869,15 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: '#ffffff',
           },
+          '&.Mui-checked::before': {
+            backgroundColor: baseTheme.palette.info.main,
+          },
+          '&.Mui-checked:hover::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-checked.Mui-focusVisible::before': {
+            opacity: 0.2,
+          },
         },
         colorSuccess: {
           '&.Mui-checked + .MuiSwitch-track': {
@@ -790,6 +885,15 @@ const brandTheme = createTheme(baseTheme, {
           },
           '&.Mui-checked .MuiSwitch-thumb': {
             backgroundColor: '#ffffff',
+          },
+          '&.Mui-checked::before': {
+            backgroundColor: baseTheme.palette.success.main,
+          },
+          '&.Mui-checked:hover::before': {
+            opacity: 0.12,
+          },
+          '&.Mui-checked.Mui-focusVisible::before': {
+            opacity: 0.2,
           },
         },
       },

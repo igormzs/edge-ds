@@ -1,9 +1,34 @@
 # EDGE-DS Documentation Standards
 ### Page ⇄ Canvas 1:1 Translation Law
 
-**Status:** Ratified — established and verified against the `<ButtonGroup>` documentation page (`src/app/styleguide/components/button-group/page.tsx`) and its Figma twin (file `EDGE Design System - New`, page `Button Group`, master frame *"Button Group — Documentation"*).
+**Status:** Ratified — established and verified against the `<ButtonGroup>` documentation page (`src/app/styleguide/components/button-group/page.tsx`) and its Figma twin (file `EDGE Design System - New`, page `Button Group`, master frame *"Button Group — Documentation"*). The Figma-canvas side was superseded on 2026-07-27 by the **Two-Frame Canvas Architecture** (§0), established and verified against `<Switch>`. Everything below §0 still governs the *content* and internal anatomy of the Documentation frame; it no longer describes the whole Figma page by itself.
 
 This document is the single source of truth for how every component's **web styleguide page** and its **Figma documentation canvas** must be built so the two stay pixel-aligned. Any new component doc (website or Figma) must follow this structure exactly. If a future change breaks 1:1 parity, this file — not tribal memory — is what gets updated first.
+
+---
+
+## 0. Two-Frame Canvas Architecture (Figma page layout)
+
+**Status:** Ratified 2026-07-27, verified against `<Switch>`.
+
+Every component's Figma page holds exactly **two top-level frames, placed side by side** (same `y`, `x` offset by the first frame's width plus a gap):
+
+1. **`<ComponentName> — Component Gallery`** — an exhaustive visual catalog of every real variant that exists in the live component set. Purpose: an instant, visual-first browse of the full library surface, the way MUI's own docs show every variant at a glance.
+2. **`<ComponentName> — Documentation`** — the canonical text-based spec page. Everything in §1 onward in this document describes this frame's internal anatomy.
+
+### 0.1 Component Gallery frame
+
+- Reuses the same "Top Header — EDGE-DS" as the Documentation frame, subtitle changed to "Component Gallery".
+- Title (`Heading/Medium`) + one-line description (`Body/Medium`).
+- Organized top-down by whatever variant axes the component actually has (for a form control like Switch: **Size → Color → Checked-state row → Interaction-state column**). Each axis level gets its own labeled grouping (`Overline` section titles for the outermost axis, `Caption` labels for inner rows/columns) — labels state the literal prop/value being shown (e.g. `SIZE = MEDIUM`, `COLOR = PRIMARY`, `Off`, `Hovered`).
+- **Build only what's real.** Query the live component set's variant names first and derive the grid from actual coverage — do not fabricate a uniform grid assuming every axis combination exists. A component's edge-case states (e.g. an Indeterminate or Disabled axis) are frequently only built for one representative color; document that honestly rather than padding the gap with invented variants. Note any gap you find, don't silently smooth over it.
+- Not width-constrained to 1440px like the Documentation frame — this is a visual browsing canvas, not a webpage simulation, so size it to whatever comfortably fits the real variant count (e.g. `1600px` worked for Switch's 94 variants across 2 sizes).
+
+### 0.2 Documentation frame
+
+- Keeps the single-column, `1440px`, webpage-simulation anatomy described in §1–§4 below.
+- The "Visual Variants" section is now a **small representative preview only** (e.g. 3 illustrative instances covering the component's main states) — it does **not** attempt to show every variant; that job belongs entirely to the Component Gallery frame now.
+- The old "Specs & Accessibility Notes" section is superseded by two dedicated sections, in this order: **"Anatomy & Token Architecture"** (structural breakdown of the component's parts, followed by the exact `Components/{Name}/*` token names each part reads from) and **"Usage Guidelines & Accessibility"** (when to use this component vs. its siblings, state behavior, and ARIA/keyboard rules). Both follow the same Section Wrapper anatomy (§2) as every other section.
 
 ---
 
