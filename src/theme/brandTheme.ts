@@ -422,6 +422,42 @@ const brandTheme = createTheme(baseTheme, {
             color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
           },
         },
+        containedError: {
+          backgroundColor: baseTheme.palette.error.main,
+          color: baseTheme.palette.error.contrastText,
+          '&:hover': { backgroundColor: baseTheme.palette.error.dark },
+          '&.Mui-disabled': {
+            backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
+            color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
+          },
+        },
+        containedWarning: {
+          backgroundColor: baseTheme.palette.warning.main,
+          color: baseTheme.palette.warning.contrastText,
+          '&:hover': { backgroundColor: baseTheme.palette.warning.dark },
+          '&.Mui-disabled': {
+            backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
+            color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
+          },
+        },
+        containedInfo: {
+          backgroundColor: baseTheme.palette.info.main,
+          color: baseTheme.palette.info.contrastText,
+          '&:hover': { backgroundColor: baseTheme.palette.info.dark },
+          '&.Mui-disabled': {
+            backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
+            color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
+          },
+        },
+        containedSuccess: {
+          backgroundColor: baseTheme.palette.success.main,
+          color: baseTheme.palette.success.contrastText,
+          '&:hover': { backgroundColor: baseTheme.palette.success.dark },
+          '&.Mui-disabled': {
+            backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
+            color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
+          },
+        },
         outlinedPrimary: {
           borderColor: baseTheme.palette.primary.main,
           color: baseTheme.palette.primary.main,
@@ -456,6 +492,62 @@ const brandTheme = createTheme(baseTheme, {
             borderWidth: '1px',
           },
         },
+        outlinedError: {
+          borderColor: baseTheme.palette.error.main,
+          color: baseTheme.palette.error.main,
+          borderWidth: '1px',
+          '&:hover': {
+            backgroundColor: alpha(baseTheme.palette.error.main, 0.06),
+            borderWidth: '1px',
+          },
+          '&.Mui-disabled': {
+            borderColor: baseTheme.palette.action.disabledBackground,
+            color: baseTheme.palette.text.disabled,
+            borderWidth: '1px',
+          },
+        },
+        outlinedWarning: {
+          borderColor: baseTheme.palette.warning.main,
+          color: baseTheme.palette.warning.main,
+          borderWidth: '1px',
+          '&:hover': {
+            backgroundColor: alpha(baseTheme.palette.warning.main, 0.06),
+            borderWidth: '1px',
+          },
+          '&.Mui-disabled': {
+            borderColor: baseTheme.palette.action.disabledBackground,
+            color: baseTheme.palette.text.disabled,
+            borderWidth: '1px',
+          },
+        },
+        outlinedInfo: {
+          borderColor: baseTheme.palette.info.main,
+          color: baseTheme.palette.info.main,
+          borderWidth: '1px',
+          '&:hover': {
+            backgroundColor: alpha(baseTheme.palette.info.main, 0.06),
+            borderWidth: '1px',
+          },
+          '&.Mui-disabled': {
+            borderColor: baseTheme.palette.action.disabledBackground,
+            color: baseTheme.palette.text.disabled,
+            borderWidth: '1px',
+          },
+        },
+        outlinedSuccess: {
+          borderColor: baseTheme.palette.success.main,
+          color: baseTheme.palette.success.main,
+          borderWidth: '1px',
+          '&:hover': {
+            backgroundColor: alpha(baseTheme.palette.success.main, 0.06),
+            borderWidth: '1px',
+          },
+          '&.Mui-disabled': {
+            borderColor: baseTheme.palette.action.disabledBackground,
+            color: baseTheme.palette.text.disabled,
+            borderWidth: '1px',
+          },
+        },
         textPrimary: {
           color: baseTheme.palette.primary.main,
           '&:hover': { backgroundColor: baseTheme.palette.primary.subtle },
@@ -465,6 +557,26 @@ const brandTheme = createTheme(baseTheme, {
         textSecondary: {
           color: baseTheme.palette.secondary.main,
           '&:hover': { backgroundColor: alpha(baseTheme.palette.secondary.main, 0.06) },
+          '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
+        },
+        textError: {
+          color: baseTheme.palette.error.main,
+          '&:hover': { backgroundColor: alpha(baseTheme.palette.error.main, 0.06) },
+          '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
+        },
+        textWarning: {
+          color: baseTheme.palette.warning.main,
+          '&:hover': { backgroundColor: alpha(baseTheme.palette.warning.main, 0.06) },
+          '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
+        },
+        textInfo: {
+          color: baseTheme.palette.info.main,
+          '&:hover': { backgroundColor: alpha(baseTheme.palette.info.main, 0.06) },
+          '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
+        },
+        textSuccess: {
+          color: baseTheme.palette.success.main,
+          '&:hover': { backgroundColor: alpha(baseTheme.palette.success.main, 0.06) },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         startIcon: {
@@ -898,6 +1010,41 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // Stock MuiFormControlLabel has no real gap between the control and its
+    // label - `marginLeft: -11`/`marginRight: 16` on the root only offset
+    // the whole [control, label] unit externally, they don't sit *between*
+    // the two. The apparent spacing pre-EDGE-DS came entirely from stock
+    // MUI Switch's own 12px root padding (a bigger invisible touch-target
+    // box); zeroing that padding in the MuiSwitch override above (to match
+    // Figma's exact track geometry) collapsed it, so the label now needs an
+    // explicit gap of its own. `gap` (not a one-sided margin) is used
+    // because FormControlLabelRoot flips `flexDirection` per
+    // labelPlacement (row / row-reverse / column / column-reverse) - a flex
+    // `gap` inserts the same visual space between control and label
+    // regardless of which side the label ends up on, matching the 8px
+    // (`sizing/1`) token the Figma `Dual` variant already uses (see
+    // FormControlLabel.tsx's `DualRoot`, itemSpacing note in
+    // FormControlLabel.figma.tsx).
+    MuiFormControlLabel: {
+      styleOverrides: {
+        root: {
+          gap: baseTheme.spacing(1),
+        },
+      },
+    },
+    // Stock MuiFormGroup has no built-in spacing between stacked items (e.g.
+    // a column of <FormControlLabel><Switch/></FormControlLabel> rows sit
+    // flush against each other with zero gap). EDGE-DS default: 8px vertical
+    // gap so items never touch/overlap - matches the spacing already used
+    // elsewhere for control-adjacent elements (see FormControlLabel.tsx's
+    // `dual` gap, also theme.spacing(1) = 8px).
+    MuiFormGroup: {
+      styleOverrides: {
+        root: {
+          gap: 8,
+        },
+      },
+    },
     MuiChip: {
       styleOverrides: {
         // Geometry: fully padding-driven, no fixed height — mirrors Figma's
@@ -1042,6 +1189,108 @@ const brandTheme = createTheme(baseTheme, {
         // layer (action.disabledOpacity, 0.38) rather than swapped colors,
         // matching real MUI Chip behavior (unlike MuiButton, which does
         // swap to distinct disabled colors above).
+      },
+    },
+    // Alert color tokens, migrated 2026-07-29 from the legacy "MUI palette"
+    // Figma collection onto Components/Alert/{Status}/* (Text, Icon, Border,
+    // Background, BG/Default, BG/OnFill/Text), each aliasing the shared
+    // Semantic/Status/{Status}/* tier — same tier Chip and Status Tag already
+    // consume, so Alert's colors now intentionally match those components
+    // (see docs/figma-component-structure.md §2.3 / the Alert migration
+    // pass). Values below are that tier's real resolved hex, read directly
+    // off the Figma variables, not approximated from stock MUI Alert colors.
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: baseTheme.shape.borderRadius,
+          boxShadow: 'none',
+          padding: '6px 16px',
+        },
+        icon: {
+          fontSize: 22,
+        },
+        // Standard — light tint background, dark-on-tint text/icon.
+        // Background: Semantic/Status/{Status}/Background (ramp step 100).
+        // Text: Semantic/Status/{Status}/Text (ramp step 900).
+        // Icon: Semantic/Status/{Status}/Icon (ramp step 800).
+        standardError: {
+          backgroundColor: colors.red[100],
+          color: colors.red[900],
+          '& .MuiAlert-icon': { color: colors.red[800] },
+        },
+        standardWarning: {
+          backgroundColor: colors.amber[100],
+          color: '#ff6f00',
+          '& .MuiAlert-icon': { color: colors.amber[800] },
+        },
+        standardInfo: {
+          backgroundColor: colors.blue[100],
+          color: colors.blue[900],
+          '& .MuiAlert-icon': { color: colors.blue[800] },
+        },
+        standardSuccess: {
+          backgroundColor: colors.green[100],
+          color: colors.green[900],
+          '& .MuiAlert-icon': { color: colors.green[800] },
+        },
+        // Outlined — white/transparent background, 1px border at the ramp's
+        // 500 step (Semantic/Status/{Status}/Border), text/icon same as Standard.
+        outlinedError: {
+          backgroundColor: 'transparent',
+          border: `1px solid ${colors.red[500]}`,
+          color: colors.red[900],
+          '& .MuiAlert-icon': { color: colors.red[800] },
+        },
+        outlinedWarning: {
+          backgroundColor: 'transparent',
+          border: `1px solid ${colors.amber[500]}`,
+          color: '#ff6f00',
+          '& .MuiAlert-icon': { color: colors.amber[800] },
+        },
+        outlinedInfo: {
+          backgroundColor: 'transparent',
+          border: `1px solid ${colors.blue[500]}`,
+          color: colors.blue[900],
+          '& .MuiAlert-icon': { color: colors.blue[800] },
+        },
+        outlinedSuccess: {
+          backgroundColor: 'transparent',
+          border: `1px solid ${colors.green[500]}`,
+          color: colors.green[900],
+          '& .MuiAlert-icon': { color: colors.green[800] },
+        },
+        // Filled — solid ramp-800 background (Components/Alert/{Status}/BG/Default,
+        // aliasing Semantic/Status/{Status}/Icon, matching Chip's Filled/BG/Default),
+        // white text/icon/action on top (BG/OnFill/Text, aliasing Brand/White).
+        filledError: {
+          backgroundColor: colors.red[800],
+          color: '#ffffff',
+          '& .MuiAlert-icon': { color: '#ffffff' },
+        },
+        filledWarning: {
+          backgroundColor: colors.amber[800],
+          color: '#ffffff',
+          '& .MuiAlert-icon': { color: '#ffffff' },
+        },
+        filledInfo: {
+          backgroundColor: colors.blue[800],
+          color: '#ffffff',
+          '& .MuiAlert-icon': { color: '#ffffff' },
+        },
+        filledSuccess: {
+          backgroundColor: colors.green[800],
+          color: '#ffffff',
+          '& .MuiAlert-icon': { color: '#ffffff' },
+        },
+      },
+    },
+    MuiAlertTitle: {
+      styleOverrides: {
+        root: {
+          ...edgeTypography['body-md'],
+          fontWeight: 500,
+          marginTop: 0,
+        },
       },
     },
     MuiAutocomplete: {

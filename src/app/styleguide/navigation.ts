@@ -24,12 +24,6 @@ export const navigation: NavGroup[] = [
     ],
   },
   {
-    group: 'Form Controls / Inputs',
-    items: [
-      { label: 'Switcher', href: '/styleguide/form-controls/switcher' },
-    ],
-  },
-  {
     group: 'Components',
     items: [
       { label: 'Accordion', href: '/styleguide/accordion' },
@@ -45,6 +39,7 @@ export const navigation: NavGroup[] = [
       { label: 'Divider', href: '/styleguide/divider' },
       { label: 'Floating Action Button', href: '/styleguide/fab' },
       { label: 'Icons', href: '/styleguide/icons' },
+      { label: 'Switcher', href: '/styleguide/form-controls/switcher' },
       { label: 'Tabs', href: '/styleguide/tabs' },
       { label: 'Status Tag', href: '/styleguide/status-tag' },
       { label: 'TextField', href: '/styleguide/textfield' },

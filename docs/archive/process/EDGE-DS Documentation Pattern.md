@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Superseded by docs/web-component-page-pattern.md and docs/figma-component-structure.md
+
+This file's Phase 1 (Token Migration) and Phase 2 (Canvas & Documentation Architecture) pointers, Phase 3 (Legacy Scaffolding & Orphan Cleanup), and Phase 4 (Web Production Parity) guidance were consolidated into the two canonical files above (Phase 3 lives in figma-component-structure.md section 8, Phase 4's principles live in figma-component-structure.md section 9 and web-component-page-pattern.md throughout). Read those files instead, this copy is kept for historical reference only.
+
+---
+
 # EDGE-DS Documentation Pattern
 ### The 4-Phase EDGE-DS Migration Framework — Single Source of Truth
 

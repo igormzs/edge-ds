@@ -39,7 +39,14 @@ export function DocSection({ title, children }: { title: string; children: React
 
 // ─── Component preview canvas ────────────────────────────────────────────────
 
-export function PreviewCanvas({ children }: { children: React.ReactNode }) {
+export function PreviewCanvas({
+  children,
+  sx,
+}: {
+  children: React.ReactNode;
+  /** Optional overrides merged over the default centered layout (e.g. left-align a specific section). */
+  sx?: any;
+}) {
   return (
     <Paper
       elevation={0}
@@ -52,6 +59,7 @@ export function PreviewCanvas({ children }: { children: React.ReactNode }) {
         flexWrap: 'wrap',
         gap: 2,
         alignItems: 'center',
+        ...sx,
       }}
     >
       {children}

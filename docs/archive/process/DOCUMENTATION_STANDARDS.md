@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Superseded by docs/figma-component-structure.md
+
+This file's Two-Frame Canvas Architecture, section-wrapper anatomy, typography token table, page order, and automation gotchas were consolidated into `docs/figma-component-structure.md`. Read that file instead, this copy is kept for historical reference only.
+
+---
+
 # EDGE-DS Documentation Standards
 ### Page ⇄ Canvas 1:1 Translation Law
 

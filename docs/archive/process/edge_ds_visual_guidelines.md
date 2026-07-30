@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Superseded by docs/web-component-page-pattern.md section 9
+
+This file's color palette, typography scale, and spacing grid quick-reference were folded into `docs/web-component-page-pattern.md` section 9 (EDGE-DS Quick Reference). Read that file instead, this copy is kept for historical reference only.
+
+---
+
 # EDGE Design System: Visual Guidelines
 
 This document serves as the **Visual Source of Truth** for the EDGE Design System. It defines the core aesthetic principles, design tokens, and patterns required to maintain a consistent, premium, and high-fidelity user interface across all EDGE projects.

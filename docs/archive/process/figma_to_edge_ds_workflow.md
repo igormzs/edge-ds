@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Superseded by docs/figma-component-structure.md
+
+This skill's Figma-to-code workflow predates the Two-Frame Canvas Architecture and the token migration playbook, both now consolidated into `docs/figma-component-structure.md`. Read that file instead.
+
+---
+
 # Skill: End-to-End Figma → EDGE DS Styleguide Workflow
 
 ## Overview

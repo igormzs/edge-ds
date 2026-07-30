@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Superseded by docs/figma-component-structure.md
+
+This file's token migration workflow (Live Inspection, Gap Analysis, Token Creation, Automated Rebinding, Visual Verification), naming conventions, and gotchas log were consolidated into `docs/figma-component-structure.md` (sections 5 to 7). Read that file instead, this copy is kept for historical reference only.
+
+---
+
 # EDGE-DS Component Migration Playbook
 
 **Status:** Official SOP

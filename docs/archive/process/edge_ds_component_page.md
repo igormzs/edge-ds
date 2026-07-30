@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Superseded by docs/web-component-page-pattern.md
+
+This skill described an earlier, flatter web page shape (single "Basic Component" section, no subcomponent tabs, no matrix-card Visual Preview) that predates the pattern ratified against the refactored Switcher page. Read `docs/web-component-page-pattern.md` instead. Note this file's project path ("/Users/IgorMenezes/AI Projects/EDGE DS", with a space) was also already stale, the real path is "/Users/IgorMenezes/AI Projects/EDGE-DS".
+
+---
+
 # Skill: Creating an EDGE DS Styleguide Component Page
 
 ## Overview

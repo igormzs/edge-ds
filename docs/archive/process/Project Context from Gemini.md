@@ -1,3 +1,9 @@
+# [ARCHIVED 2026-07-28] Stale and superseded by EDGE-DS_Claude_Account_Handoff.md
+
+This file describes an inaccurate tech stack for this repo (claims Tailwind CSS as the styling framework, this codebase actually uses MUI and Emotion, confirmed via package.json and README.md, no Tailwind dependency exists anywhere in the project). Superseded by the more accurate, more recent `EDGE-DS_Claude_Account_Handoff.md` in the repo root. Kept for historical reference only, do not follow its stack description.
+
+---
+
 # Project Migration Context: EDGE Design System
 Export Date: July 9, 2026
 Target Environment: Claude (Agentic Coding & Design Workflows)

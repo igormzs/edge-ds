@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Switch, Box, Typography, Stack, FormGroup } from '@mui/material';
+import { Switch, Box, Typography, Stack, FormGroup, Tabs, Tab, Paper } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import {
   PageHeader,
@@ -26,22 +26,58 @@ import { FormControlLabel } from '@/components/FormControlLabel';
 // grey[50] with a horizontal dash mark (#616161) instead of sliding to a
 // position - exact geometry read off the live Figma asset: dash width is
 // always half the knob's diameter, centered, fully rounded.
-function IndeterminateSwatch({ size = 'medium' }: { size?: 'small' | 'medium' }) {
+function IndeterminateSwatch({
+  size = 'medium',
+  onActivate,
+}: {
+  size?: 'small' | 'medium';
+  /** When provided, the swatch becomes a clickable/keyboard-operable control
+   * (role="switch", aria-checked="mixed") instead of a static aria-hidden
+   * illustration - used to kick off the Indeterminate → On → Off → ...
+   * tri-state cycle in the "Base & Interactive States" card. */
+  onActivate?: () => void;
+}) {
   const dims =
     size === 'small'
       ? { box: 44, height: 22, knob: 18, dashW: 9, dashH: 2 }
       : { box: 58, height: 32, knob: 24, dashW: 12, dashH: 2.5 };
 
+  const interactive = Boolean(onActivate);
+
   return (
     <Box
-      role="img"
-      aria-label="Indeterminate switch (simulated preview, not an interactive control)"
+      role={interactive ? 'switch' : 'img'}
+      aria-checked={interactive ? 'mixed' : undefined}
+      aria-label={
+        interactive
+          ? 'Indeterminate switch - click or press Space/Enter to cycle to On'
+          : 'Indeterminate switch (simulated preview, not an interactive control)'
+      }
+      tabIndex={interactive ? 0 : undefined}
+      onClick={onActivate}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                onActivate!();
+              }
+            }
+          : undefined
+      }
       sx={{
         position: 'relative',
         width: dims.box,
         height: dims.height,
         borderRadius: dims.height / 2,
         bgcolor: grey[300],
+        ...(interactive && {
+          cursor: 'pointer',
+          '&:focus-visible': {
+            outline: '2px solid #009f9b',
+            outlineOffset: 2,
+          },
+        }),
       }}
     >
       <Box
@@ -75,7 +111,173 @@ function IndeterminateSwatch({ size = 'medium' }: { size?: 'small' | 'medium' })
   );
 }
 
-// ─── Usage code snippet ──────────────────────────────────────────────────
+// ─── Text formatting helpers ──────────────────────────────────────────────
+// Text-heavy sections (Anatomy & Token Architecture, Usage Guidelines,
+// Accessibility) render as short paragraphs + bulleted lists instead of one
+// dense flowing block, for scannability.
+
+function Paragraph({ children, sx }: { children: React.ReactNode; sx?: any }) {
+  return (
+    <Typography
+      sx={{
+        fontFamily: '"Open Sans", sans-serif',
+        fontSize: 14,
+        lineHeight: 1.6,
+        color: '#5e6e7d',
+        mb: 1.5,
+        '&:last-child': { mb: 0 },
+        ...sx,
+      }}
+    >
+      {children}
+    </Typography>
+  );
+}
+
+function BulletList({ items, sx }: { items: React.ReactNode[]; sx?: any }) {
+  return (
+    <Box
+      component="ul"
+      sx={{
+        m: 0,
+        mb: 1.5,
+        pl: 2.5,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 0.75,
+        '&:last-child': { mb: 0 },
+        ...sx,
+      }}
+    >
+      {items.map((item, i) => (
+        <Typography
+          key={i}
+          component="li"
+          sx={{
+            fontFamily: '"Open Sans", sans-serif',
+            fontSize: 14,
+            lineHeight: 1.6,
+            color: '#5e6e7d',
+          }}
+        >
+          {item}
+        </Typography>
+      ))}
+    </Box>
+  );
+}
+
+// ─── Section body row (heading + formatted body) ──────────────────────────
+
+function SpecRow({ heading, body }: { heading: string; body: React.ReactNode }) {
+  return (
+    <Box sx={{ mb: 3, '&:last-of-type': { mb: 0 } }}>
+      <Typography
+        sx={{
+          fontFamily: '"Open Sans", sans-serif',
+          fontWeight: 700,
+          fontSize: 12,
+          letterSpacing: 0.6,
+          textTransform: 'uppercase',
+          color: '#009f9b',
+          mb: 1,
+        }}
+      >
+        {heading}
+      </Typography>
+      <Box sx={{ maxWidth: 780 }}>{body}</Box>
+    </Box>
+  );
+}
+
+// ─── Snippet header ────────────────────────────────────────────────────────
+
+function SnippetLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
+      {children}
+    </Typography>
+  );
+}
+
+// ─── Visual Preview matrix helpers ────────────────────────────────────────
+// A well-padded card per subsection, with a left-aligned header - replaces
+// the old single PreviewCanvas + centered PreviewGroup captions, which read
+// as floating/centered rather than a scannable grid.
+
+function MatrixCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        border: '1px solid rgba(0,0,0,0.08)',
+        bgcolor: '#ffffff',
+      }}
+    >
+      <Typography
+        sx={{
+          fontFamily: '"Open Sans", sans-serif',
+          fontWeight: 700,
+          fontSize: 12,
+          letterSpacing: 0.6,
+          textTransform: 'uppercase',
+          color: '#009f9b',
+          mb: 2.5,
+          textAlign: 'left',
+        }}
+      >
+        {title}
+      </Typography>
+      {children}
+    </Paper>
+  );
+}
+
+// Sub-group label (e.g. "Small", "Default", "Primary") - left-aligned,
+// sits directly above its controls instead of centered underneath them.
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography
+      sx={{
+        fontFamily: '"Open Sans", sans-serif',
+        fontSize: 11,
+        fontWeight: 600,
+        color: '#5e6e7d',
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
+        textAlign: 'left',
+        mb: 1,
+      }}
+    >
+      {children}
+    </Typography>
+  );
+}
+
+// A single control + its state caption (e.g. "Off"/"On"), left-aligned
+// underneath the control rather than centered.
+function Swatch({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5 }}>
+      {children}
+      <Typography
+        sx={{
+          fontFamily: '"Open Sans", sans-serif',
+          fontSize: 11,
+          color: '#9e9e9e',
+          letterSpacing: 0.3,
+          textAlign: 'left',
+        }}
+      >
+        {label}
+      </Typography>
+    </Box>
+  );
+}
+
+// ─── Usage code snippets ──────────────────────────────────────────────────
 
 const basicSnippet = `import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -133,6 +335,9 @@ import { FormControlLabel } from '@/components/FormControlLabel';
 const formGroupSnippet = `import { Switch, FormGroup } from '@mui/material';
 import { FormControlLabel } from '@/components/FormControlLabel';
 
+// FormGroup applies an 8px vertical gap between items by default
+// (src/theme/brandTheme.ts MuiFormGroup override) - no extra spacing
+// props needed to keep stacked rows from touching.
 <FormGroup>
   <FormControlLabel control={<Switch defaultChecked />} label="Email notifications" />
   <FormControlLabel control={<Switch />} label="SMS notifications" />
@@ -149,9 +354,9 @@ const indeterminateSnippet = `// Proposed API - not implemented today. MUI's sto
 // third state should be modeled at the form/state layer instead
 // (e.g. null = indeterminate, true/false = resolved).`;
 
-// ─── Key Props ────────────────────────────────────────────────────────
+// ─── Key Props ────────────────────────────────────────────────────────────
 
-const propRows: PropRow[] = [
+const switchPropRows: PropRow[] = [
   {
     prop: 'checked',
     type: "boolean | 'indeterminate'",
@@ -186,120 +391,280 @@ const propRows: PropRow[] = [
   },
 ];
 
-// ─── Section body row (heading + paragraph) ──────────────────────────────
+const formControlLabelPropRows: PropRow[] = [
+  {
+    prop: 'control',
+    type: 'React.ReactElement',
+    default: '—',
+    description: 'The control element to render (e.g. a <Switch>).',
+  },
+  {
+    prop: 'label',
+    type: 'React.ReactNode',
+    default: '—',
+    description:
+      'Single label text. Used as-is for end/start/top/bottom placements; falls back to the right-side label in dual placement if leftLabel/rightLabel are omitted.',
+  },
+  {
+    prop: 'labelPlacement',
+    type: "'end' | 'start' | 'top' | 'bottom' | 'dual'",
+    default: "'end'",
+    description:
+      'Where the label sits relative to the control. EDGE-DS adds "dual" (a label on both sides, e.g. No / Yes) on top of MUI\'s stock placements.',
+  },
+  {
+    prop: 'leftLabel',
+    type: 'React.ReactNode',
+    default: '—',
+    description: 'Text or element rendered to the left of the control. Only used in dual layout.',
+  },
+  {
+    prop: 'rightLabel',
+    type: 'React.ReactNode',
+    default: '—',
+    description: 'Text or element rendered to the right of the control. Only used in dual layout.',
+  },
+  {
+    prop: 'disabled',
+    type: 'boolean',
+    default: 'false',
+    description:
+      'Dims the label(s) to theme.palette.text.disabled and disables the control, unless the control already sets its own disabled prop.',
+  },
+];
 
-function SpecRow({ heading, body }: { heading: string; body: React.ReactNode }) {
+const formGroupPropRows: PropRow[] = [
+  {
+    prop: 'children',
+    type: 'React.ReactNode',
+    default: '—',
+    description: 'One or more <FormControlLabel> (or other control) rows to stack.',
+  },
+  {
+    prop: 'row',
+    type: 'boolean',
+    default: 'false',
+    description: 'Displays group items in a horizontal row instead of a vertical stack.',
+  },
+];
+
+// ─── Color statuses row (shared by Switcher tab) ───────────────────────────
+// "Neutral" is EDGE-DS's design-language name for MUI's "secondary" - same
+// prop, renamed per docs/EDGE-DS-Component-Migration-Playbook.md's status
+// vocabulary (MUI "secondary" is a neutral grey-blue, not a second brand
+// hue). Matches the Figma Documentation frame's "Color Statuses Row" group
+// labels exactly (Primary / Neutral / Error / Warning / Info / Success -
+// Default is shown separately in Base States, not here).
+const statusColorRow: Array<{ label: string; color: any }> = [
+  { label: 'Primary', color: 'primary' },
+  { label: 'Neutral', color: 'secondary' },
+  { label: 'Error', color: 'error' },
+  { label: 'Warning', color: 'warning' },
+  { label: 'Info', color: 'info' },
+  { label: 'Success', color: 'success' },
+];
+
+// ─── Tab 1: Switcher ────────────────────────────────────────────────────────
+
+function SwitcherTab() {
+  // Every switch below is a real, independently-toggleable control - the
+  // labels ("Off"/"On", a color name, etc.) describe the *initial* state
+  // shown on load, not a frozen illustration.
+  const [state, setState] = useState<Record<string, boolean>>({
+    sizeSmallOff: false,
+    sizeSmallOn: true,
+    sizeMediumOff: false,
+    sizeMediumOn: true,
+    baseOff: false,
+    baseOn: true,
+    composedNotifications: true,
+    composedEmail: true,
+    composedSms: false,
+    composedPush: true,
+    ...Object.fromEntries(statusColorRow.map(({ color }) => [`color-${color}-on`, true])),
+  });
+  const toggle = (key: string) => setState((s) => ({ ...s, [key]: !s[key] }));
+
+  // Tri-state cycle for the Indeterminate swatch below: Indeterminate → On →
+  // Off → Indeterminate → ... MUI's stock <Switch> has no real indeterminate
+  // DOM state (see IndeterminateSwatch above), so this is modeled as its own
+  // 3-value state rather than a boolean, and the click handler always
+  // advances the cycle rather than reading the event's own checked value.
+  const [triState, setTriState] = useState<'indeterminate' | 'on' | 'off'>('indeterminate');
+  const cycleTriState = () =>
+    setTriState((s) => (s === 'indeterminate' ? 'on' : s === 'on' ? 'off' : 'indeterminate'));
+
   return (
-    <Box sx={{ mb: 2.5, '&:last-of-type': { mb: 0 } }}>
-      <Typography
-        sx={{
-          fontFamily: '"Open Sans", sans-serif',
-          fontWeight: 700,
-          fontSize: 12,
-          letterSpacing: 0.6,
-          textTransform: 'uppercase',
-          color: '#009f9b',
-          mb: 0.75,
-        }}
-      >
-        {heading}
-      </Typography>
-      <Typography
-        sx={{
-          fontFamily: '"Open Sans", sans-serif',
-          fontSize: 14,
-          lineHeight: 1.6,
-          color: '#5e6e7d',
-          maxWidth: 780,
-        }}
-      >
-        {body}
-      </Typography>
-    </Box>
-  );
-}
-
-export default function SwitcherPage() {
-  const [activeChecked, setActiveChecked] = useState(true);
-
-  // "Neutral" is EDGE-DS's design-language name for MUI's "secondary" -
-  // same prop, renamed per docs/EDGE-DS-Component-Migration-Playbook.md's
-  // status vocabulary (MUI "secondary" is a neutral grey-blue, not a second
-  // brand hue). Matches the Figma Documentation frame's "Color Statuses
-  // Row" group labels exactly (Primary / Neutral / Error / Warning / Info /
-  // Success - Default is shown separately in Base States, not here).
-  const statusColorRow: Array<{ label: string; color: any }> = [
-    { label: 'Primary', color: 'primary' },
-    { label: 'Neutral', color: 'secondary' },
-    { label: 'Error', color: 'error' },
-    { label: 'Warning', color: 'warning' },
-    { label: 'Info', color: 'info' },
-    { label: 'Success', color: 'success' },
-  ];
-
-  return (
-    <Box>
-      <PageHeader
-        title="Switcher"
-        description="A binary control that allows users to toggle an option on or off immediately."
-        muiLink="https://mui.com/material-ui/react-switch/"
-        categoryBadge="Form Controls / Inputs"
-        statusBadge="In Design / In Progress"
-      />
-
-      {/* Visual Preview — mirrors the Figma "Switch - Documentation" frame's
-          Visual Preview Section 1:1: Base States row, Color Statuses row
-          (6 statuses), then Composed Examples (FormControlLabel/FormGroup).
-          The exhaustive per-color × per-state matrix lives in the Figma
-          "Switch - Component Gallery" frame instead, per
-          docs/DOCUMENTATION_STANDARDS.md §0 - this section stays a
-          representative preview, not a full variant dump. */}
+    <>
+      {/* Visual Preview — four well-padded matrix cards (Sizes, Base &
+          Interactive States, Color Statuses, Composed Examples), each with
+          a left-aligned header and left-aligned per-item captions instead
+          of the old centered floating labels. Interactive States is folded
+          into "Base & Interactive States" here rather than living as its
+          own section further down the page, since Disabled and the Focus
+          Halo are both just states of the same real, already-interactive
+          Switch controls shown above. Mirrors the Figma "Switch -
+          Documentation" frame's Visual Preview content - the exhaustive
+          per-color x per-state matrix still lives in the Figma "Switch -
+          Component Gallery" frame per docs/figma-component-structure.md §0,
+          so this stays a representative preview, not a full variant dump. */}
       <DocSection title="Visual Preview">
-        <PreviewCanvas>
-          <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="Base States (Default color, Medium)">
-              <Stack direction="row" spacing={3} flexWrap="wrap" alignItems="center">
-                <PreviewGroup label="Off">
-                  <Switch checked={false} />
-                </PreviewGroup>
-                <PreviewGroup label="On">
-                  <Switch checked />
-                </PreviewGroup>
-                <PreviewGroup label="Indeterminate (simulated - see Key Props below)">
-                  <IndeterminateSwatch />
-                </PreviewGroup>
-              </Stack>
-            </PreviewGroup>
+        <Stack spacing={3}>
+          <MatrixCard title="Sizes">
+            <Stack direction="row" spacing={5} flexWrap="wrap" alignItems="flex-start">
+              <Box>
+                <GroupLabel>Small</GroupLabel>
+                <Stack direction="row" spacing={2}>
+                  <Swatch label="Off">
+                    <Switch size="small" checked={state.sizeSmallOff} onChange={() => toggle('sizeSmallOff')} />
+                  </Swatch>
+                  <Swatch label="On">
+                    <Switch size="small" checked={state.sizeSmallOn} onChange={() => toggle('sizeSmallOn')} />
+                  </Swatch>
+                </Stack>
+              </Box>
+              <Box>
+                <GroupLabel>Medium</GroupLabel>
+                <Stack direction="row" spacing={2}>
+                  <Swatch label="Off">
+                    <Switch checked={state.sizeMediumOff} onChange={() => toggle('sizeMediumOff')} />
+                  </Swatch>
+                  <Swatch label="On">
+                    <Switch checked={state.sizeMediumOn} onChange={() => toggle('sizeMediumOn')} />
+                  </Swatch>
+                </Stack>
+              </Box>
+            </Stack>
+          </MatrixCard>
 
-            <PreviewGroup label="Color Statuses (Medium, Checked)">
-              <Stack direction="row" spacing={4} flexWrap="wrap">
-                {statusColorRow.map(({ label, color }) => (
-                  <PreviewGroup key={label} label={label} sx={{ gap: 0.5 }}>
-                    <Stack direction="row" spacing={1.5}>
-                      <Switch color={color} checked={false} />
-                      <Switch color={color} checked />
-                    </Stack>
-                  </PreviewGroup>
-                ))}
-              </Stack>
-            </PreviewGroup>
+          <MatrixCard title="Base & Interactive States">
+            <Stack direction="row" spacing={5} flexWrap="wrap" alignItems="flex-start">
+              <Box>
+                <GroupLabel>Default (Medium)</GroupLabel>
+                <Stack direction="row" spacing={2}>
+                  <Swatch label="Off">
+                    <Switch checked={state.baseOff} onChange={() => toggle('baseOff')} />
+                  </Swatch>
+                  <Swatch label="On">
+                    <Switch checked={state.baseOn} onChange={() => toggle('baseOn')} />
+                  </Swatch>
+                </Stack>
+              </Box>
+              <Box>
+                <GroupLabel>Indeterminate</GroupLabel>
+                <Swatch label="Click to cycle: Indeterminate → On → Off">
+                  {triState === 'indeterminate' ? (
+                    <IndeterminateSwatch onActivate={cycleTriState} />
+                  ) : (
+                    <Switch checked={triState === 'on'} onChange={cycleTriState} />
+                  )}
+                </Swatch>
+              </Box>
+              <Box>
+                <GroupLabel>Disabled</GroupLabel>
+                <Stack direction="row" spacing={2}>
+                  <Swatch label="Off">
+                    <Switch disabled checked={false} />
+                  </Swatch>
+                  <Swatch label="On">
+                    <Switch disabled checked />
+                  </Swatch>
+                </Stack>
+              </Box>
+              <Box sx={{ maxWidth: 220 }}>
+                <GroupLabel>Focus / Hover</GroupLabel>
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: 1.5,
+                    bgcolor: 'rgba(0,159,155,0.06)',
+                    border: '1px solid rgba(0,159,155,0.25)',
+                  }}
+                >
+                  <Typography sx={{ fontSize: 11.5, lineHeight: 1.5, color: '#5e6e7d' }}>
+                    Hover or Tab to any switch above to see the circular Focus Halo behind the knob
+                    (grey for Off, status color for On).
+                  </Typography>
+                </Box>
+              </Box>
+            </Stack>
+            <Typography variant="body2" sx={{ mt: 2.5, color: '#9e9e9e', maxWidth: 780 }}>
+              Note on the Disabled-color edge case: in Figma, a real <code>Disabled</code> variant
+              only exists on the <code>Primary</code> color (no <code>Default</code>-color Disabled
+              swatch in the component set — see <code>docs/components/Switcher.md</code>). On the web
+              this is not a limitation: the theme override&apos;s <code>.Mui-disabled</code> styling
+              applies uniformly regardless of <code>color</code>, so every color/disabled combination
+              already renders correctly here even though Figma hasn&apos;t built every swatch.
+            </Typography>
+          </MatrixCard>
 
-            <PreviewGroup label="Composed Examples">
-              <Stack direction="row" spacing={6} flexWrap="wrap" alignItems="flex-start">
-                <PreviewGroup label="<FormControlLabel>">
-                  <FormControlLabel control={<Switch defaultChecked />} label="Notifications" />
-                </PreviewGroup>
-                <PreviewGroup label="<FormGroup>">
-                  <FormGroup>
-                    <FormControlLabel control={<Switch defaultChecked />} label="Email" />
-                    <FormControlLabel control={<Switch />} label="SMS" />
-                    <FormControlLabel control={<Switch defaultChecked />} label="Push" />
-                  </FormGroup>
-                </PreviewGroup>
-              </Stack>
-            </PreviewGroup>
-          </Stack>
-        </PreviewCanvas>
+          <MatrixCard title="Color Status">
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: 'repeat(2, minmax(0, 1fr))',
+                  sm: 'repeat(3, minmax(0, 1fr))',
+                  md: 'repeat(6, minmax(0, 1fr))',
+                },
+                columnGap: 3,
+                rowGap: 3,
+              }}
+            >
+              {statusColorRow.map(({ label, color }) => (
+                <Box key={label}>
+                  <GroupLabel>{label}</GroupLabel>
+                  {/* One live switch per color, defaulted to On - since it's
+                      fully interactive, clicking it demonstrates the Off
+                      state directly rather than showing a static Off/On
+                      pair, keeping the grid compact. */}
+                  <Switch
+                    color={color}
+                    checked={state[`color-${color}-on`]}
+                    onChange={() => toggle(`color-${color}-on`)}
+                    inputProps={{ 'aria-label': `${label} switch` }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </MatrixCard>
+
+          <MatrixCard title="Composed Examples">
+            <Stack direction="row" spacing={6} flexWrap="wrap" alignItems="flex-start">
+              <Box>
+                <GroupLabel>&lt;FormControlLabel&gt;</GroupLabel>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={state.composedNotifications}
+                      onChange={() => toggle('composedNotifications')}
+                    />
+                  }
+                  label="Notifications"
+                />
+              </Box>
+              <Box>
+                <GroupLabel>&lt;FormGroup&gt;</GroupLabel>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Switch checked={state.composedEmail} onChange={() => toggle('composedEmail')} />}
+                    label="Email"
+                  />
+                  <FormControlLabel
+                    control={<Switch checked={state.composedSms} onChange={() => toggle('composedSms')} />}
+                    label="SMS"
+                  />
+                  <FormControlLabel
+                    control={<Switch checked={state.composedPush} onChange={() => toggle('composedPush')} />}
+                    label="Push"
+                  />
+                </FormGroup>
+              </Box>
+            </Stack>
+          </MatrixCard>
+        </Stack>
       </DocSection>
 
       {/* Anatomy & Token Architecture */}
@@ -310,184 +675,204 @@ export default function SwitcherPage() {
               heading="Anatomy"
               body={
                 <>
-                  <strong>Knob</strong>: the circular thumb that slides between Off and On
-                  positions, centered within the Track at both sizes (Small 44×22 track / 18×18
-                  knob, Medium 58×32 track / 24×24 knob). When <code>checked=&quot;indeterminate&quot;</code>,
-                  the Knob shows a horizontal dash mark (grey <code>#616161</code>, width = half the
-                  knob&apos;s diameter, fully rounded) instead of sliding, visually distinguishing it
-                  from Off. <strong>Track</strong>: the pill-shaped background whose fill color
-                  reflects the current checked/color state - and stays visually stable across
-                  Hover and Focus; the Track itself never changes color on interaction.{' '}
-                  <strong>Focus Halo</strong>: a circle centered behind the Knob (diameter = knob
-                  size × 5/3 - 40px Medium, 30px Small), shown on both Hover and Focus - all
-                  interactive feedback lives here, not on the Track.
+                  <Paragraph>
+                    <strong>Knob</strong> — the circular thumb that slides between Off and On
+                    positions, centered within the Track at both sizes.
+                  </Paragraph>
+                  <BulletList
+                    items={[
+                      'Small: 44×22 track, 18×18 knob.',
+                      'Medium: 58×32 track, 24×24 knob.',
+                      <>
+                        <code>checked=&quot;indeterminate&quot;</code> shows a horizontal dash (grey{' '}
+                        <code>#616161</code>, width = half the knob&apos;s diameter, fully rounded)
+                        instead of sliding, visually distinguishing it from Off.
+                      </>,
+                    ]}
+                  />
+                  <Paragraph>
+                    <strong>Track</strong> — the pill-shaped background whose fill color reflects
+                    the current checked/color state, and stays visually stable across Hover and
+                    Focus; the Track itself never changes color on interaction.
+                  </Paragraph>
+                  <Paragraph sx={{ mb: 0 }}>
+                    <strong>Focus Halo</strong> — a circle centered behind the Knob (diameter = knob
+                    size × 5/3 — 40px Medium, 30px Small), shown on both Hover and Focus. All
+                    interactive feedback lives here, not on the Track.
+                  </Paragraph>
                 </>
               }
             />
             <SpecRow
               heading="Token Architecture"
               body={
-                <>
-                  <strong>Knob</strong>: <code>Components/Switch/Knob/Default</code> (idle fill,
-                  grey/50), <code>Components/Switch/Knob/Disabled</code>.{' '}
-                  <strong>Track</strong>: <code>Components/Switch/Track/Off</code> (neutral grey,
-                  shared across all colors when unchecked), a dedicated{' '}
-                  <code>Components/Switch/Track/Indeterminate</code>, and per-status{' '}
-                  <code>Components/Switch/Track/{'{'}Status{'}'}/On</code> for Primary, Neutral,
-                  Error, Warning, Info, and Success (Neutral reuses the same binding pattern MUI
-                  calls &quot;secondary&quot;). Confirmed directly against the live component set: the
-                  Track keeps this exact same binding across Enabled/Hovered/Focused - there is no
-                  separate Hover/Focus Track token, matching the Anatomy note above.{' '}
-                  <strong>Focus Halo</strong>: reuses the checked Track&apos;s own color token for
-                  named colors (e.g. <code>Track/Primary/On</code> at 12% opacity Hover / 20%
-                  Focus); the neutral/unchecked Halo is currently an <em>unbound literal</em> black
-                  at 8% Hover / 12% Focus - a real gap worth a dedicated{' '}
-                  <code>Components/Switch/Halo/Neutral</code> token per the Token Governance Rule
-                  in <code>EDGE-DS Documentation Pattern.md</code>, not yet created since it wasn&apos;t
-                  in scope for this pass.
-                </>
+                <BulletList
+                  items={[
+                    <>
+                      <strong>Knob</strong>: <code>Components/Switch/Knob/Default</code> (idle fill,
+                      grey/50), <code>Components/Switch/Knob/Disabled</code>.
+                    </>,
+                    <>
+                      <strong>Track</strong>: <code>Components/Switch/Track/Off</code> (neutral grey,
+                      shared across all colors when unchecked), a dedicated{' '}
+                      <code>Components/Switch/Track/Indeterminate</code>, and per-status{' '}
+                      <code>Components/Switch/Track/{'{'}Status{'}'}/On</code> for Primary, Neutral,
+                      Error, Warning, Info, and Success (Neutral reuses the same binding pattern MUI
+                      calls &quot;secondary&quot;).
+                    </>,
+                    'Confirmed directly against the live component set: the Track keeps this exact same binding across Enabled/Hovered/Focused - there is no separate Hover/Focus Track token, matching the Anatomy note above.',
+                    <>
+                      <strong>Focus Halo</strong>: reuses the checked Track&apos;s own color token for
+                      named colors (e.g. <code>Track/Primary/On</code> at 12% opacity Hover / 20%
+                      Focus); the neutral/unchecked Halo is currently an <em>unbound literal</em>{' '}
+                      black at 8% Hover / 12% Focus — a real gap worth a dedicated{' '}
+                      <code>Components/Switch/Halo/Neutral</code> token per the Token Governance Rule
+                      in <code>EDGE-DS Documentation Pattern.md</code>, not yet created since it
+                      wasn&apos;t in scope for this pass.
+                    </>,
+                  ]}
+                  sx={{ mb: 0 }}
+                />
               }
             />
           </Box>
         </PreviewCanvas>
       </DocSection>
 
-      {/* Usage Guidelines & Accessibility */}
+      {/* Usage Guidelines & Accessibility — split into two SpecRows, each
+          bulleted, instead of one dense flowing paragraph. */}
       <DocSection title="Usage Guidelines & Accessibility">
         <PreviewCanvas>
           <Box sx={{ width: '100%' }}>
             <SpecRow
               heading="Usage Guidelines"
               body={
-                <>
-                  Use Switch for a single binary setting that takes effect immediately, with no
-                  separate &quot;submit&quot; step (e.g. notification toggles, dark mode). Use{' '}
-                  <code>Radio Group</code> when choosing one option among several, or{' '}
-                  <code>Checkbox</code> when the choice is confirmed later via a form submit, or a
-                  true tri-state control is needed - <code>Checkbox</code> has a native{' '}
-                  <code>indeterminate</code> prop today; <code>Switch</code> does not (see Key
-                  Props above). Supports an Indeterminate state for settings requiring explicit
-                  resolution before landing on On or Off. Label placement (before/after the
-                  control, or no visible label with an <code>aria-label</code>) is a usage
-                  pattern applied via <code>FormControlLabel</code>, not a variant of the Switch
-                  itself. <strong>Accessibility</strong>: maintain a 44×44px minimum touch target
-                  even at Small size by padding the hit area in layout, not resizing the visual
-                  control. <strong>Keyboard</strong>: <code>Tab</code> focuses, <code>Space</code>
-                  /<code>Enter</code> toggles. <strong>ARIA</strong>:{' '}
-                  <code>role=&quot;switch&quot;</code> with <code>aria-checked</code> reflecting state
-                  (<code>true</code>/<code>false</code>/<code>&quot;mixed&quot;</code> for Indeterminate)
-                  and a visible label or <code>aria-label</code>.
-                </>
+                <BulletList
+                  items={[
+                    'Use Switch for a single binary setting that takes effect immediately, with no separate "submit" step (e.g. notification toggles, dark mode).',
+                    <>
+                      Use <code>Radio Group</code> when choosing one option among several.
+                    </>,
+                    <>
+                      Use <code>Checkbox</code> when the choice is confirmed later via a form submit,
+                      or a true tri-state control is needed — <code>Checkbox</code> has a native{' '}
+                      <code>indeterminate</code> prop today; <code>Switch</code> does not (see Key
+                      Props below).
+                    </>,
+                    'Supports an Indeterminate state for settings requiring explicit resolution before landing on On or Off.',
+                    <>
+                      Label placement (before/after the control, or no visible label with an{' '}
+                      <code>aria-label</code>) is a usage pattern applied via{' '}
+                      <code>FormControlLabel</code>, not a variant of the Switch itself.
+                    </>,
+                  ]}
+                  sx={{ mb: 0 }}
+                />
+              }
+            />
+            <SpecRow
+              heading="Accessibility"
+              body={
+                <BulletList
+                  items={[
+                    'Maintain a 44×44px minimum touch target even at Small size by padding the hit area in layout, not resizing the visual control.',
+                    <>
+                      <strong>Keyboard</strong>: <code>Tab</code> focuses, <code>Space</code>/
+                      <code>Enter</code> toggles.
+                    </>,
+                    <>
+                      <strong>ARIA</strong>: <code>role=&quot;switch&quot;</code> with{' '}
+                      <code>aria-checked</code> reflecting state (<code>true</code>/<code>false</code>
+                      /<code>&quot;mixed&quot;</code> for Indeterminate) and a visible label or{' '}
+                      <code>aria-label</code>.
+                    </>,
+                  ]}
+                  sx={{ mb: 0 }}
+                />
               }
             />
           </Box>
         </PreviewCanvas>
       </DocSection>
 
-      {/* Sizing — Small vs Medium × Off/On, matching the Figma Sizing Matrix
-          1:1 (2 columns, not 3 - Indeterminate is shown once in Base States
-          above rather than duplicated in every size table). */}
-      <DocSection title="Sizing">
-        <PreviewCanvas>
-          <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="Small">
-              <Stack direction="row" spacing={4}>
-                <PreviewGroup label="Off">
-                  <Switch size="small" checked={false} />
-                </PreviewGroup>
-                <PreviewGroup label="On">
-                  <Switch size="small" checked />
-                </PreviewGroup>
-              </Stack>
-            </PreviewGroup>
-            <PreviewGroup label="Medium">
-              <Stack direction="row" spacing={4}>
-                <PreviewGroup label="Off">
-                  <Switch size="medium" checked={false} />
-                </PreviewGroup>
-                <PreviewGroup label="On">
-                  <Switch size="medium" checked />
-                </PreviewGroup>
-              </Stack>
-            </PreviewGroup>
-          </Stack>
-        </PreviewCanvas>
-        <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
-          Indeterminate at both sizes is shown once in Visual Preview above rather than repeated
-          here, matching the Figma Documentation frame&apos;s Sizing table exactly (Off/On only).
-        </Typography>
-      </DocSection>
-
       {/* Key Props */}
       <DocSection title="Key Props">
-        <PropsTable rows={propRows} />
+        <PropsTable rows={switchPropRows} />
       </DocSection>
 
-      {/* Interactive States — live demo. This section has no Figma
-          equivalent (the Documentation frame is a static canvas), but it's
-          the only place the real Focus Halo can actually be demonstrated:
-          hover with a mouse or Tab to a control below to see it. */}
-      <DocSection title="Interactive States">
-        <PreviewCanvas>
-          <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="Default (Off) / Active (On) - live and clickable">
-              <Stack direction="row" spacing={4} alignItems="center">
-                <PreviewGroup label="Default">
-                  <Switch checked={activeChecked} onChange={(e) => setActiveChecked(e.target.checked)} />
-                </PreviewGroup>
-                <PreviewGroup label={activeChecked ? 'Active (On)' : 'Click to activate'}>
-                  <Switch
-                    color="primary"
-                    checked={activeChecked}
-                    onChange={(e) => setActiveChecked(e.target.checked)}
-                  />
-                </PreviewGroup>
-              </Stack>
-            </PreviewGroup>
-            <PreviewGroup label="Hover / Focus - hover with a mouse or Tab to it to see the circular Focus Halo appear behind the knob (grey for Off, status color for On)">
-              <Stack direction="row" spacing={4}>
-                <Switch defaultChecked={false} />
-                <Switch color="primary" defaultChecked />
-              </Stack>
-            </PreviewGroup>
-            <PreviewGroup label="Disabled (Off / On)">
-              <Stack direction="row" spacing={4}>
-                <Switch disabled checked={false} />
-                <Switch disabled checked />
-              </Stack>
-            </PreviewGroup>
-          </Stack>
-        </PreviewCanvas>
-        <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
-          Note on the Disabled-color edge case: in Figma, a real <code>Disabled</code> variant only
-          exists on the <code>Primary</code> color (no <code>Default</code>-color Disabled swatch
-          in the component set - see <code>docs/components/Switcher.md</code>). On the web this is
-          not a limitation: the theme override&apos;s <code>.Mui-disabled</code> styling applies
-          uniformly regardless of <code>color</code>, so every color/disabled combination already
-          renders correctly here even though Figma hasn&apos;t built every swatch.
-        </Typography>
+      {/* Usage */}
+      <DocSection title="Usage">
+        <Stack spacing={3}>
+          <Box>
+            <SnippetLabel>Basic usage</SnippetLabel>
+            <CodeBlock code={basicSnippet} />
+          </Box>
+          <Box>
+            <SnippetLabel>Sizes, colors, disabled</SnippetLabel>
+            <CodeBlock code={variantsSnippet} />
+          </Box>
+          <Box>
+            <SnippetLabel>Indeterminate — proposed API, not implemented today</SnippetLabel>
+            <CodeBlock code={indeterminateSnippet} />
+          </Box>
+        </Stack>
       </DocSection>
+    </>
+  );
+}
 
-      {/* Label Placement (FormControlLabel) */}
-      <DocSection title="Label Placement (FormControlLabel)">
-        <PreviewCanvas>
-          <Stack spacing={3} sx={{ width: '100%' }}>
-            <PreviewGroup label="End / Start / Top / Bottom - single label, unchanged">
+// ─── Tab 2: FormControlLabel ────────────────────────────────────────────────
+
+function FormControlLabelTab() {
+  const [state, setState] = useState({
+    end: false,
+    start: true,
+    top: false,
+    bottom: true,
+    dualEnabled: true,
+  });
+  const toggle = (key: keyof typeof state) => setState((s) => ({ ...s, [key]: !s[key] }));
+
+  return (
+    <>
+      {/* Visual Preview — left-aligned, fully interactive. Mirrors the
+          Figma <FormControlLabel> | Switch component set's placement
+          variants (node 642:114423). */}
+      <DocSection title="Visual Preview">
+        <PreviewCanvas sx={{ justifyContent: 'flex-start', p: 3 }}>
+          <Stack spacing={2.5} sx={{ width: 'auto', maxWidth: '100%', alignItems: 'flex-start' }}>
+            <PreviewGroup label="End / Start / Top / Bottom — single label placement">
               <Stack direction="row" spacing={4} flexWrap="wrap" alignItems="center">
-                <FormControlLabel labelPlacement="end" label="Label" control={<Switch />} />
-                <FormControlLabel labelPlacement="start" label="Label" control={<Switch />} />
-                <FormControlLabel labelPlacement="top" label="Label" control={<Switch />} />
-                <FormControlLabel labelPlacement="bottom" label="Label" control={<Switch />} />
+                <FormControlLabel
+                  labelPlacement="end"
+                  label="Label"
+                  control={<Switch checked={state.end} onChange={() => toggle('end')} />}
+                />
+                <FormControlLabel
+                  labelPlacement="start"
+                  label="Label"
+                  control={<Switch checked={state.start} onChange={() => toggle('start')} />}
+                />
+                <FormControlLabel
+                  labelPlacement="top"
+                  label="Label"
+                  control={<Switch checked={state.top} onChange={() => toggle('top')} />}
+                />
+                <FormControlLabel
+                  labelPlacement="bottom"
+                  label="Label"
+                  control={<Switch checked={state.bottom} onChange={() => toggle('bottom')} />}
+                />
               </Stack>
             </PreviewGroup>
-            <PreviewGroup label="Dual - a label on each side, e.g. No / Yes">
+            <PreviewGroup label="Dual — a label on each side, e.g. No / Yes">
               <Stack direction="row" spacing={4} alignItems="center">
                 <PreviewGroup label="Enabled">
                   <FormControlLabel
                     labelPlacement="dual"
                     leftLabel="No"
                     rightLabel="Yes"
-                    control={<Switch defaultChecked />}
+                    control={<Switch checked={state.dualEnabled} onChange={() => toggle('dualEnabled')} />}
                   />
                 </PreviewGroup>
                 <PreviewGroup label="Disabled">
@@ -503,27 +888,106 @@ export default function SwitcherPage() {
             </PreviewGroup>
           </Stack>
         </PreviewCanvas>
-        <Typography variant="body2" sx={{ mt: 2, color: '#9e9e9e', maxWidth: 780 }}>
-          Matches the Figma <code>&lt;FormControlLabel&gt; | Switch</code> component set&apos;s{' '}
-          <code>Label Placement = Dual</code> variant (node <code>642:114423</code>):{' '}
-          <code>[Left Label] [Switch] [Right Label]</code>, centered, with an 8px gap on each side
-          (<code>theme.spacing(1)</code>). Disabled dims both labels to{' '}
-          <code>theme.palette.text.disabled</code>, matching Figma&apos;s disabled-grey binding on
-          the same variant.
-        </Typography>
       </DocSection>
 
-      {/* FormGroup — mirrors the Figma <FormGroup> | <Switch> component set
-          (node 642:108242): vertically stacked switches, sharing a common
-          Enabled/Disabled state. */}
-      <DocSection title="FormGroup">
+      {/* Usage Guidelines & Accessibility */}
+      <DocSection title="Usage Guidelines & Accessibility">
         <PreviewCanvas>
-          <Stack direction="row" spacing={6} flexWrap="wrap">
+          <Box sx={{ width: '100%' }}>
+            <SpecRow
+              heading="Usage Guidelines"
+              body={
+                <BulletList
+                  items={[
+                    <>
+                      <code>FormControlLabel</code> pairs a control (e.g. a <code>Switch</code>) with a
+                      text label as a single clickable unit — clicking the label toggles the control
+                      too.
+                    </>,
+                    <>
+                      Use <code>end</code>/<code>start</code>/<code>top</code>/<code>bottom</code> for
+                      a single label on one side of the control.
+                    </>,
+                    <>
+                      Use EDGE-DS&apos;s <code>dual</code> placement (via <code>leftLabel</code>/
+                      <code>rightLabel</code>) when a setting reads better as two opposing states side
+                      by side (e.g. &quot;No&quot; — Switch — &quot;Yes&quot;) rather than one
+                      after-the-fact label.
+                    </>,
+                  ]}
+                  sx={{ mb: 0 }}
+                />
+              }
+            />
+            <SpecRow
+              heading="Accessibility"
+              body={
+                <BulletList
+                  items={[
+                    'The label is rendered as a native <label> element wrapping the control, so clicking anywhere in the label toggles the control without extra ARIA wiring.',
+                    'Disabled dims both the label and the control to the same disabled-text color, so the pairing still reads as one unit in that state.',
+                  ]}
+                  sx={{ mb: 0 }}
+                />
+              }
+            />
+          </Box>
+        </PreviewCanvas>
+      </DocSection>
+
+      {/* Key Props */}
+      <DocSection title="Key Props">
+        <PropsTable rows={formControlLabelPropRows} />
+      </DocSection>
+
+      {/* Usage */}
+      <DocSection title="Usage">
+        <Stack spacing={3}>
+          <Box>
+            <SnippetLabel>Basic usage</SnippetLabel>
+            <CodeBlock code={basicSnippet} />
+          </Box>
+          <Box>
+            <SnippetLabel>Dual label placement</SnippetLabel>
+            <CodeBlock code={dualLabelSnippet} />
+          </Box>
+        </Stack>
+      </DocSection>
+    </>
+  );
+}
+
+// ─── Tab 3: FormGroup ───────────────────────────────────────────────────────
+
+function FormGroupTab() {
+  const [state, setState] = useState({ email: true, sms: false, push: true });
+  const toggle = (key: keyof typeof state) => setState((s) => ({ ...s, [key]: !s[key] }));
+
+  return (
+    <>
+      {/* Visual Preview — left-aligned, fully interactive. Mirrors the
+          Figma <FormGroup> | <Switch> component set (node 642:108242):
+          vertically stacked switches sharing a common Enabled/Disabled
+          state, with an 8px vertical gap between items (theme default -
+          see MuiFormGroup override in src/theme/brandTheme.ts) so rows
+          never touch or overlap. */}
+      <DocSection title="Visual Preview">
+        <PreviewCanvas sx={{ justifyContent: 'flex-start', p: 3 }}>
+          <Stack direction="row" spacing={6} flexWrap="wrap" sx={{ alignItems: 'flex-start' }}>
             <PreviewGroup label="Enabled">
               <FormGroup>
-                <FormControlLabel control={<Switch defaultChecked />} label="Email notifications" />
-                <FormControlLabel control={<Switch />} label="SMS notifications" />
-                <FormControlLabel control={<Switch defaultChecked />} label="Push notifications" />
+                <FormControlLabel
+                  control={<Switch checked={state.email} onChange={() => toggle('email')} />}
+                  label="Email notifications"
+                />
+                <FormControlLabel
+                  control={<Switch checked={state.sms} onChange={() => toggle('sms')} />}
+                  label="SMS notifications"
+                />
+                <FormControlLabel
+                  control={<Switch checked={state.push} onChange={() => toggle('push')} />}
+                  label="Push notifications"
+                />
               </FormGroup>
             </PreviewGroup>
             <PreviewGroup label="Disabled">
@@ -537,41 +1001,99 @@ export default function SwitcherPage() {
         </PreviewCanvas>
       </DocSection>
 
+      {/* Usage Guidelines & Accessibility */}
+      <DocSection title="Usage Guidelines & Accessibility">
+        <PreviewCanvas>
+          <Box sx={{ width: '100%' }}>
+            <SpecRow
+              heading="Usage Guidelines"
+              body={
+                <BulletList
+                  items={[
+                    <>
+                      <code>FormGroup</code> stacks a set of related controls (e.g. several
+                      notification-type switches) under one visual group.
+                    </>,
+                    'Items get an 8px vertical gap by default — never rely on the group to render items flush against each other.',
+                    'A shared Disabled state dims every item in the group uniformly.',
+                  ]}
+                  sx={{ mb: 0 }}
+                />
+              }
+            />
+            <SpecRow
+              heading="Accessibility"
+              body={
+                <BulletList
+                  items={[
+                    'FormGroup itself is a layout wrapper, not a form-semantics role — pair it with a <FormLabel>/<FormControl> (or an aria-label on a containing element) when the group needs an accessible name.',
+                    'Each item still exposes its own accessible name via FormControlLabel, so screen readers announce the group as a sequence of independently labeled switches.',
+                  ]}
+                  sx={{ mb: 0 }}
+                />
+              }
+            />
+          </Box>
+        </PreviewCanvas>
+      </DocSection>
+
+      {/* Key Props */}
+      <DocSection title="Key Props">
+        <PropsTable rows={formGroupPropRows} />
+      </DocSection>
+
       {/* Usage */}
       <DocSection title="Usage">
-        <Stack spacing={3}>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
-              Basic usage
-            </Typography>
-            <CodeBlock code={basicSnippet} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
-              Sizes, colors, disabled
-            </Typography>
-            <CodeBlock code={variantsSnippet} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
-              Dual label placement (FormControlLabel)
-            </Typography>
-            <CodeBlock code={dualLabelSnippet} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
-              FormGroup
-            </Typography>
-            <CodeBlock code={formGroupSnippet} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#5e6e7d', mb: 1 }}>
-              Indeterminate - proposed API, not implemented today
-            </Typography>
-            <CodeBlock code={indeterminateSnippet} />
-          </Box>
-        </Stack>
+        <Box>
+          <SnippetLabel>FormGroup</SnippetLabel>
+          <CodeBlock code={formGroupSnippet} />
+        </Box>
       </DocSection>
+    </>
+  );
+}
+
+// ─── Page ───────────────────────────────────────────────────────────────────
+
+const TAB_LABELS = ['Switcher', 'FormControlLabel', 'FormGroup'] as const;
+
+export default function SwitcherPage() {
+  const [tab, setTab] = useState(0);
+
+  return (
+    <Box>
+      <PageHeader
+        title="Switcher"
+        description="A binary control that allows users to toggle an option on or off immediately."
+        muiLink="https://mui.com/material-ui/react-switch/"
+        categoryBadge="Components"
+        statusBadge="In Design / In Progress"
+      />
+
+      {/* Subcomponent tab navigation — standard pattern for any component
+          page with subcomponents (Switcher owns FormControlLabel and
+          FormGroup). Each tab is a dedicated view under this master page. */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          aria-label="Switcher and subcomponents"
+        >
+          {TAB_LABELS.map((label, i) => (
+            <Tab key={label} label={label} id={`switcher-tab-${i}`} aria-controls={`switcher-tabpanel-${i}`} />
+          ))}
+        </Tabs>
+      </Box>
+
+      <Box role="tabpanel" hidden={tab !== 0} id="switcher-tabpanel-0" aria-labelledby="switcher-tab-0">
+        {tab === 0 && <SwitcherTab />}
+      </Box>
+      <Box role="tabpanel" hidden={tab !== 1} id="switcher-tabpanel-1" aria-labelledby="switcher-tab-1">
+        {tab === 1 && <FormControlLabelTab />}
+      </Box>
+      <Box role="tabpanel" hidden={tab !== 2} id="switcher-tabpanel-2" aria-labelledby="switcher-tab-2">
+        {tab === 2 && <FormGroupTab />}
+      </Box>
     </Box>
   );
 }
