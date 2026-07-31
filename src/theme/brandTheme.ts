@@ -230,6 +230,11 @@ export const colors = {
     800: '#323940',
     900: '#263238',
   },
+  overlay: {
+    scrim: 'rgba(0, 0, 0, 0.5)', // Semantic/Overlay/Scrim, aliased by Components/Backdrop/Fill/Default
+    scrimBlur: 'rgba(0, 0, 0, 0.25)', // Components/Backdrop/Fill/Blur (literal, no Brand-tier black primitive to alias)
+    invertedScrim: 'rgba(255, 255, 255, 0.6)', // Components/Backdrop/Fill/Inverted (literal, RGB matches Brand/White but alpha differs)
+  },
 };
 
 // 2. Strict Semantic Mapping
@@ -1331,6 +1336,24 @@ const brandTheme = createTheme(baseTheme, {
             height: '0px !important',
             background: 'transparent !important',
           },
+        },
+      },
+    },
+    MuiBackdrop: {
+      defaultProps: {
+        // Matches MUI's own stock default; named explicitly since Figma's
+        // canvas is static and has no motion token to diverge from, so
+        // there is nothing to override, only to make explicit.
+        transitionDuration: { enter: 225, exit: 195 },
+      },
+      styleOverrides: {
+        root: {
+          // Default (Dark Scrim) style. Previously this was MUI's stock
+          // hardcoded rgba(0,0,0,0.5), coincidentally identical to Figma's
+          // token but not actually wired to it. Now sourced from
+          // colors.overlay.scrim, matching Components/Backdrop/Fill/Default
+          // (aliasing Semantic/Overlay/Scrim) on the Figma side.
+          backgroundColor: colors.overlay.scrim,
         },
       },
     },
