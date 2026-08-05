@@ -1064,8 +1064,19 @@ const brandTheme = createTheme(baseTheme, {
         // `.MuiChip-label` normally carries MUI's default horizontal padding
         // (12px/8px). We zero it out so root's padding below is the single
         // source of truth for spacing — avoids double horizontal padding.
+        // Chips with a leading `avatar` or `icon` need that left padding
+        // restored, though: MUI's own `.MuiChip-avatar`/`.MuiChip-icon`
+        // ship a built-in negative right margin (-6px medium / -4px small)
+        // that assumes the label still carries its native left padding to
+        // net out to a small, intentional gap. With that padding zeroed
+        // out here, the negative margin landed directly on top of the
+        // label text instead — the same class of overlap as the
+        // deletable-icon fix below, just on the leading edge.
         label: {
           padding: 0,
+          '.MuiChip-avatar + &, .MuiChip-icon + &': {
+            paddingLeft: '12px',
+          },
         },
         sizeMedium: {
           height: 'auto',
@@ -1090,6 +1101,12 @@ const brandTheme = createTheme(baseTheme, {
           padding: '3px 8px',
           '&.MuiChip-deletable .MuiChip-label': {
             paddingRight: '8px',
+          },
+          // Small avatar/icon use a smaller negative margin (-4px vs -6px);
+          // this overrides the medium-sized restore above with equivalent
+          // specificity via the extra `.MuiChip-sizeSmall` ancestor class.
+          '& .MuiChip-avatar + .MuiChip-label, & .MuiChip-icon + .MuiChip-label': {
+            paddingLeft: '8px',
           },
         },
         // Per-color mapping. MUI v7's ChipClasses has no combined
@@ -1194,6 +1211,64 @@ const brandTheme = createTheme(baseTheme, {
         // layer (action.disabledOpacity, 0.38) rather than swapped colors,
         // matching real MUI Chip behavior (unlike MuiButton, which does
         // swap to distinct disabled colors above).
+      },
+    },
+    // Badge color tokens, migrated 2026-08-03 from the real Figma <Badge>
+    // component set (Components/Badge/{Color}/BG/Default + /Text, plus a
+    // standalone Border token), inserted next to MuiChip since Badge shares
+    // the same brand-pair-plus-four-status color family shape. Primary and
+    // Secondary alias Brand/Primary/500 and Brand/Secondary/500 directly
+    // (same Chip precedent as MuiChip's colorPrimary/colorSecondary above,
+    // kept as two literal brand colors rather than collapsed into Neutral).
+    // Error/Warning/Info/Success alias Semantic/Status/{Status}/Icon, the
+    // same ramp-800 tier already consumed by MuiAlert's filled variant and
+    // MuiChip's Filled/BG/Default below, so colors.red/amber/blue/green[800]
+    // is used directly rather than baseTheme.palette.{status}.main (which
+    // diverges from the real Semantic/Status tier for warning/info, same
+    // divergence already documented on MuiAlert above). Text on every
+    // colored badge is Semantic/Text/Inverse (white). The Default (no
+    // color) badge has no background token at all in Figma, just
+    // Semantic/Text/Primary text on a transparent fill, an explicit
+    // "flag it, keep it empty" decision made during the Figma migration
+    // rather than fabricated to match stock MUI Badge's grey pill.
+    MuiBadge: {
+      styleOverrides: {
+        badge: {
+          // Components/Badge/Border, aliasing Brand/White: the 2px ring
+          // that separates a colored badge from whatever it is anchored on,
+          // present on every color in the real Figma "<Badge> | With
+          // Instance" set.
+          border: '2px solid #ffffff',
+          fontFamily: baseTheme.typography.body2.fontFamily,
+        },
+        colorDefault: {
+          backgroundColor: 'transparent',
+          color: baseTheme.palette.text.primary,
+        },
+        colorPrimary: {
+          backgroundColor: baseTheme.palette.primary.main,
+          color: '#ffffff',
+        },
+        colorSecondary: {
+          backgroundColor: baseTheme.palette.secondary.main,
+          color: '#ffffff',
+        },
+        colorError: {
+          backgroundColor: colors.red[800],
+          color: '#ffffff',
+        },
+        colorWarning: {
+          backgroundColor: colors.amber[800],
+          color: '#ffffff',
+        },
+        colorInfo: {
+          backgroundColor: colors.blue[800],
+          color: '#ffffff',
+        },
+        colorSuccess: {
+          backgroundColor: colors.green[800],
+          color: '#ffffff',
+        },
       },
     },
     // Alert color tokens, migrated 2026-07-29 from the legacy "MUI palette"
