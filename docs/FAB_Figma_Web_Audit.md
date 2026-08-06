@@ -2,7 +2,7 @@
 
 **Figma source:** `EDGE Design System - New` (`fLQNXhHQhKBZzWnJGtUcwn`), page `     Floating Action Button` (`6556:38207`), master component set `<Fab>` (node `6556:38264`, a real `COMPONENT_SET` with four variant properties, Form x Size x Color x State, 120 total real variants, zero gaps in the grid), new `FAB - Component Gallery` frame (node `1412:377`) and new `FAB - Documentation` frame (node `1414:2284`), both built 2026-08-05.
 **Web source:** stock MUI `Fab`, plus a new `MuiFab` entry in `src/theme/brandTheme.ts`. A pre-existing `src/app/styleguide/fab/page.tsx` predates this methodology and was explicitly left untouched this pass, paused project-wide pending the Storybook migration.
-**Status:** 2026-08-05 - Figma-side token migration, Gallery, and Documentation frame all complete. One new token was created (`Components/Fab/Shared/FocusRing`); everything else rebinds directly to pre-existing `Components/Button/*` or `Semantic/*` tokens, zero duplicates. Two real Code Connect / variant-set drift findings are flagged, not silently fixed. The missing `Error`/`Success`/`Info`/`Warning` Figma color variants are flagged as a product gap for design to pick up separately, not built this pass.
+**Status:** 2026-08-05 - Figma-side token migration, Gallery, and Documentation frame all complete. One new token was created (`Components/Fab/Shared/FocusRing`); everything else rebinds directly to pre-existing `Components/Button/*` or `Semantic/*` tokens, zero duplicates. Two real Code Connect / variant-set drift findings are flagged, not silently fixed. The missing `Error`/`Success`/`Info`/`Warning` Figma color variants are flagged as a product gap for design to pick up separately, not built this pass. **2026-08-06 update: Gap 2 closed.** The four missing color variants were built (120 to 216 total variants), and the `Fab.figma.tsx` `Variant` enum drift was fixed. See §7.
 
 ## 1. Master component structure
 
@@ -54,6 +54,56 @@ Both gaps are structural (a missing variant, a mismatched enum key), not token-h
 
 ## 6. Still open, lower priority
 
-- **The missing `Error`/`Success`/`Info`/`Warning` Figma color variants** (§3, Gap 2) - a product decision for design to scope as its own pass, not a leftover from this one.
-- **The `Fab.figma.tsx` Code Connect mapping drift** (§3, Gap 1) - flagged with the exact mismatch, not corrected this pass since it was out of scope.
 - **The web styleguide page** (`src/app/styleguide/fab/page.tsx`) was explicitly left untouched per instruction, predates this methodology, paused project-wide pending the Storybook migration.
+- **`Fab.figma.tsx`'s `Color` enum still has no mapping for `Default`, `Inherit`, or `Inherit (white)`.** Not part of either flagged gap in the original pass, and not addressed in the 2026-08-06 update either, since it was not in scope. A separate, smaller follow-up.
+
+## 7. 2026-08-06 update: Gap 2 closed, four new color variants built, `Fab.figma.tsx` drift fixed
+
+**Token mapping decision, verified with real numbers, not assumption.** Before building anything, compared the two candidate precedents by resolving actual hex values rather than picking one on structural intuition alone:
+
+| Status | Web (`baseTheme.palette.{status}.main`) | `Components/Button/{Status}/BG/Default` | `Semantic/Status/{Status}/Icon` (Chip's Filled precedent) |
+| :--- | :--- | :--- | :--- |
+| Error | `#d32f2f` | `#d32f2f` (exact) | `#c62828` (mismatch, this is the *hover* shade) |
+| Warning | `#ef6c00` | `#ef6c00` (exact) | `#ff8f00` (mismatch) |
+| Info | `#0057b2` | `#0057b2` (exact) | `#1565c0` (mismatch) |
+| Success | `#2e7d32` | `#2e7d32` (exact) | `#2e7d32` (coincidental match) |
+
+Chip's own `Filled/BG/Default -> Semantic/Status/{Status}/Icon` pattern (verified against `Chip_Context_Progress_Report.md`) is real and correctly documented, but binding FAB to it would have made 3 of the 4 new colors visibly diverge from what the live web `<Fab color="error"/"warning"/"info">` already renders today, since `baseTheme.palette.warning/info.main` deliberately diverges from the `Semantic/Status` tier (the same divergence flagged during Badge's own migration). `Components/Button/{Status}/BG/Default` is guaranteed identical because Button's own web override sets that CSS directly from the same palette value FAB's stock code already reads. Chip's shape-based argument (solid circle closer to a filled pill than a rectangle) is real, but color parity with the live web page won.
+
+**Verified all 12 needed tokens pre-exist before touching anything** (`Components/Button/{Error,Warning,Info,Success}/{BG/Default,BG/Hover,BG/OnFill/Text}`, variable IDs `888:6` through `888:26`, all in the EDGE palette collection). Zero new tokens created this pass.
+
+**Built 96 new components** (4 colors x 2 forms x 3 sizes x 4 states), cloned structurally from the existing `Color=Secondary` block (the closest existing precedent: a solid contained-style fill, not the shared neutral-grey Default/Inherit shape), renamed, and repositioned into 4 new row-bands below `Inherit (white)`. Set grew from 120 to 216 variants. Rebound all 288 new fill roles (96 backgrounds, 48 text, 96 icon, 24 focus rings reusing the existing `Components/Fab/Shared/FocusRing`, 24 inner focus-ripple accents) using the same per-variant Color+State derivation as the original 120. Zero unclassified fills, 2 consecutive clean residual scans (0 raw bindings both times).
+
+**Gallery fully rebuilt, not patched.** Deleted all 31 existing axis-label text nodes and regenerated all 43 from scratch (4 state majors, 12 size minors, 9 color majors, 18 form minors) by re-reading the full 216-variant set's real geometry, per instruction, rather than copying the old 5-color label positions and appending 4 more. Gallery Header subtitle updated to state 216 variants across 9 colors.
+
+**Documentation updated, not rebuilt.** The Key Props table's `color` row description ("no built Figma variant yet") was corrected to state all eight non-default colors now have real variants. Two new Visual Preview instances (Round x Error, Round x Success) were added to the existing "In Context Card" - it grew from 767px to 1023px wide (still comfortably within the 1440px Documentation frame) rather than needing a rebuild, matching the "add 1-2 if it fits" instruction. Warning and Info were left out to keep the sample genuinely small and representative, not a second exhaustive grid.
+
+**`Fab.figma.tsx` fixed.** The `Variant` enum's `Circular` key was renamed to `Round`, matching the real Figma property option name now that it can be checked against a live grid that includes the previously-missing colors too. The `Color` enum's `Error`/`Success`/`Info`/`Warning` keys already matched the real Figma option names exactly (no change needed) - confirmed by checking the new components' own variant names, not assumed.
+
+**`brandTheme.ts` needed no code change.** Its `MuiFab` entry's existing comment (explaining that stock Fab's generic palette-loop mechanism already produces every Button-anchored color correctly) was extended to name Error/Warning/Info/Success explicitly, now that the hex comparison above confirms it for those four too. The focus-ring override added in the original pass already applies uniformly to every color, including the four new ones - no color-specific ring logic was ever needed.
+
+**Verification:** `npx tsc --noEmit` and `npx next build` both clean (all 25 routes, including the untouched `/styleguide/fab`, prerender). Zero em dashes across every file and Figma text touched this pass.
+
+## 8. 2026-08-06 update (same day, follow-up): now also houses SpeedDial as a second real master family
+
+`FAB - Component Gallery` (`1412:377`) and `FAB - Documentation` (`1414:2284`) were reorganized to also carry SpeedDial's real content, following the same multi-master pattern already used for Switch (Switch/FormControlLabel/FormGroup, all one Gallery). The Gallery gained two new `MASTER COMPONENT SET` sections (`<SpeedDial>`, `<SpeedDialItem>`) plus a second `REAL-WORLD USE CASE Section`, all reparented in from SpeedDial's own former standalone page, not rebuilt. The Documentation frame gained one new section, `SpeedDial (Composition) Section`, positioned directly before Key Props, containing SpeedDial's own Anatomy, Token Architecture, Usage Guidelines, Accessibility, and a small Key Props sub-table, reused verbatim from SpeedDial's own audit. FAB's own five original sections were not touched or rewritten. Full detail, including the instance-resolution verification and the standalone page's retirement, is in `SpeedDial_Figma_Web_Audit.md` §7.
+
+## 9. 2026-08-06 closing review: full end-to-end re-verification, both renames applied, final status
+
+A full closing pass before moving to the next component, covering both FAB and its SpeedDial sub-family together.
+
+**Structure, re-verified clean.** Exactly 2 top-level frames remain on the page (`FAB - Component Gallery`, `FAB - Documentation`). Gallery section order: Gallery Header, `<Fab> Section`, `<SpeedDial> Section`, `<SpeedDialItem> Section`, then FAB's own and SpeedDial's `REAL-WORLD USE CASE Section`s. Documentation order: Intro, Visual Preview, Anatomy & Token Architecture, Usage Guidelines & Accessibility, `SpeedDial (Composition) Section`, ending on Key Props, matching every other component's page order.
+
+**Instance resolution: 386 instances checked page-wide, zero unresolved, zero pointing back at the now-archived SpeedDial frames.**
+
+**Residual fills, precisely separated by root, not blanket-claimed clean.** `<Fab>`'s own 216 variants: 648 fill/stroke checks, 100% EDGE-bound, zero non-EDGE, zero raw. This confirms the color-expansion pass (Gap 2, §7) introduced no regression. `<SpeedDial>`/`<SpeedDialItem>`'s own residuals (32+5 and 8+3 respectively) are the same already-disclosed, deliberately-deferred token debt from `SpeedDial_Figma_Web_Audit.md` §2, not new work. Both `REAL-WORLD USE CASE` mockups carry their own pre-existing, accepted dashboard-chrome residuals, the same out-of-scope category established for every other component's real-world mockups. The Documentation frame's remaining raw fills are the file-wide literal-caption/card-chrome convention (white card fills, black strokes, grey caption text) already present on every component's docs, not a new gap.
+
+**Two renames applied everywhere, not just on the property definition.** `<SpeedDial>`'s `State` property (Open/Closed) is now `Visibility`; `<SpeedDialItem>`'s `Display` property (Icon/IconAndTitle/TitleOnly) is now `Content`. Both component property definitions, every variant's own derived name (e.g. `Direction=Up, State=Open` -> `Direction=Up, Visibility=Open`), all 6 SpeedDial-specific prose/table mentions inside `SpeedDial (Composition) Section` (Anatomy paragraphs, Token Architecture bullet, Usage Guidelines bullet, the Key Props sub-table's `open` row), were updated. A full page-wide text scan for the literal strings `State`/`Display` after the edits found exactly one remaining hit, FAB's own unrelated `State` axis (Enabled/Hovered/Focused/Disabled) in its own Anatomy prose, correctly left untouched. `Fab.figma.tsx` has no SpeedDial mapping at all (no `SpeedDial.figma.tsx` exists in the codebase), so there was nothing to update there.
+
+**Archive verified intact.** Both archived frames (`_Archive / SpeedDial / 2026-08-06 / SpeedDial - Component Gallery (emptied...)`, `.../SpeedDial - Documentation (full original...)`) are still locked, visible, and unchanged. **One real anomaly, flagged not glossed over:** the emptied `     Speed Dial (merged into FAB, 2026-08-06)` page itself, which was deliberately renamed rather than deleted in the prior pass, is no longer present in the file's page list (73 pages instead of 74). No delete call was ever issued against it. The archived content itself is confirmed fully intact and unaffected either way, so nothing of value was lost, but the disappearance of the empty shell page is unexplained and worth independently confirming next time the file is opened, in case it resurfaces or reflects a sync quirk rather than a real removal.
+
+**`tsc`/`next build`: both clean.** All 25 routes prerender, including the untouched `/styleguide/fab`.
+
+**Zero em dashes** across both audit docs, `Fab.figma.tsx`, and the FAB-specific comment block in `brandTheme.ts` (the 31 em dashes elsewhere in that file predate this session and belong to unrelated components).
+
+**Final status: FAB, including its SpeedDial sub-family, is done for this pass.** Residual open items, all previously disclosed, none new: SpeedDial/SpeedDialItem token migration (deferred, structural pass only), `Fab.figma.tsx`'s `Color` enum missing `Default`/`Inherit`/`Inherit (white)` mappings, no `MuiSpeedDial*` theme override in `brandTheme.ts` (not needed, SpeedDial has no code-side styling gap, only Figma-side token debt), no web styleguide rebuild for either component's Figma changes. **Go.**

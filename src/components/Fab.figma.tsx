@@ -13,7 +13,7 @@ figma.connect(
   {
     props: {
       variant: figma.enum('Form', {
-        Circular: 'circular',
+        Round: 'circular',
         Extended: 'extended',
       }),
       size: figma.enum('Size', {

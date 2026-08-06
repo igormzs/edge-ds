@@ -1435,10 +1435,13 @@ const brandTheme = createTheme(baseTheme, {
     // Fab's own migration (2026-08-05) found that MUI's stock Fab already
     // renders every bound color/state token correctly with zero
     // overrides: its generic `Object.entries(theme.palette)` variants loop
-    // already produces Primary/Secondary background+text from
-    // palette.primary/secondary (matching Components/Button/Primary and
-    // Components/Button/Neutral, which this same palette already backs),
-    // its base style's grey[300]/grey.A100 background already matches
+    // already produces Primary/Secondary/Error/Warning/Info/Success
+    // background+text from palette.{color}, matching
+    // Components/Button/{Primary,Neutral,Error,Warning,Info,Success},
+    // which this same palette already backs (confirmed by direct hex
+    // comparison when the 4 status colors' Figma variants were added
+    // 2026-08-06, see FAB_Figma_Web_Audit.md), its base style's
+    // grey[300]/grey.A100 background already matches
     // Components/Button/Inherit/BG/Default+Hover for both Default and
     // Inherit, and its disabled override already uses
     // action.disabled/action.disabledBackground, the same pair
