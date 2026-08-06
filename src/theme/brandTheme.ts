@@ -1432,6 +1432,30 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // Fab's own migration (2026-08-05) found that MUI's stock Fab already
+    // renders every bound color/state token correctly with zero
+    // overrides: its generic `Object.entries(theme.palette)` variants loop
+    // already produces Primary/Secondary background+text from
+    // palette.primary/secondary (matching Components/Button/Primary and
+    // Components/Button/Neutral, which this same palette already backs),
+    // its base style's grey[300]/grey.A100 background already matches
+    // Components/Button/Inherit/BG/Default+Hover for both Default and
+    // Inherit, and its disabled override already uses
+    // action.disabled/action.disabledBackground, the same pair
+    // Components/Button/Disabled/Text+BG alias. The one real gap is the
+    // white focusRipple ring Figma's Focused state shows on every color,
+    // which stock Fab has no visual equivalent for.
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          [`&.Mui-focusVisible`]: {
+            // Components/Fab/Shared/FocusRing, aliasing Semantic/Surface/Paper
+            // (Brand/White), the same alias chain as Components/Switch/Knob/FocusRing.
+            boxShadow: `0 0 0 3px #ffffff, ${baseTheme.shadows[6]}`,
+          },
+        },
+      },
+    },
   },
 });
 
