@@ -1489,6 +1489,70 @@ const brandTheme = createTheme(baseTheme, {
         },
       ],
     },
+    // List itself carries no distinct EDGE token beyond what
+    // MuiListItem/MuiListItemText/MuiListSubheader below already cover —
+    // named explicitly so there's nothing to override, only to make
+    // explicit, same pattern as MuiFab's own comment above.
+    MuiList: {
+      styleOverrides: {
+        root: {},
+      },
+    },
+    // Figma's own <ListItem> master bakes Hovered/Focus/Selected states
+    // directly onto itself (MUI's pre-v5 shape — see
+    // docs/List_Figma_Web_Audit.md §3), so these overrides are scoped to
+    // MuiListItem itself rather than the MuiListItemButton the current
+    // MUI API would normally carry them on. Deliberately scoped here
+    // rather than touching the existing global palette.action.hover/
+    // focus/selected above: those are an unrelated, pre-existing EDGE
+    // customization (teal-tinted) other components already depend on,
+    // and List's own Figma-matched values are genuinely different
+    // (black-tinted Hover/Focus) — leaking one into the other would
+    // regress whichever component didn't ask for the change.
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            // Components/List/ListItem/Hover (literal #000000 @ 4%)
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+          },
+          '&.Mui-focusVisible': {
+            // Components/List/ListItem/Focus (literal #000000 @ 12%)
+            backgroundColor: 'rgba(0, 0, 0, 0.12)',
+          },
+          '&.Mui-selected': {
+            // Components/List/ListItem/Selected, mirrors Brand/Primary/300
+            // (colors.edgeTurquoise[300]) at 8% opacity — MUI's own
+            // primary-scoped raw value, not the generic grey action.selected.
+            backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
+            '&:hover': {
+              backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
+            },
+          },
+        },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        // Semantic/Text/Secondary (#616161, colors.grey[700]) — Figma's
+        // disclosed near-match target. Scoped here rather than the
+        // global palette.text.secondary above, which is still the older
+        // raw rgba(0,0,0,0.6) literal; changing that shared value is out
+        // of scope for this pass.
+        secondary: {
+          color: colors.grey[700],
+        },
+      },
+    },
+    MuiListSubheader: {
+      styleOverrides: {
+        root: {
+          // Semantic/Text/Secondary (#616161, colors.grey[700]), same
+          // token and same scoping rationale as MuiListItemText above.
+          color: colors.grey[700],
+        },
+      },
+    },
   },
 });
 
