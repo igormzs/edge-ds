@@ -107,3 +107,13 @@ A full closing pass before moving to the next component, covering both FAB and i
 **Zero em dashes** across both audit docs, `Fab.figma.tsx`, and the FAB-specific comment block in `brandTheme.ts` (the 31 em dashes elsewhere in that file predate this session and belong to unrelated components).
 
 **Final status: FAB, including its SpeedDial sub-family, is done for this pass.** Residual open items, all previously disclosed, none new: SpeedDial/SpeedDialItem token migration (deferred, structural pass only), `Fab.figma.tsx`'s `Color` enum missing `Default`/`Inherit`/`Inherit (white)` mappings, no `MuiSpeedDial*` theme override in `brandTheme.ts` (not needed, SpeedDial has no code-side styling gap, only Figma-side token debt), no web styleguide rebuild for either component's Figma changes. **Go.**
+
+## 10. 2026-08-07 chrome token rebind: Gallery/Documentation raw-hex cleanup
+
+**Root cause.** A 2026-08-03 audit found and fixed raw/literal chrome colors (card backgrounds, borders, captions, body text) baked into the `Component Doc - EDGE-DS` master template, mapping them to existing `Semantic/*` and `Documentation/*` tokens. That fix does not retroactively reach frames cloned from an already-drifted ancestor. FAB's frames predate and postdate that fix across several passes, and the `SpeedDial (Composition) Section` reproduced the identical pattern when it was added, so the same gap recurred here, not a new defect.
+
+**What was rebound.** 64 raw fills/strokes, entirely inside `FAB - Documentation` (the `<Fab>`/`<SpeedDial>`/`<SpeedDialItem>` sections of `FAB - Component Gallery` had zero new findings, reconfirmed clean): white card backgrounds → `Semantic/Surface/Paper`, black body/bullet text → `Semantic/Text/Primary`, grey caption text → `Semantic/Text/Tertiary`. This includes the `SpeedDial (Composition) Section`'s own chrome, which carried the identical pattern.
+
+**Explicitly not touched, confirmed correct.** `<Fab>`'s 216 variants: reconfirmed 100% clean, zero raw or MUI-bound colors, exactly as before. `<SpeedDial>`/`<SpeedDialItem>`'s ~40 pre-disclosed MUI-palette-bound paints (`background/paper-elevation-6`, `text/secondary`, `components/tooltip/fill`, `common/white/main`): left untouched, since they are *bound* (to the wrong collection) rather than raw/unbound — this pass's scope was documentation chrome only, not that already-disclosed, separately-deferred token migration.
+
+**Verification.** 3 consecutive clean residual scans, 0 remaining matches for any of the raw chrome values. Visual spot-check confirmed no rendering regression.

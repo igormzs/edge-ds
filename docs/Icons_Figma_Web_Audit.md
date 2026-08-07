@@ -53,3 +53,15 @@
 - **The fixed-fill-color-vs-`currentColor` architecture question** is real, longer-term design work, not engineering leftovers (§3).
 - **Code Connect:** no `Icon.figma.tsx` mapping exists. Creating one for 125+ individual icon masters is a separate, larger initiative, not started, consistent with the "Not started yet" list style used elsewhere in the project handoff doc.
 - **No web styleguide page rebuild** was attempted, paused project-wide pending the Storybook migration, per the established 2026-08-05 process change. The existing `src/app/styleguide/icons/page.tsx` was read as source-of-truth reference material only, not touched.
+
+## 7. 2026-08-07 chrome token rebind: Gallery/Documentation raw-hex cleanup
+
+**Root cause.** A 2026-08-03 audit found and fixed raw/literal chrome colors (card backgrounds, borders, captions, body text) baked into the `Component Doc - EDGE-DS` master template, mapping them to existing `Semantic/*` and `Documentation/*` tokens. That fix does not retroactively reach frames cloned from an already-drifted ancestor. Icons' frames were built 2026-08-06 from such a drifted lineage, so the same gap recurred here, not a new defect.
+
+**What was rebound.** 171 raw fills/strokes across `Icons - Component Gallery` and `Icons - Documentation` chrome: a systemic raw grey (`#9E9E9E`) caption color reused identically across all 130 icon/preview swatch captions → `Semantic/Text/Tertiary`; white card/frame backgrounds → `Semantic/Surface/Paper` and `Documentation/Surface/Page`; black body/bullet text → `Semantic/Text/Primary`. The `<Icon>` wrapper's own 4 `Size` variants and a spot-check of ~20 icon masters' root-level fills/strokes were reconfirmed clean, exactly as before — this pass touched chrome only, never the already-migrated 125-icon vector-fill inventory.
+
+**Correction to the prior discovery pass.** The earlier audit flagged 20 icon masters (+1 preview instance) as carrying an "invisible raw-white fill." Direct inspection before touching anything found this was inaccurate: every one of those paints is already bound to `Semantic/Surface/Paper`, just `visible:false`. There was no raw-hex gap there at all, so nothing was stripped or rebound — leaving them exactly as found.
+
+**Content investigation, not a defect.** A parallel discovery pass had flagged that the Anatomy & Token Architecture section's `Component Placeholder Slot` appeared to contain stale Checkbox-topic prose. Checked live `.characters` directly (not the node's `.name`, which Figma never re-syncs after a text edit): the real content is fully correct, Icons-specific prose (confirmed identical to what's already documented in §5 above). No duplicate content exists; this was a stale-name false read, not a content bug.
+
+**Verification.** 3 consecutive clean residual scans, 0 remaining matches for any of the raw chrome values. Visual spot-check confirmed no rendering regression.

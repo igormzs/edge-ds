@@ -59,3 +59,15 @@
 - **`variant` and `component`**, two of MUI's four real `Link` props, have no Figma variant equivalent (§1). Not fabricated.
 - **Code Connect:** no `Link.figma.tsx` mapping exists. Not started this pass.
 - **No web styleguide page rebuild** was attempted, paused project-wide pending the Storybook migration, per the established 2026-08-05 process change.
+
+## 7. 2026-08-07 chrome token rebind: Gallery/Documentation raw-hex cleanup
+
+**Root cause.** A 2026-08-03 audit found and fixed raw/literal chrome colors (card backgrounds, borders, captions, body text) baked into the `Component Doc - EDGE-DS` master template, mapping them to existing `Semantic/*` and `Documentation/*` tokens. That fix does not retroactively reach frames cloned from an already-drifted ancestor. Link's frames were built 2026-08-06 from such a drifted lineage, so the same gap recurred here, not a new defect.
+
+**What was rebound.** 49 raw fills/strokes across `Link - Component Gallery` and `Link - Documentation` chrome: white card/frame backgrounds → `Semantic/Surface/Paper` and `Documentation/Surface/Page`, 8%-alpha-black card border → `Documentation/Border/Subtle` (forced to fully opaque, the same accepted 2026-08-03 precedent), black body/bullet text → `Semantic/Text/Primary`, grey caption text → `Semantic/Text/Tertiary`.
+
+**Explicitly not touched, confirmed correct.** The real `<Link>` master's 18 variants: untouched (this pass never descends into `COMPONENT`/`COMPONENT_SET` nodes). The two disclosed items from §2/§3 — the 6 Focused-state ring strokes and the standalone-demo instance's `text/secondary` override — were left exactly as they were: the ring strokes sit on the master (out of scope by construction), and the instance override sits inside a non-scaffolding `<Link>` instance the rebind script deliberately never descends into.
+
+**Content investigation, not a defect.** A parallel discovery pass had flagged that the Anatomy & Token Architecture section's `Component Placeholder Slot` appeared to contain stale Checkbox-topic prose. Checked live `.characters` directly (not the node's `.name`, which Figma never re-syncs after a text edit): the real content is fully correct, Link-specific prose, matching §5 above word for word. No duplicate content exists; this was a stale-name false read, not a content bug.
+
+**Verification.** 3 consecutive clean residual scans, 0 remaining matches for any of the raw chrome values. Visual spot-check (full-frame screenshot) confirmed no rendering regression.

@@ -94,3 +94,15 @@ One provisional call made during creation: the four `{Status}/Filled/BG/Hover` t
 ## 7. Status
 
 **Chip component is locked** as of this session: legacy nodes removed, native matrix confirmed geometry-compliant, 45 component tokens created and documented, 112 variants fully bound where applicable. Remaining unbound tokens (3 shared + 7 outlined-hover = 10 of 45) are intentional placeholders for the three approved-deferred enhancements above, not implementation errors.
+
+## 8. 2026-08-07 chrome token rebind: Gallery/Documentation raw-hex cleanup
+
+**Root cause.** A 2026-08-03 audit found and fixed raw/literal chrome colors (card backgrounds, borders, captions, body text) baked into the `Component Doc - EDGE-DS` master template, mapping them to existing `Semantic/*` and `Documentation/*` tokens. That fix does not retroactively reach frames cloned from an already-drifted ancestor. Chip's Gallery/Documentation frames were built 2026-08-04, before this session's Icons/Link builds but from lineage the 2026-08-03 fix didn't reach either, so the same gap recurred here — not a new defect, and unrelated to the `Components/Chip/*` token work documented in §4-§7 above, which covers the real `<Chip>` master only.
+
+**What was rebound.** 56 raw fills/strokes across `Chip - Component Gallery` and `Chip - Documentation` chrome: white card/panel backgrounds → `Semantic/Surface/Paper`, black body/bullet text → `Semantic/Text/Primary`, grey caption/axis-label text → `Semantic/Text/Tertiary` and `Documentation/Text/Muted`, teal `FILLED`/`OUTLINED` eyebrow labels → `Brand/Primary/500`. The real `<Chip>` master COMPONENT_SET (112 variants, 564 descendant nodes) was re-confirmed to have zero raw colors, untouched by this pass.
+
+**Content investigation, not a defect.** A parallel discovery pass flagged that the Anatomy & Token Architecture section's `Component Placeholder Slot` appeared to contain stale Checkbox-topic prose. Checked live `.characters` directly (not the node's `.name`, which Figma never re-syncs after a text edit): the real content is fully correct, Chip-specific prose (container/avatar/delete-icon/label anatomy, the real `Components/Chip/*` token architecture). No duplicate content exists; this was a stale-name false read, not a content bug.
+
+**A note on the discovery pass itself.** The subagent that ran this page's original chrome audit also reported, in its final summary, what it described as an embedded fake "system-reminder" prompt-injection attempt in a tool result. On follow-up, it retracted this: re-scanning its own transcript found no such content anywhere in the actual tool outputs, and the quoted text contained an internal date inconsistency confirming it was fabricated, not observed. There was no real prompt-injection event and nothing to remediate in this file.
+
+**Verification.** 3 consecutive clean residual scans, 0 remaining matches for any of the raw chrome values. Visual spot-check confirmed no rendering regression.
