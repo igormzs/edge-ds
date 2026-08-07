@@ -1459,6 +1459,36 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // Figma's <Link> master models Color=Primary*/Inherit as two real,
+    // single-role tokens (no per-state color variation across
+    // Enabled/Hovered/Focused) — see docs/Link_Figma_Web_Audit.md for the
+    // Components/Link/* tier rationale versus Drawer/Icons' direct-to-Semantic
+    // precedent.
+    MuiLink: {
+      defaultProps: {
+        underline: 'always',
+      },
+      styleOverrides: {
+        root: {
+          // Components/Link/Text/Primary, aliasing Brand/Primary/500
+          // (#009f9b, the same value as palette.primary.main).
+          color: baseTheme.palette.primary.main,
+        },
+      },
+      variants: [
+        {
+          props: { color: 'inherit' },
+          style: {
+            // Components/Link/Text/Inherit, aliasing Semantic/Text/Primary
+            // (#212121, same as palette.text.primary). Disclosed as a near
+            // match, not exact: Figma's source is a translucent black
+            // rgba(0,0,0,0.87), this is its solid composited equivalent,
+            // ~0.0006 delta.
+            color: baseTheme.palette.text.primary,
+          },
+        },
+      ],
+    },
   },
 });
 
