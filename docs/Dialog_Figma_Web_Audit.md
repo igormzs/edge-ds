@@ -20,3 +20,7 @@
 **Explicitly not touched.** The 33 `_Library / Instance Slot` occurrences and the 9 MUI-bound real-world-mockup background paints, both per the discovery pass's own classification above.
 
 **Verification.** 3 consecutive clean residual scans, 0 remaining matches for any of the raw chrome values.
+
+## 2026-08-07 closing update: Paper's token migration inherited automatically, zero edits here
+
+Paper's own pass (`docs/Paper_Figma_Web_Audit.md`) migrated the shared `<Paper>` `COMPONENT_SET` (`6584:46711`) that Dialog's real-world `<Paper>` instances compose internally. Confirmed directly, not assumed: all 8 of Dialog's `<Paper>` instances resolve to that exact master (`mainComponent.parent.id === '6584:46711'`, checked both immediately before and immediately after Paper's rebind and legacy-frame reparenting), and none of them carry any instance-level fill/stroke/effect override. Because they were never detached or overridden, they inherited Paper's full token migration automatically — `Semantic/Surface/Paper` (background), `Semantic/Border/Default` (outlined border, not applicable to Dialog's `Elevation=24`/`Elevation=1` instances but confirmed the mechanism holds), and the new `Semantic/Elevation/{1,24}` Effect Styles (shadow) — with zero edits made to this Dialog page itself. Same pattern as List's own migration automatically closing Drawer's nested-List-content gap (`docs/Drawer_Figma_Web_Audit.md` §8).
