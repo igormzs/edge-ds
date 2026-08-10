@@ -744,6 +744,70 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // MuiRadio: verified directly against node_modules/@mui/material/Radio/Radio.js before
+    // writing this (same discipline as Fab's own "zero color overrides needed" finding). Two
+    // real, verified findings meant most of the Figma-approved mapping needs zero code at all:
+    // (1) Stock Radio.js already colors the checked dot for every named status (primary/
+    //     secondary/error/warning/info/success) via its own internal `theme.palette[color].main`
+    //     loop -- already confirmed byte-identical to the approved
+    //     Semantic/Status/{Neutral,Error,Warning,Info,Success}/Main + Brand/Primary/500 targets
+    //     from the Figma pass, so no colorX override is needed here (unlike MuiCheckbox above,
+    //     whose colorPrimary override duplicates behavior stock Checkbox already provides too).
+    // (2) Stock Radio.js's default icon color (unchecked, and Color="default" even when
+    //     checked, since MUI's own generic palette loop excludes the non-palette "default" key)
+    //     reads directly from `theme.palette.text.secondary`, already `'rgba(0, 0, 0, 0.6)'` in
+    //     this theme -- an exact match to the new Figma Components/Radio/Icon/Default token, so
+    //     no override is needed for the Default axis either.
+    // Hover/Focus are deliberately kept as the same flat, global action.hover/action.focus this
+    // codebase already uses on MuiCheckbox above, rather than attempting a genuine per-status
+    // reconstruction of all 14 approved Components/Checkbox/Ripple/* values in code -- that
+    // richness is real and already reused directly on the Figma side (see
+    // docs/Radio_Figma_Web_Audit.md), but Checkbox's own shipped code already simplifies the
+    // same tier down to one flat overlay, and matching that existing precedent is lower-risk
+    // than guessing at exact per-color opacity math this theme's `colors` module doesn't expose
+    // predictably. Flagged, not silently mismatched.
+    MuiRadio: {
+      defaultProps: {
+        color: 'primary',
+      },
+      styleOverrides: {
+        root: {
+          // Geometry: Figma's real Medium size (42px = 9px padding + 24px icon) and Small size
+          // (38px = 9px padding + 20px icon) already equal MUI's own stock Radio defaults
+          // exactly -- verified against Figma's live geometry before writing, not guessed.
+          // Written explicitly anyway, matching MuiCheckbox's own defensive-explicit style.
+          width: 42,
+          height: 42,
+          padding: baseTheme.spacing(1.125),
+          '& .MuiSvgIcon-root': {
+            fontSize: 24,
+          },
+          '&:hover': {
+            backgroundColor: baseTheme.palette.action.hover,
+          },
+          '&.Mui-focusVisible': {
+            backgroundColor: baseTheme.palette.action.focus,
+          },
+        },
+        sizeSmall: {
+          width: 38,
+          height: 38,
+          padding: baseTheme.spacing(1.125),
+          '& .MuiSvgIcon-root': {
+            fontSize: 20,
+          },
+        },
+      },
+    },
+    // No MuiRadioGroup entry: verified directly against
+    // node_modules/@mui/material/RadioGroup/RadioGroup.js that <RadioGroup> renders
+    // `<FormGroup role="radiogroup" ...>` directly, with no separate styled wrapper or distinct
+    // `.MuiRadioGroup-root` class of its own -- so the existing MuiFormGroup `gap: 8` override
+    // above already applies to every RadioGroup automatically. The Figma-side Label/Helper-text
+    // tokens (Components/Radio/Label/*) belong to <FormLabel>/<FormHelperText>, which
+    // <RadioGroup>'s Figma master happens to compose but which have no MuiFormLabel/
+    // MuiFormHelperText brandTheme entry yet -- out of scope for this pass, same class of
+    // exclusion as Autocomplete's Select/MenuItem/ListSubheader deferral.
     // Custom Switch geometry, matching the EDGE-DS Figma `<Switch>` component
     // set rather than stock MUI's thin-track/small-thumb default. Figma spec
     // (docs/components/Switcher.md): Medium track 58x32, thumb 24x24, 4px
