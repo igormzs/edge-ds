@@ -28,8 +28,8 @@ export const edgeTypography = {
     fontFamily: MONTSERRAT,
     fontSize: 48,
     fontWeight: 600,
-    lineHeight: 1.25,
-    letterSpacing: -0.48,
+    lineHeight: 1.167,
+    letterSpacing: -0.6,
   },
   'heading-md': {
     fontFamily: MONTSERRAT,
@@ -49,14 +49,14 @@ export const edgeTypography = {
     fontFamily: MONTSERRAT,
     fontSize: 20,
     fontWeight: 600,
-    lineHeight: 1.4,
-    letterSpacing: -0.1,
+    lineHeight: 1.6,
+    letterSpacing: -0.05,
   },
   'body-lg': {
     fontFamily: OPEN_SANS,
     fontSize: 18,
-    fontWeight: 400,
-    lineHeight: 1.56,
+    fontWeight: 600,
+    lineHeight: 1.5,
     letterSpacing: 0,
   },
   'body-md': {
@@ -76,9 +76,26 @@ export const edgeTypography = {
   'body-xs': {
     fontFamily: OPEN_SANS,
     fontSize: 12,
+    fontWeight: 600,
+    lineHeight: 1.5,
+    letterSpacing: 0.06,
+  },
+  // Figma `typography/caption` — a distinct style from body-xs (pre-2026-08-11 code
+  // conflated the two: body-xs held caption's values under the wrong name).
+  'caption': {
+    fontFamily: OPEN_SANS,
+    fontSize: 12,
     fontWeight: 400,
     lineHeight: 1.66,
     letterSpacing: 0.48,
+  },
+  'overline': {
+    fontFamily: OPEN_SANS,
+    fontSize: 12,
+    fontWeight: 600,
+    lineHeight: 2.66,
+    letterSpacing: 0.9,
+    textTransform: 'uppercase',
   },
 } as const satisfies Record<string, CSSProperties>;
 
@@ -86,6 +103,10 @@ export const edgeTypography = {
 const buttonLabelSm: CSSProperties = {
   ...edgeTypography['body-xs'],
   fontWeight: 600,
+  // Pinned independently of body-xs's own line-height (1.5 as of the 2026-08-11 Figma
+  // correction, previously 1.66) so this already-shipped button size doesn't silently
+  // re-render as a side effect of the typography audit.
+  lineHeight: 1.66,
   letterSpacing: 0.6,
   textTransform: 'uppercase',
 };
@@ -301,8 +322,12 @@ const baseTheme = createTheme({
     fontFamily: `${OPEN_SANS}, "Helvetica", "Arial", sans-serif`,
     ...edgeTypography,
     // Legacy MUI aliases — keep existing component overrides working
-    h1: edgeTypography['heading-xl'],
-    h3: edgeTypography['heading-md'],
+    // h1/h3 corrected 2026-08-11 to match Figma's own h1/h3 bindings exactly
+    // (display-lg / heading-lg) — the prior mapping (heading-xl / heading-md) pointed
+    // one visual tier too small. Zero regression: no code anywhere used variant="h1"
+    // or variant="h3" explicitly.
+    h1: edgeTypography['display-lg'],
+    h3: edgeTypography['heading-lg'],
     h5: edgeTypography['heading-sm'],
     body1: edgeTypography['body-md'],
     body2: edgeTypography['body-sm'],
@@ -316,7 +341,9 @@ const baseTheme = createTheme({
     button: {
       ...buttonLabelMd,
     },
-    caption: edgeTypography['body-xs'],
+    // caption and overline are no longer remapped here — as of 2026-08-11 they're real
+    // edgeTypography keys in their own right, so the `...edgeTypography` spread above
+    // already sets them correctly.
   },
   shape: {
     borderRadius: 4,
