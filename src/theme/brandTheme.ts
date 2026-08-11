@@ -1617,6 +1617,31 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // Unlike Radio/FAB, this one DOES need explicit overrides — verified
+    // directly against node_modules/@mui/material/Rating/Rating.js (v7.3.9):
+    // stock root color is a hardcoded '#faaf00' (not an EDGE token, and not
+    // byte-identical to Figma's approved #FFB400 either), and the empty-star
+    // color comes from theme.palette.action.disabled, which in this theme
+    // resolves to the opaque colors.grey[500] above — nothing like Figma's
+    // translucent rgba(0,0,0,0.23) outline. Size, however, already matches
+    // exactly (small/medium/large -> 18/24/30px, same as the real Figma
+    // variants) and needed no override.
+    MuiRating: {
+      styleOverrides: {
+        root: {
+          // Components/Rating/Star/Active, literal #FFB400.
+          color: '#FFB400',
+        },
+        iconEmpty: {
+          // Components/Rating/Star/Border, literal rgba(0,0,0,0.23),
+          // light-mode value only (Figma's own dark-mode value,
+          // rgba(255,255,255,0.23), was dropped — this palette collection
+          // is single-mode throughout, same disclosed simplification as
+          // every other literal token in this pass).
+          color: 'rgba(0, 0, 0, 0.23)',
+        },
+      },
+    },
   },
 });
 
