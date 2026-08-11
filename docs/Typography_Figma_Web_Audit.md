@@ -1,6 +1,6 @@
 # Typography Component/Foundation 1:1 Figma-to-Web Parity Audit
 
-Built 2026-08-11. Structurally unlike every prior pass: not a blank slate, and not a single real structure — Typography turned out to be **two distinct real things sharing one Figma page**, and the web side already had a full, non-trivial `edgeTypography` scale in `brandTheme.ts` before this pass started.
+Built 2026-08-11. Structurally unlike every prior pass: not a blank slate, and not a single real structure — Typography turned out to be **two distinct real things sharing one Figma page**, and the web side already had a full, non-trivial `edgeTypography` scale in `brandTheme.ts` before this pass started. This doc covers the initial build (§1–§7) and a same-day post-build correction pass (§8) that fixed three real gaps the initial build missed.
 
 ## 1. Master component structure
 
@@ -8,11 +8,12 @@ Two real, independent structures existed on the `Typography` page (`6605:52433`)
 
 - **`<Typography>` — real `COMPONENT_SET`, node `11609:174872`.** MUI-named variant vocabulary: `Variant` (`h1, h2, h3, h4, h5, h6, body1, body2, subtitle1, subtitle2, overline, caption, custom` — 13 values) x `Gutter Bottom` (`True, False`). **25 real variants, not 26** — `Variant=custom, Gutter Bottom=True` does not exist; only `Variant=custom, Gutter Bottom=False` (`272:88408`) does. The initial discovery pass over-counted this at 26 by trusting a raw symbol-tag count instead of filtering to actual `COMPONENT` children; corrected before the build.
 - **`Typography_EDGE` — a type-scale specimen sheet, not a component set.** 10 EDGE-named entries (`display-lg, heading-xl, heading-lg, heading-md, heading-sm, heading-xs, body-lg, body-md, body-sm, body-xs`), each a static frame (Example text + Title + Font/Size line + Line-height/Letter-spacing line), structurally closer to the Palette foundation page's swatch-grid than to any prior component's Gallery.
-- **Both survive**, per explicit direction — nothing about this file's two-structure shape was collapsed into one. The `<Typography>` component set became the Gallery's Master Component Set section; the specimen sheet was rewritten (not copied) into the Gallery's EDGE Type Scale section.
-- **Real, live cross-page composition — the most consequential discovery of this pass.** `<Typography>` is not documentation-only: **121 real instances exist across 12 other pages** (Accordion, App Bar, Progress, Avatar, Forms, Timeline, Headings, Tree View, Data Grid, Table, Menu, Overview), broken down as `Variant=h6,GutterBottom=True`: 3 (Forms), `Variant=body1,GutterBottom=False`: 58 (mostly Accordion, plus App Bar/Progress/Avatar/Forms/Timeline/Headings/Tree View/Overview), `Variant=custom,GutterBottom=False`: 3 (Data Grid), `Variant=body2,GutterBottom=False`: 33 (Progress/Data Grid/Table), `Variant=caption,GutterBottom=False`: 24 (all Menu). 5 of the 121 instances resolve to a `null` containing page (orphaned/off-canvas remnants) — flagged, not chased down further. This turned what looked like a documentation-only extraction into a real component move with real blast radius; handled with a duplicate-as-safety-net, verify-121/121-before-and-after, then-delete-duplicate procedure (see §5).
+- **Both structures' real content survives**, per explicit direction — the `<Typography>` component set became the Gallery's Master Component Set section; the specimen sheet's content was rewritten (not copied) into the Gallery's EDGE Type Scale section. The specimen sheet's own source frame, `Typography_EDGE`, was initially left live as a stray 3rd top-level frame after the build (still containing its original 10 truncated-pangram entries) — this was a real Two Core Frames Architecture violation, caught in review, not by the build's own checks. **Fixed in the post-build correction pass (§8):** re-verified the Gallery's rebuilt EDGE Type Scale content was complete and correct, then archived `Typography_EDGE` itself via the standard duplicate-as-safety-net procedure. The page now holds exactly 2 top-level frames.
+- **Real, live cross-page composition — the most consequential discovery of this pass.** `<Typography>` is not documentation-only: **121 real instances exist across 12 other pages** (Accordion, App Bar, Progress, Avatar, Forms, Timeline, Headings, Tree View, Data Grid, Table, Menu, Overview), broken down as `Variant=h6,GutterBottom=True`: 3 (Forms), `Variant=body1,GutterBottom=False`: 58 (mostly Accordion, plus App Bar/Progress/Avatar/Forms/Timeline/Headings/Tree View/Overview), `Variant=custom,GutterBottom=False`: 3 (Data Grid), `Variant=body2,GutterBottom=False`: 33 (Progress/Data Grid/Table), `Variant=caption,GutterBottom=False`: 24 (all Menu). 5 of the 121 instances resolve to a `null` containing page (orphaned/off-canvas remnants) — flagged, not chased down further. This turned what looked like a documentation-only extraction into a real component move with real blast radius; handled with a duplicate-as-safety-net, verify-121/121-before-and-after, then-delete-duplicate procedure (see §5). **Re-verified independently in the post-build correction pass (§8) after an apparent 4,284-instance reading mid-pass turned out to be a transient measurement artifact, not a real count** — a fresh read after all operations settled reproduced 121/121 with an identical per-variant breakdown, confirming the original figure was correct all along.
 - **`custom` variant is mis-wired**, confirmed via its bound Figma variable, not assumed: it resolves to `table/header` (Roboto Medium, 14px, line-height 24 (1.714), letter-spacing 0.17) — an unrelated table-header style, not any real typography token. No correct EDGE-side "custom" concept exists to rebind it to. Built as-is (it's a real variant, so it belongs in the Gallery for completeness) but flagged visibly in both the Gallery (an on-canvas amber tag on the tile) and the Documentation frame's Properties table (a dedicated `custom` row) — not silently fixed, because there's nothing correct to fix it to yet.
 - Legacy content: the usual stock MUI-for-Figma `_Library / Component Heading` + `_Library / Component Information` + `Grid` wrapper, confirmed via its literal "© mui.com" / "MUI for Figma Material UI v5.14.0" footer and Lorem-ipsum placeholders — same disposable pre-Two-Frame-Architecture shape as every prior component.
-- One pre-existing, unrelated visual artifact observed during verification, not introduced by this pass and not fixed: the `h1, Gutter Bottom=True` and `h1, Gutter Bottom=False` tiles visually overlap in the Master Component Set's own internal grid (confirmed via each variant's original local x/y bounds — the overlap exists in the source coordinates themselves, independent of the reparent). Flagged here as a real, pre-existing gap in the master's own internal layout, not touched this pass.
+- The Master Component Set's own internal variant grid had a real layout bug: the `h1, Gutter Bottom=True` and `h1, Gutter Bottom=False` tiles visually overlapped (confirmed via each variant's actual x/y bounds — every other row's bounds already cleared cleanly; only the `h1` row's two columns intersected). **Fixed in the post-build correction pass (§8)** by deriving a clean 2-column grid from each variant's real current width/height rather than reusing carried-over positions.
+- The Gallery/Documentation headers initially shipped with a flat placeholder rectangle in place of the real EDGE-DS logomark image asset that every other finished component's header uses. **Fixed in the post-build correction pass (§8)** by cloning the real logomark from Radio's finished header.
 - No real-world mockup/usage-example content existed anywhere on the page — only the specimen sheet's own "Example" text boxes, which used a truncated pangram (`"...the lazy do"`, missing "g") in all 10 entries. Fixed (see §5), not merely flagged, per explicit instruction.
 
 ## 2. Token mapping
@@ -44,9 +45,10 @@ Figma's type-scale variables are single-tier `Font()` composites (family/style/s
 
 - `custom` variant mis-wired to `table/header`, no correct target exists — flagged in Gallery (on-canvas tag) and Documentation (Properties row), not fixed.
 - 5 of 121 `<Typography>` instances resolve to a `null` page (orphaned/off-canvas) — noted, not chased down.
-- Pre-existing internal overlap between the `h1, Gutter Bottom=True`/`False` tiles in the Master Component Set's own layout — confirmed real via source coordinates, not introduced by the reparent, not fixed this pass.
-- `h2`, `h4`, `h6`, `subtitle1` (MUI variant names) still have no `edgeTypography` mapping at all and fall through to MUI's stock defaults — unlike `h1`/`h3`/`h5`/`body1`/`body2`/`caption`, which now all resolve through the EDGE scale. Not in scope this pass; flagged in §8.
+- `h2`, `h4`, `h6`, `subtitle1` (MUI variant names) still have no `edgeTypography` mapping at all and fall through to MUI's stock defaults — unlike `h1`/`h3`/`h5`/`body1`/`body2`/`caption`, which now all resolve through the EDGE scale. Not in scope this pass; flagged in §9.
 - `DocUI.tsx` (the shared wrapper most styleguide pages render through) and `foundations/palette/page.tsx` both bypass the variant/token system entirely with hardcoded `sx` literals that duplicate — sometimes inexactly — `edgeTypography` values. Found in discovery, not touched this pass (out of scope; a usage-pattern cleanup, not a token-correctness issue).
+- **`Semantic/Status/Success/Border` naming oddity (found in §8's token sweep).** The "Migrated ✓" badge's green text (`4CAF50`) is bound to `Semantic/Status/Success/Border` — the only variable in the `Semantic/Status/Success/*` family that matches `4CAF50` exactly (`.../Text` is `1B5E20`, `.../Icon` is `2E7D32`). The token's name implies border use, not text use. Disclosed, not renamed or duplicated with a new token — an exact hex match takes precedence over a naming preference per this pass's own rule.
+- **Documentation section-label color inconsistency (found in §8's Button/Chip/Checkbox comparison).** Button and Checkbox use teal (`Brand/Primary/500`) with tight tracking for prescriptive sections like "Usage Guidelines," while Typography's Documentation uses the muted-gray (`Documentation/Text/Muted`) treatment uniformly across all its section labels. Chip's own precedent doesn't clearly show the same split, so the pattern isn't fully consistent across the reference set itself — disclosed, not changed.
 
 ## 4. What was found (discovery, before and during the build)
 
@@ -67,7 +69,7 @@ Figma's type-scale variables are single-tier `Font()` composites (family/style/s
   - Accessibility Notes: heading-hierarchy/semantic-mapping, WCAG AA contrast ratios, don't-override-line-height guidance — replacing Button's touch-target/WCAG-button copy.
   - Dev Handoff/Token Mapping: relabeled the 3rd column from "Semantic Alias (Tier 2)" to "Web Token (edgeTypography)" since typography has no semantic-alias tier (disclosed directly in the section's own description text, not silently reinterpreted); populated with 11 of the 12 real `typography/*` → `edgeTypography[...]` pairs (the existing row template has 11 slots; instances can't have rows added structurally without detaching, which was out of scope). The 12th key (`overline`) is covered in the new reference table instead, and the section text says so explicitly.
   - Added a new 12-row **Type Scale Reference** table (Key/Font/Size/Weight/LH/LS/Figma variable/Web token) — appended as its own section after the instance rather than spliced inside Properties, since the instance's internal structure can't be edited; disclosed as a placement choice, not hidden.
-- **3 consecutive clean checks** before calling the Gallery/Documentation sections done: frame names correct, 25/25 variants with 121/121 instances intact, 12/12 EDGE Type Scale entries present, zero Lorem-ipsum leftovers, zero truncated pangrams, both mis-wiring flags present, legacy wrapper correctly archived and absent from the live page, safety-net duplicate gone. All three runs identical.
+- **3 consecutive clean checks** before calling the Gallery/Documentation sections done: frame names correct, 25/25 variants with 121/121 instances intact, 12/12 EDGE Type Scale entries present, zero Lorem-ipsum leftovers, zero truncated pangrams, both mis-wiring flags present, legacy wrapper correctly archived and absent from the live page, safety-net duplicate gone. All three runs identical. **This check did not catch the `Typography_EDGE` frame, the header logomark placeholder, the Master Component Set grid overlap, or the un-tokenized chrome colors — all four were caught only in the post-build review that led to §8.**
 
 ## 6. Web side
 
@@ -76,16 +78,57 @@ Figma's type-scale variables are single-tier `Font()` composites (family/style/s
 - `buttonLabelSm`: pinned `lineHeight: 1.66` explicitly to avoid silently inheriting `body-xs`'s corrected line-height (see §2).
 - No `MuiTypography` styleOverrides block exists beyond the alias mapping in `theme.typography` itself — unchanged, still true after this pass. The only `.MuiTypography-root` references in the codebase remain inside `MuiAccordionSummary`, unrelated to this pass.
 - Zero regressions confirmed: `npx tsc --noEmit` clean after every edit; dev server compiles and serves without errors; all changed keys (`heading-lg`, `heading-xs`, `body-lg`, `h1`, `h3`) had zero prior usage anywhere in `src` (grepped every form: `variant="..."`, `variant='...'`, `variant={...}`, direct `edgeTypography[...]` reference, `theme.typography.*`); `body-xs`'s only live exposure (4 usages, all via the `caption` alias) is visually unchanged since `caption` now holds `body-xs`'s old values.
+- **§8's correction pass touched Figma only — no further `brandTheme.ts` changes.** The chrome/documentation colors rebound in §8 are Figma-side design-doc tokens (`Documentation/*`, `Semantic/*`), unrelated to the `edgeTypography` type-scale values this section covers.
 
 ## 7. Code Connect
 
 No `Typography.figma.tsx` exists. Not created this pass — flagged as not started, same as every other component's open Code Connect item in this file.
 
-## 8. Still open, lower priority
+## 8. Post-build correction pass (same day, 2026-08-11)
+
+A visual review of the finished frames — done after §1–§7's build was already called complete and checked — found three real gaps the build's own clean checks (§5) hadn't covered, plus one item worth investigating. All of the following happened in Figma only; no `brandTheme.ts` changes.
+
+**Two Core Frames Architecture violation, corrected.** The page still had 3 top-level frames, not 2: `Typography_EDGE` (§1) had never been archived after its content was rebuilt into the Gallery, and still held its original 10 truncated-pangram (`"...lazy do"`) entries. Re-verified the Gallery's EDGE Type Scale content was complete and correct first, then archived `Typography_EDGE` to `_Archive / Typography / 2026-08-11 / Typography_EDGE (emptied, specimens rebuilt in Typography - Component Gallery, documentation moved to Typography - Documentation)` via the standard duplicate-as-safety-net procedure. Confirmed after: exactly 2 top-level frames, 12/12 complete pangrams, 0 truncated.
+
+**Real header logomark, restored.** Both frames' Top Header shipped with a flat placeholder rectangle instead of the real EDGE-DS logomark image every other finished component uses. Cloned the real `Logomark` node (image-filled) from Radio's finished header, positioned it exactly where the placeholder sat, and removed the placeholder — done in both the Gallery and Documentation headers.
+
+**Master Component Set grid overlap, fixed.** Only the `h1, Gutter Bottom=True`/`False` tiles actually overlapped — every other row's bounds already cleared. Rebuilt the grid by deriving column widths and row heights from each variant's real, current geometry (not the positions carried over from the original reparent): 2 columns (24px / 648px, gap derived from the real max column width), 24px row gap, componentSet resized to hug the new bounds, and the `custom`-variant mis-wiring flag repositioned to sit below the new last row. Verified via screenshot: no overlapping tiles anywhere in the 25-variant grid.
+
+**Full chrome color token audit.** A selection-colors check found ~17 raw hex fills across both frames instead of bound tokens — a real violation of this project's "every fill resolves through a token" standard. Resolved all of them:
+
+| Hex (+ role) | Token | Notes |
+|---|---|---|
+| `262D34` | `Documentation/Header/BG` | exact match |
+| `F8FAFB` | `Documentation/Surface/Page` | exact match |
+| `009F9B` | `Brand/Primary/500` | exact match |
+| `FFFFFF` (text) | `Semantic/Text/Inverse` | exact match |
+| `FFFFFF` (frame) | `Semantic/Surface/Paper` | exact match |
+| `616161` | `Semantic/Text/Secondary` | exact match |
+| `5E6E7D` | `Documentation/Text/Muted` | exact match |
+| `E0E0E0` | `Documentation/Border/Subtle` | exact match |
+| `F5F5F5` | `Semantic/Surface/Subtle` | exact match |
+| `212121` | `Semantic/Text/Primary` | exact match |
+| `4CAF50` | `Semantic/Status/Success/Border` | exact match, naming oddity disclosed in §3 |
+| `000000` (98 instances, pangram/heading display text) | `Semantic/Text/Primary` | rebound — see §3 for why this wasn't a hex-exact match but was approved anyway |
+| `FFF2CC` | `Documentation/Flag/Warning-BG` | **new token created** |
+| `9E4A05` | `Documentation/Flag/Warning-Text` | **new token created** |
+| `E2E2E2` | `Documentation/Surface/Example` | **new token created** |
+| `E0EEED` | `Documentation/Token/Background` | **new token created** |
+
+403 individual fill instances rebound across both frames. Re-census after: zero unbound raw hex remaining in either frame.
+
+**Button/Chip/Checkbox comparison.** Pulled real geometry from all three finished references: card `cornerRadius: 8`, `padding: 28`, section labels `Open Sans SemiBold 12px`, badges `cornerRadius: 999`. Typography already matched on card treatment and badges. One real, unambiguous gap the comparison caught: the `EDGE-DS` header wordmark was `16px` / `0.5px` letter-spacing against a consistent `20px` / `0%` standard on all three references — fixed to match exactly. The teal-vs-gray section-label pattern (see §3) was also found here but not acted on, since the reference set itself isn't fully consistent on it.
+
+**Instance count re-verified, not corrected.** A `getInstancesAsync()` read taken mid-correction-pass (after the Master Component Set had just been reparented into its new card) returned 4,284 instead of 121. A fresh read taken after all operations settled reproduced **121**, with a per-variant breakdown identical to §1's original figures, and a 4-instance spot-check by ID confirmed every checked instance still resolves to its correct `mainComponent`. **Lesson for future passes:** `getInstancesAsync()` can return inflated or transient counts when read immediately around a reparent/move operation — treat a count taken mid-operation as unreliable, and re-verify with a fresh read once the operation has fully settled before trusting or reporting it.
+
+**Final verification:** 3 consecutive clean checks, all identical — exactly 2 top-level frames, real image-filled logomark in both headers, 25/25 variants with 0 overlapping tiles, 0 unbound raw hex fills in either frame (aside from the disclosed `Semantic/Status/Success/Border` naming note, which is bound, just named oddly), 12/12 complete pangrams, `custom`-mis-wiring flag present, `EDGE-DS` wordmark 20px in both frames.
+
+## 9. Still open, lower priority
 
 - `h2`, `h4`, `h6`, `subtitle1` have no `edgeTypography` mapping and fall through to MUI's stock defaults — not investigated this pass (no comparable "prior mapping pointed one tier off" signal was found for these the way it was for h1/h3; would need its own investigation pass).
 - `custom` variant's `table/header` mis-wiring — no correct target exists yet; needs a Figma-side decision, not a web-side one.
 - `DocUI.tsx` and `foundations/palette/page.tsx` bypass the token system with hardcoded `sx` literals — a usage-pattern cleanup for a future pass, not addressed here.
-- The pre-existing `h1` tile-overlap in the Master Component Set's own internal layout — a Figma-side layout fix, not attempted this pass.
 - 5 of 121 `<Typography>` instances resolve to a `null` containing page — not tracked down.
+- `Semantic/Status/Success/Border` used for the "Migrated ✓" badge's text color — exact hex match, but the token's name implies border use. Consider a dedicated `Semantic/Status/Success/Text`-shaped rename/addition in a future token-hygiene pass.
+- Documentation section labels use a uniform muted-gray treatment where Button/Checkbox split muted-gray (preview sections) vs. teal (prescriptive sections like Usage Guidelines) — not aligned, since the reference set itself isn't fully consistent on this pattern.
 - Code Connect (`Typography.figma.tsx`) not started.
