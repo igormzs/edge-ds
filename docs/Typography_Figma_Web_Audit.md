@@ -132,6 +132,30 @@ A visual review of the finished frames — done after §1–§7's build was alre
 
 **Final verification:** exactly 2 top-level frames, real image-filled logomark in both headers, 25/25 variants with 0 overlapping tiles, 0 unbound raw hex fills in either frame (aside from the disclosed `Semantic/Status/Success/Border` naming note, which is bound, just named oddly), 12/12 complete pangrams, no remaining `custom` or "mis-wired" references anywhere in either frame, `table-label` present in both the Master Component Set and the Documentation Properties table, `EDGE-DS` wordmark 20px in both frames.
 
+## 8a. Text-style tokenization pass (same day, 2026-08-11)
+
+Same standard as §8's color sweep, applied to typography itself: every text node in both frames should bind to a real Text Style rather than carry local/raw font-family, size, weight, line-height, or letter-spacing. Before this pass: Gallery 25/131 bound (all 25 were inside the real `<Typography>` component instances themselves — not chrome; every doc-chrome text node was raw), Documentation **0/184 bound**.
+
+**Convention confirmed against Button/Chip/Checkbox before touching anything.** None of the three is fully tokenized either (Button 81%/78% Gallery/Doc, Chip 80%/48%, Checkbox 66%/41%), but the pattern they do use is consistent and clear: doc-chrome scaffolding reuses the **same EDGE Type Scale keys directly**, no separate documentation-specific scale — eyebrow → `typography/caption`, page title → `typography/heading-sm`, component name → `typography/heading-md`, description paragraph → `typography/body-md`, uppercase tracked section labels → `typography/overline`, badges → `typography/body-xs`. Applied that exact convention to Typography's own two frames: 141 text nodes rebound in the first round (pangram/spec-label pairs to their own matching key, doc-chrome scaffolding per the table above), bringing coverage to Gallery 127/131, Documentation 39/184 — the low Documentation number was structural, not a shortfall: three real data tables (Properties, Dev Handoff/Token Mapping, Type Scale Reference) use font sizes (11px/13px/14px Bold/SemiBold/Regular) that don't exist anywhere in the 12-key EDGE Type Scale, the same root cause behind Button/Chip/Checkbox's own unbound "axis label"/matrix content.
+
+**Three new `Documentation/*` Text Styles created** (Documentation-only, no `edgeTypography`/`brandTheme.ts` changes):
+
+| Style | Font | Size | Letter-spacing | Purpose |
+|---|---|---|---|---|
+| `Documentation/Wordmark` | Montserrat SemiBold | 20px | 0% | The `EDGE-DS` header wordmark, both frames |
+| `Documentation/Table/Header` | Open Sans Bold | 12px | 0% | Bold column headers + emphasized row keys across all 3 documentation tables |
+| `Documentation/Table/Body` | Open Sans Regular | 12px | 0% | Regular cell content across all 3 documentation tables |
+
+**Consolidation reasoning.** Five raw variants fed into just two table styles (Header/Body): Open Sans Regular 12 (96 instances, Type Scale Reference body), Regular 13 (19, Properties body), Bold 13 (17, Properties headers), Bold 12 (8, Type Scale Reference headers), SemiBold 13 (4, Properties' `variant`/`gutterBottom`/`component`/`table-label` row-key cells). Picked **12px as the canonical size** since it was already the majority (104 of 144 instances); Properties' 13px content shrinks to match. The SemiBold-13 row-key cells were folded into `Documentation/Table/Header` (Bold 12) rather than kept as a third style — same "emphasized label" role as the true column headers, even though it's a visible step up in weight (SemiBold→Bold) and down in size (13→12px). Disclosed rather than hidden: a third narrow style would have been more literal but the brief asked for as few reusable styles as make sense, and this reads as within-family on screen.
+
+**Two long-tail resolutions, near-matches rather than new styles:**
+- The 32px Bold "Headings"/"Body" EDGE Type Scale column headers (2 nodes) → bound to `typography/heading-md` (34px SemiBold). ~6% size delta, one weight step down (Bold→SemiBold) — a disclosed near-match, not exact.
+- The 11px Bold `table-label` flag note (1 node) → folded into `Documentation/Table/Header` (12px Bold). ~9% size step up, same weight.
+
+**Final coverage: 100%/100%** — Gallery 131/131, Documentation 184/184. 3 consecutive identical clean checks (frame count, full binding coverage). Screenshots confirmed no overflow/clipping from the resize; auto-layout absorbed the 13→12px table-content shrink cleanly.
+
+**Scope boundary, explicitly not crossed this pass.** Button, Chip, and Checkbox share the identical two structural gaps found here (the wordmark, and dense table/matrix content with no matching type-scale key) at 41–81% coverage each — confirmed, not retrofitted. This is a real file-wide gap, not Typography-specific, and a strong candidate for a dedicated sweep across all finished components at once — same pattern as the 2026-08-07 documentation-chrome color sweep that touched 7 pages in one pass.
+
 ## 9. Still open, lower priority
 
 - `h2`, `h4`, `h6`, `subtitle1` have no `edgeTypography` mapping and fall through to MUI's stock defaults — not investigated this pass (no comparable "prior mapping pointed one tier off" signal was found for these the way it was for h1/h3; would need its own investigation pass).
@@ -140,4 +164,5 @@ A visual review of the finished frames — done after §1–§7's build was alre
 - 5 of 121 `<Typography>` instances resolve to a `null` containing page — not tracked down.
 - `Semantic/Status/Success/Border` used for the "Migrated ✓" badge's text color — exact hex match, but the token's name implies border use. Consider a dedicated `Semantic/Status/Success/Text`-shaped rename/addition in a future token-hygiene pass.
 - Documentation section labels use a uniform muted-gray treatment where Button/Checkbox split muted-gray (preview sections) vs. teal (prescriptive sections like Usage Guidelines) — not aligned, since the reference set itself isn't fully consistent on this pattern.
+- **Button, Chip, and Checkbox's own doc-chrome text is only 41–81% bound to real Text Styles** (see §8a) — the same wordmark and dense-table/matrix gaps found and fixed in Typography exist in all three, untouched. Strong candidate for a dedicated file-wide sweep, same pattern as the 2026-08-07 documentation-chrome color sweep (7 pages in one pass) — not attempted here since it's out of scope for a single-component audit.
 - Code Connect (`Typography.figma.tsx`) not started.
