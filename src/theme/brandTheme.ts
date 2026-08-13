@@ -1781,6 +1781,29 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // <Skeleton>'s Figma set was extracted from an untouched MUI-for-Figma
+    // v5.14.0 import and bound to the old action.hover fill (light #000000
+    // @4%, dark #FFFFFF @8%). Checked directly against node_modules/@mui/
+    // material/Skeleton/Skeleton.js (v7.0.0): stock v7 computes the
+    // background as alpha(text.primary, mode === 'light' ? 0.11 : 0.13)
+    // instead — a different, newer default. This override forces the v7
+    // default back to Figma's approved value rather than the reverse, same
+    // treatment as the documented MuiRating deviation above.
+    // Components/Skeleton/BG, literal rgba(0,0,0,0.04) — a true gap, no
+    // Semantic-tier translucent-tint token exists to alias to (Semantic/
+    // Surface/Hover resolves to a solid grey/200, the wrong shape). Same
+    // literal already used by 3 sibling Components-tier tokens for the
+    // identical reason (Checkbox/Ripple/Default/Hover, List/ListItem/Hover,
+    // MenuItem/Hover/BG). Single mode only, matching this file's palette
+    // convention — MUI's own dark-mode value (#FFFFFF @8%) has no EDGE-side
+    // equivalent yet, a pre-existing gap, not specific to Skeleton.
+    MuiSkeleton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+        },
+      },
+    },
   },
 });
 
