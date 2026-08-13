@@ -1,6 +1,5 @@
 import { createTheme, alpha } from '@mui/material/styles';
 import type { CSSProperties } from 'react';
-import { red, blue, amber, grey, blueGrey, green, lightBlue, orange } from '@mui/material/colors';
 
 const MONTSERRAT = '"Montserrat", sans-serif';
 const OPEN_SANS = '"Open Sans", sans-serif';
@@ -214,8 +213,49 @@ declare module '@mui/material/Typography' {
   }
 }
 
+// EDGE-owned copies of the generic Material tonal scales, sourced directly
+// from Figma's `Colors` variable collection (not from @mui/material/colors)
+// so a future MUI version bump can't silently move these values. One real,
+// intentional divergence from MUI's own published palette, confirmed live
+// in Figma: `blue[700]` (#0057b2) is a deliberately overridden custom
+// info-blue, not canonical MUI blue/700 (#1976d2) — matches `info.main`
+// below, which independently uses this same value. (`orange[900]` used to
+// duplicate `orange[800]` instead of MUI's own #e65100 — corrected in
+// Figma's `Colors/orange/900` and here on 2026-08-13, since nothing
+// depended on the duplicate other than Figma's own `warning/dark`, which
+// re-resolves naturally now that the primitive is fixed.)
+const red = {
+  50: '#feebee', 100: '#fecdd2', 200: '#ef9a9a', 300: '#e57373', 400: '#ef5350',
+  500: '#f44336', 600: '#e53935', 700: '#d32f2f', 800: '#c62828', 900: '#b71c1c',
+};
+const blue = {
+  50: '#e3f2fd', 100: '#bbdefb', 200: '#90caf9', 300: '#64b5f6', 400: '#42a5f5',
+  500: '#2196f3', 600: '#1e88e5', 700: '#0057b2', 800: '#1565c0', 900: '#0d47a1',
+};
+const amber = {
+  50: '#fff8e1', 100: '#ffecb3', 200: '#ffe082', 300: '#ffd54f', 400: '#ffca28',
+  500: '#ffc107', 600: '#ffb300', 700: '#ffa000', 800: '#ff8f00', 900: '#ff6f00',
+};
+const green = {
+  50: '#e8f5e9', 100: '#c8e6c9', 200: '#a5d6a7', 300: '#81c784', 400: '#66bb6a',
+  500: '#4caf50', 600: '#43a047', 700: '#388e3c', 800: '#2e7d32', 900: '#1b5e20',
+};
+const grey = {
+  50: '#fafafa', 100: '#f5f5f5', 200: '#eeeeee', 300: '#e0e0e0', 400: '#bdbdbd',
+  500: '#9e9e9e', 600: '#757575', 700: '#616161', 800: '#424242', 900: '#212121',
+};
+const blueGrey = {
+  50: '#eceff1', 100: '#cfd8dc', 200: '#b0bec5', 300: '#90a4ae', 400: '#78909c',
+  500: '#607d8b', 600: '#546e7a', 700: '#455a64', 800: '#37474f', 900: '#263238',
+};
+const orange = {
+  50: '#fff3e0', 100: '#ffe0b2', 200: '#ffcc80', 300: '#ffb74d', 400: '#ffa726',
+  500: '#ff9800', 600: '#fb8c00', 700: '#f57c00', 800: '#ef6c00', 900: '#e65100',
+};
+
 // 1. Unified Color Warehouse
-// We merge MUI standard palettes and EDGE custom scales here.
+// EDGE-owned tonal scales (sourced from Figma's `Colors` collection, see
+// above) plus EDGE's own brand-specific scales.
 export const colors = {
   red,
   blue,
@@ -223,7 +263,6 @@ export const colors = {
   grey,
   blueGrey,
   green,
-  lightBlue,
   orange,
   edgeTurquoise: {
     50: '#e0f3f2',
@@ -252,9 +291,9 @@ export const colors = {
     900: '#263238',
   },
   overlay: {
-    scrim: 'rgba(0, 0, 0, 0.5)', // Semantic/Overlay/Scrim, aliased by Components/Backdrop/Fill/Default
-    scrimBlur: 'rgba(0, 0, 0, 0.25)', // Components/Backdrop/Fill/Blur (literal, no Brand-tier black primitive to alias)
-    invertedScrim: 'rgba(255, 255, 255, 0.6)', // Components/Backdrop/Fill/Inverted (literal, RGB matches Brand/White but alpha differs)
+    scrim: 'rgba(0, 0, 0, 0.5)', // Semantic/Overlay/Scrim, now aliases Neutral/Black/50 (was a literal)
+    scrimBlur: 'rgba(0, 0, 0, 0.25)', // Components/Backdrop/Fill/Blur, now aliases Neutral/Black/25 (was a literal)
+    invertedScrim: 'rgba(255, 255, 255, 0.6)', // Components/Backdrop/Fill/Inverted (literal, RGB matches Brand/White but alpha differs — out of scope for the Neutral primitive pass)
   },
 };
 
@@ -279,7 +318,7 @@ const baseTheme = createTheme({
       contrastText: '#ffffff',
     },
     warning: {
-      main: colors.orange[800],
+      main: colors.amber[800], // was colors.orange[800] — Chip/Alert's MuiChip/MuiAlert overrides below already hardcode colors.amber directly, so Button's warning.main was the one component silently rendering a different hue
       contrastText: '#ffffff',
     },
     info: {
@@ -293,29 +332,33 @@ const baseTheme = createTheme({
       contrastText: '#ffffff',
     },
     text: {
-      primary: '#212121', // Semantic/Text/Primary
+      primary: '#212121', // Semantic/Text/Primary, now aliases Neutral/Grey/900 (previously aliased material/colors::grey/900 directly, a foreign/ungoverned collection)
+      // Semantic/Text/Secondary in Figma aliases material/colors::grey/700 (#616161), a solid grey —
+      // a pre-existing drift from this literal alpha-black value (#666666-equivalent), left as-is and
+      // NOT touched by the 2026-08 Neutral primitive pass (deliberately out of scope: a value change,
+      // not a structural rename). Flagged for a deliberate future fix, not silently resolved here.
       secondary: 'rgba(0, 0, 0, 0.6)',
-      disabled: colors.grey[500], // Semantic/Text/Disabled -> #9e9e9e
+      disabled: colors.grey[500], // Semantic/Text/Disabled -> #9e9e9e (not part of the Neutral primitive pass; still borrows material/colors grey/500 in Figma)
     },
     background: {
       default: '#ffffff',
       paper: '#ffffff',
     },
     grey: colors.grey,
-    divider: 'rgba(0, 0, 0, 0.12)',
+    divider: 'rgba(0, 0, 0, 0.12)', // Semantic/Border/Divider, now aliases Neutral/Black/12 (was a literal)
     action: {
       active: colors.edgeTurquoise.active,
       hover: alpha(colors.edgeTurquoise[300], 0.08),
-      selected: colors.grey[100],
-      disabled: colors.grey[500],
-      disabledBackground: colors.grey[300],
+      selected: colors.grey[100], // no dedicated Figma Semantic/State token; code-only, equivalent to Neutral/Grey/100
+      disabled: colors.grey[500], // code-only, equivalent to Neutral/Grey/500
+      disabledBackground: colors.grey[300], // code-only, equivalent to Neutral/Grey/300
       focus: alpha(colors.edgeTurquoise[300], 0.12),
     },
     surface: {
-      default: colors.grey[50], // Semantic/Surface/Default -> fafafa
+      default: colors.grey[50], // Semantic/Surface/Default, now aliases Neutral/Grey/50 (previously aliased material/colors::grey/50 directly)
       paper: '#ffffff',
-      disabled: colors.grey[300], // e0e0e0
-      subtle: colors.grey[100],
+      disabled: colors.grey[300], // Semantic/Surface/Disabled, now aliases Neutral/Grey/300 (previously aliased material/colors::grey/300 directly)
+      subtle: colors.grey[100], // Semantic/Surface/Subtle, now aliases Neutral/Grey/100 (previously aliased material/colors::grey/100 directly)
     },
   },
   typography: {
@@ -1641,6 +1684,75 @@ const brandTheme = createTheme(baseTheme, {
           // Semantic/Text/Secondary (#616161, colors.grey[700]), same
           // token and same scoping rationale as MuiListItemText above.
           color: colors.grey[700],
+        },
+      },
+    },
+    // Verified directly against node_modules/@mui/material/MenuItem/MenuItem.js
+    // (v7.3.9): stock hover/selected both key off the shared action/primary
+    // palette (action.hover, alpha(primary.main, action.selectedOpacity)),
+    // which in this theme resolves teal-tinted — not Figma's approved
+    // Components/MenuItem/Hover/BG (black @ 4%) or Selected/BG (Brand/
+    // Primary/300 @ 4%, a different shade+opacity than List's own Selected
+    // token). Scoped to MuiMenuItem itself rather than the global
+    // palette.action.hover/selected above, same reasoning as MuiListItem's
+    // own scoping comment. Base label text color already matches
+    // (Semantic/Text/Primary === this theme's text.primary); MenuItem's
+    // disabled state dims via palette.action.disabledOpacity (an opacity
+    // multiply) rather than a discrete color swap the way Figma's
+    // Semantic/Text/Disabled does, close enough in rendered effect that no
+    // override was added for it.
+    // One real live usage exists: ButtonGroup's split-button dropdown
+    // (src/app/styleguide/components/button-group/page.tsx, SplitButtonDemo)
+    // sets `selected` on the active save-option MenuItem — checked directly,
+    // this override does visibly change that dropdown's hover/selected tint
+    // (previously teal-500-at-8%/action.hover, now the Figma-approved
+    // black-4%/teal-300-at-4%), a deliberate, disclosed change, not a
+    // regression.
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            // Components/MenuItem/Hover/BG (literal #000000 @ 4%)
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+          },
+          '&.Mui-selected': {
+            // Components/MenuItem/Selected/BG, aliases Brand/Primary/300
+            // (colors.edgeTurquoise[300]) at 4% opacity.
+            backgroundColor: alpha(colors.edgeTurquoise[300], 0.04),
+            '&:hover': {
+              backgroundColor: alpha(colors.edgeTurquoise[300], 0.04),
+            },
+          },
+        },
+      },
+    },
+    // Verified directly against node_modules/@mui/material/Select/SelectInput.js
+    // and NativeSelectInput.js (v7.3.9): the dropdown icon's stock color is
+    // theme.palette.action.active (Enabled) / action.disabled (Disabled).
+    // Figma's own Select master originally used the raw MUI action/active
+    // and action/disabled variables for this exact role too, but this
+    // theme's own action.active/disabled (above) are customized to a teal
+    // tint and opaque grey respectively for other components' sake, not the
+    // translucent-black values Figma's Semantic/Icon/Default (0.70, now
+    // aliases Neutral/Black/70 — see the 2026-08 Neutral primitive pass) and
+    // the new Components/Select/Icon/Disabled (0.38, still a literal — not
+    // one of the discrete Neutral/Black/* steps that pass created, since
+    // 38% wasn't yet a value in use anywhere else) resolve to. Underlying OutlinedInput/
+    // FilledInput/Input border and fill colors needed no override at all —
+    // checked directly against OutlinedInput.js/FilledInput.js/Input.js:
+    // 4 of the 6 new Components/Input/* tokens are byte-exact stock MUI
+    // defaults (rgba(0,0,0,0.23)/0.06/0.09/0.42), the remaining 2 hover-
+    // border values differ only between literal #000000 and this theme's
+    // text.primary #212121, an imperceptible delta not worth forcing.
+    MuiSelect: {
+      styleOverrides: {
+        icon: {
+          // Semantic/Icon/Default, now aliases Neutral/Black/70 (#000000 @ 70%)
+          color: 'rgba(0, 0, 0, 0.70)',
+          '&.MuiSelect-disabled': {
+            // Components/Select/Icon/Disabled (#000000 @ 38%)
+            color: 'rgba(0, 0, 0, 0.38)',
+          },
         },
       },
     },

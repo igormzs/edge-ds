@@ -158,8 +158,8 @@ export default function DesignTokensPage() {
       title: 'Feedback',
       swatches: [
         { name: 'Error Main', token: 'error.main', color: '#d32f2f', text: 'Red 700' },
-        { name: 'Warning Main', token: 'warning.main', color: '#ef6c00', text: 'Orange 800' },
-        { name: 'Info Main', token: 'info.main', color: '#1976d2', text: 'Blue 700' },
+        { name: 'Warning Main', token: 'warning.main', color: '#ff8f00', text: 'Amber 800' },
+        { name: 'Info Main', token: 'info.main', color: '#0057b2', text: 'Blue 700' },
         { name: 'Success Main', token: 'success.main', color: '#2e7d32', text: 'Green 800' },
       ],
     },

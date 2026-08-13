@@ -122,7 +122,10 @@ export default function PalettePage() {
           <ColorScale title="Red (Error Structure)" scale={colors.red} />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <ColorScale title="Orange (Warning Structure)" scale={colors.orange} />
+          <ColorScale title="Orange" scale={colors.orange} />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <ColorScale title="Amber (Warning Structure)" scale={colors.amber} />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <ColorScale title="Blue (Info Structure)" scale={colors.blue} />
