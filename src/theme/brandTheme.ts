@@ -1804,6 +1804,63 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // <Slider>'s Figma set was extracted from an untouched MUI-for-Figma
+    // v5.14.0 import. Checked directly against node_modules/@mui/material/
+    // Slider/Slider.js (v7.3.9): almost every visual aspect already matches
+    // Figma's approved design with zero divergence, so this override is
+    // deliberately small —
+    //   - Rail/Track color: stock 'currentColor' resolves through
+    //     palette.primary.main / palette.secondary.main, the exact same
+    //     values Brand/Primary/500 and Brand/Secondary/500 alias to
+    //     (confirmed by matching alias targets before rebinding).
+    //   - Disabled fill: stock uses palette.grey[400] — the same underlying
+    //     value new Components/Slider/Disabled/Fill aliases via
+    //     Neutral/Grey/400 (both are MUI's own default grey scale).
+    //   - ValueLabel (tooltip) background: stock uses palette.grey[600],
+    //     same value new Components/Slider/Tooltip/Background aliases via
+    //     Neutral/Grey/600, for the same reason.
+    //   - Mark "active" background: stock uses palette.background.paper,
+    //     the same value Semantic/Surface/Paper resolves to (white).
+    //   - Medium track's 6px vs rail's 4px is not a Figma-specific
+    //     override — stock Track already adds a 1px+1px currentColor
+    //     border on top of the inherited 4px height (removed only at
+    //     size="small"), producing 6px with no CSS needed to reproduce it.
+    // The one real divergence: stock Thumb hover/focus/dragging feedback is
+    // a color-tinted alpha(color.main, 0.16) halo; Figma's approved Thumb
+    // states show a solid white/paper halo instead (new
+    // Components/Slider/Thumb/FocusRing, aliasing Semantic/Surface/Paper)
+    // — the same fix Components/Switch/Knob/FocusRing and
+    // Components/Fab/Shared/FocusRing already needed. Same spread radii as
+    // stock (8px hover/focus, 14px dragging), just recolored, and left
+    // color-independent (Figma's ring is flat white regardless of
+    // Primary/Secondary) rather than re-deriving per-color like stock does.
+    //
+    // Track (Figma boolean, default true) and Inverted (realized as the
+    // TrackDirection INSTANCE_SWAP property on <Slider>, swapping between
+    // the Normal/Inverted variants of the new _SliderTrackSlot
+    // sub-component, Continuous/Marks only — not a boolean, since Figma's
+    // visible-property binding has no negation, see above) are
+    // documentation-only conveniences for the two real MUI props they
+    // demonstrate — track={false} and track="inverted" — both already
+    // fully implemented by stock Slider.js with no override needed. Note: stock
+    // track="inverted" recolors the rail to full opacity and lightens the
+    // track instead of repositioning a solid segment the way Figma's
+    // static demo shows via the new _SliderTrackSlot nested component;
+    // Figma's version is the documented visual target for the design
+    // system, not a request to rewrite MUI's own interactive track
+    // algorithm.
+    MuiSlider: {
+      styleOverrides: {
+        thumb: {
+          '&:hover, &.Mui-focusVisible': {
+            boxShadow: `0px 0px 0px 8px ${baseTheme.palette.background.paper}`,
+          },
+          '&.Mui-active': {
+            boxShadow: `0px 0px 0px 14px ${baseTheme.palette.background.paper}`,
+          },
+        },
+      },
+    },
   },
 });
 
