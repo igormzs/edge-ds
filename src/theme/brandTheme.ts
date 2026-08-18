@@ -1835,20 +1835,25 @@ const brandTheme = createTheme(baseTheme, {
     // color-independent (Figma's ring is flat white regardless of
     // Primary/Secondary) rather than re-deriving per-color like stock does.
     //
-    // Track (Figma boolean, default true) and Inverted (realized as the
-    // TrackDirection INSTANCE_SWAP property on <Slider>, swapping between
-    // the Normal/Inverted variants of the new _SliderTrackSlot
-    // sub-component, Continuous/Marks only — not a boolean, since Figma's
-    // visible-property binding has no negation, see above) are
-    // documentation-only conveniences for the two real MUI props they
-    // demonstrate — track={false} and track="inverted" — both already
-    // fully implemented by stock Slider.js with no override needed. Note: stock
-    // track="inverted" recolors the rail to full opacity and lightens the
-    // track instead of repositioning a solid segment the way Figma's
-    // static demo shows via the new _SliderTrackSlot nested component;
-    // Figma's version is the documented visual target for the design
-    // system, not a request to rewrite MUI's own interactive track
-    // algorithm.
+    // Track (Figma boolean, default true) is a documentation-only
+    // convenience for the real MUI prop it demonstrates — track={false} —
+    // already fully implemented by stock Slider.js with no override needed.
+    //
+    // Inverted (track="inverted") was previously modeled via a
+    // TrackDirection INSTANCE_SWAP property on <Slider>, swapping the
+    // _SliderTrackSlot sub-component between Normal/Inverted variants. That
+    // property was removed 2026-08-18: it had a single shared defaultValue
+    // across all 48 non-Range variants (a Figma component-property
+    // limitation, not a flaw in the original design intent), so no
+    // independent per-variant default was possible, and every real
+    // <Slider> instance's properties panel would have permanently shown a
+    // Direction toggle. Since track="inverted" is a decision made in code,
+    // never by reading a Figma instance's toggle state, the property added
+    // ongoing panel clutter with no functional payoff — each of the 48
+    // non-Range variants' _SliderTrackSlot now hardcodes its own correct
+    // Size+Orientation target directly instead. track="inverted" remains a
+    // fully real, already-implemented MUI prop; Figma just no longer has a
+    // variant demonstrating it.
     MuiSlider: {
       styleOverrides: {
         thumb: {
