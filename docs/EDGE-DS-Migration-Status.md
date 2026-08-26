@@ -28,7 +28,7 @@ Canonical SOP: [`figma-component-structure.md`](./figma-component-structure.md) 
 | Skeleton | ✅ Migrated | Two-Frame Architecture built, token gap closed |
 | Slider | ✅ Migrated | Two-Frame Architecture built, MuiSlider overrides added |
 | Snackbar | ✅ Migrated | `<SnackbarContent>` documented as peer section to `<Snackbar>`; **known issue, not yet fixed:** its Documentation frame's Anatomy & Token Architecture prose is leftover Checkbox copy, needs a content-only fix |
-| **Stepper** | 🟡 In progress — Tranche 1 of 3 done | See below |
+| **Stepper** | 🟡 In progress — Tranches 1 & 2 of 3 done | See below |
 | Menu / MenuItem | ⏸️ Paused | Discovery found 3 confusingly-similar page names; paused to prioritize Stepper. Resume by re-running Step 1 page-collision check before continuing. |
 | Checkbox, Radio, Switch, Chip (Avatar), Alert, Paper, Skeleton | ✅ Migrated (earlier work, pre-dates the current session sequence) | |
 
