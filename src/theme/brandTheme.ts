@@ -51,6 +51,13 @@ export const edgeTypography = {
     lineHeight: 1.6,
     letterSpacing: -0.05,
   },
+  'body-xl': {
+    fontFamily: OPEN_SANS,
+    fontSize: 20,
+    fontWeight: 400,
+    lineHeight: 1.5,
+    letterSpacing: 0,
+  },
   'body-lg': {
     fontFamily: OPEN_SANS,
     fontSize: 18,
@@ -65,6 +72,13 @@ export const edgeTypography = {
     lineHeight: 1.5,
     letterSpacing: 0,
   },
+  'body-md-bold': {
+    fontFamily: OPEN_SANS,
+    fontSize: 16,
+    fontWeight: 600,
+    lineHeight: 1.5,
+    letterSpacing: 0,
+  },
   'body-sm': {
     fontFamily: OPEN_SANS,
     fontSize: 14,
@@ -72,10 +86,32 @@ export const edgeTypography = {
     lineHeight: 1.43,
     letterSpacing: 0.06,
   },
+  'body-sm-bold': {
+    fontFamily: OPEN_SANS,
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: 1.43,
+    letterSpacing: 0.06,
+  },
   'body-xs': {
     fontFamily: OPEN_SANS,
     fontSize: 12,
     fontWeight: 600,
+    lineHeight: 1.5,
+    letterSpacing: 0.06,
+  },
+  'body-xs-regular': {
+    fontFamily: OPEN_SANS,
+    fontSize: 12,
+    fontWeight: 400,
+    lineHeight: 1.5,
+    letterSpacing: 0.06,
+  },
+  'body-xs-italic': {
+    fontFamily: OPEN_SANS,
+    fontSize: 12,
+    fontWeight: 600,
+    fontStyle: 'italic',
     lineHeight: 1.5,
     letterSpacing: 0.06,
   },
@@ -178,10 +214,15 @@ declare module '@mui/material/styles' {
     'heading-md': CSSProperties;
     'heading-sm': CSSProperties;
     'heading-xs': CSSProperties;
+    'body-xl': CSSProperties;
     'body-lg': CSSProperties;
     'body-md': CSSProperties;
     'body-sm': CSSProperties;
     'body-xs': CSSProperties;
+    'body-md-bold': CSSProperties;
+    'body-sm-bold': CSSProperties;
+    'body-xs-regular': CSSProperties;
+    'body-xs-italic': CSSProperties;
   }
 
   interface TypographyVariantsOptions {
@@ -191,10 +232,15 @@ declare module '@mui/material/styles' {
     'heading-md'?: CSSProperties;
     'heading-sm'?: CSSProperties;
     'heading-xs'?: CSSProperties;
+    'body-xl'?: CSSProperties;
     'body-lg'?: CSSProperties;
     'body-md'?: CSSProperties;
     'body-sm'?: CSSProperties;
     'body-xs'?: CSSProperties;
+    'body-md-bold'?: CSSProperties;
+    'body-sm-bold'?: CSSProperties;
+    'body-xs-regular'?: CSSProperties;
+    'body-xs-italic'?: CSSProperties;
   }
 }
 
@@ -206,10 +252,15 @@ declare module '@mui/material/Typography' {
     'heading-md': true;
     'heading-sm': true;
     'heading-xs': true;
+    'body-xl': true;
     'body-lg': true;
     'body-md': true;
     'body-sm': true;
     'body-xs': true;
+    'body-md-bold': true;
+    'body-sm-bold': true;
+    'body-xs-regular': true;
+    'body-xs-italic': true;
   }
 }
 
@@ -264,31 +315,55 @@ export const colors = {
   blueGrey,
   green,
   orange,
+  // Synced to Figma `EDGE-Turquoise/*` on 2026-09-24 — 50, 100, 200, 400, 700,
+  // 800 and 900 had drifted (unused by components at the time, so no render change).
   edgeTurquoise: {
-    50: '#e0f3f2',
-    100: '#b3e0df',
-    200: '#80cccc',
+    50: '#ecfdfe',
+    100: '#bce8e9',
+    200: '#8ad3d4',
     300: '#07bebe',
-    400: '#26b2af',
+    400: '#26afad',
     500: '#009f9b',
     600: '#00918c',
-    700: '#00807b',
-    800: '#006f6a',
-    900: '#005d60',
+    700: '#0e837d',
+    800: '#00726d',
+    900: '#04554e',
     subtle: '#ecfdfe', // Figma/Shared/Subtle
     active: '#0e837d', // Figma/Shared/Active
   },
+  // Synced to Figma `EDGE-Blue/*` on 2026-09-24 — 50–400, 700 and 900 had
+  // drifted to MUI blueGrey values (unused at the time, so no render change).
   edgeBlue: {
-    50: '#eceff1',
-    100: '#cfd8dc',
-    200: '#b0bec5',
-    300: '#90a4ae',
-    400: '#78909c',
+    50: '#e2e1e0',
+    100: '#c6c9cb',
+    200: '#a8aeb3',
+    300: '#8a949d',
+    400: '#75828e',
     500: '#5e6e7d',
     600: '#515f6c',
-    700: '#455a64',
+    700: '#414c56',
     800: '#323940',
-    900: '#263238',
+    900: '#21252a',
+  },
+  // Figma `EDGE-Red/500` — Certifications accent on <HubAccessCard>.
+  edgeRed: {
+    500: '#ac0235',
+  },
+  // Figma `Neutral/Slate/50` — the Components/Card/Content/BG/Subtle surface.
+  slate: {
+    50: '#f8fafb',
+  },
+  // Figma `Platforms/Brand/*` + `Platforms/Glyph` — brand colors of the other
+  // EDGE platforms. Deliberately raw values, not aliases of our own scales:
+  // they belong to other products. Only for <PlatformLogo>, never UI chrome.
+  platforms: {
+    insights: '#00918c',
+    knowledge: '#515f6c',
+    connections: '#005b60',
+    certifications: '#b0003a',
+    compliance: '#333a42',
+    payTool: '#334756',
+    glyph: '#ffffff',
   },
   overlay: {
     scrim: 'rgba(0, 0, 0, 0.5)', // Semantic/Overlay/Scrim, now aliases Neutral/Black/50 (was a literal)
@@ -372,6 +447,7 @@ const baseTheme = createTheme({
     h1: edgeTypography['display-lg'],
     h3: edgeTypography['heading-lg'],
     h5: edgeTypography['heading-sm'],
+    h6: edgeTypography['heading-xs'],
     body1: edgeTypography['body-md'],
     body2: edgeTypography['body-sm'],
     subtitle2: {
@@ -507,9 +583,11 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         containedWarning: {
-          backgroundColor: baseTheme.palette.warning.main,
+          // Figma Components/Button/Warning/BG/Default|Hover → orange/800|900
+          // (Button-only; palette.warning.main stays amber for Chip/Alert).
+          backgroundColor: colors.orange[800],
           color: baseTheme.palette.warning.contrastText,
-          '&:hover': { backgroundColor: baseTheme.palette.warning.dark },
+          '&:hover': { backgroundColor: colors.orange[900] },
           '&.Mui-disabled': {
             backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
             color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
@@ -553,8 +631,13 @@ const brandTheme = createTheme(baseTheme, {
             borderWidth: '1px',
           },
         },
+        // Outlined/Text label + border colors follow Figma's Button tokens:
+        // label = Components/Button/<Color>/Text (900 shades; Secondary uses
+        // Brand/Secondary/500), border = Components/Button/<Color>/Border
+        // (500 shades; Secondary uses Brand/Secondary/300). Icons inherit the
+        // label color via currentColor.
         outlinedSecondary: {
-          borderColor: baseTheme.palette.secondary.main,
+          borderColor: colors.edgeBlue[300],
           color: baseTheme.palette.secondary.main,
           borderWidth: '1px',
           '&:hover': {
@@ -568,8 +651,8 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         outlinedError: {
-          borderColor: baseTheme.palette.error.main,
-          color: baseTheme.palette.error.main,
+          borderColor: colors.red[500],
+          color: colors.red[900],
           borderWidth: '1px',
           '&:hover': {
             backgroundColor: alpha(baseTheme.palette.error.main, 0.06),
@@ -582,8 +665,8 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         outlinedWarning: {
-          borderColor: baseTheme.palette.warning.main,
-          color: baseTheme.palette.warning.main,
+          borderColor: colors.amber[500],
+          color: colors.amber[900],
           borderWidth: '1px',
           '&:hover': {
             backgroundColor: alpha(baseTheme.palette.warning.main, 0.06),
@@ -596,8 +679,8 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         outlinedInfo: {
-          borderColor: baseTheme.palette.info.main,
-          color: baseTheme.palette.info.main,
+          borderColor: colors.blue[500],
+          color: colors.blue[900],
           borderWidth: '1px',
           '&:hover': {
             backgroundColor: alpha(baseTheme.palette.info.main, 0.06),
@@ -610,8 +693,8 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         outlinedSuccess: {
-          borderColor: baseTheme.palette.success.main,
-          color: baseTheme.palette.success.main,
+          borderColor: colors.green[500],
+          color: colors.green[900],
           borderWidth: '1px',
           '&:hover': {
             backgroundColor: alpha(baseTheme.palette.success.main, 0.06),
@@ -635,22 +718,22 @@ const brandTheme = createTheme(baseTheme, {
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         textError: {
-          color: baseTheme.palette.error.main,
+          color: colors.red[900],
           '&:hover': { backgroundColor: alpha(baseTheme.palette.error.main, 0.06) },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         textWarning: {
-          color: baseTheme.palette.warning.main,
+          color: colors.amber[900],
           '&:hover': { backgroundColor: alpha(baseTheme.palette.warning.main, 0.06) },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         textInfo: {
-          color: baseTheme.palette.info.main,
+          color: colors.blue[900],
           '&:hover': { backgroundColor: alpha(baseTheme.palette.info.main, 0.06) },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
         textSuccess: {
-          color: baseTheme.palette.success.main,
+          color: colors.green[900],
           '&:hover': { backgroundColor: alpha(baseTheme.palette.success.main, 0.06) },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
         },
@@ -737,6 +820,11 @@ const brandTheme = createTheme(baseTheme, {
       styleOverrides: {
         root: {
           // keep indicator on primary color by default
+          // Vertical Tabs keep no divider on inactive tabs (Figma overrides
+          // the <Tab> master's bottom stroke off in the vertical variants).
+          '&.MuiTabs-vertical .MuiTab-root:not(.Mui-selected)': {
+            boxShadow: 'none',
+          },
         },
         indicator: {
           backgroundColor: baseTheme.palette.primary.main,
@@ -753,6 +841,13 @@ const brandTheme = createTheme(baseTheme, {
           letterSpacing: 0.5,
           textTransform: 'none',
           color: baseTheme.palette.text.secondary,
+          // Figma 2026-09-24: inactive <Tab> masters carry a 1px bottom
+          // stroke (INSIDE) in Semantic/Border/Default (grey 300). Drawn as an
+          // inset shadow so it takes no layout space, like Figma's inside stroke;
+          // the selected tab shows the indicator instead.
+          '&:not(.Mui-selected)': {
+            boxShadow: `inset 0 -1px 0 ${colors.grey[300]}`,
+          },
           '&.Mui-selected': {
             color: baseTheme.palette.primary.main,
           },
@@ -1434,7 +1529,7 @@ const brandTheme = createTheme(baseTheme, {
         },
         standardWarning: {
           backgroundColor: colors.amber[100],
-          color: '#ff6f00',
+          color: colors.amber[900],
           '& .MuiAlert-icon': { color: colors.amber[800] },
         },
         standardInfo: {
@@ -1458,7 +1553,7 @@ const brandTheme = createTheme(baseTheme, {
         outlinedWarning: {
           backgroundColor: 'transparent',
           border: `1px solid ${colors.amber[500]}`,
-          color: '#ff6f00',
+          color: colors.amber[900],
           '& .MuiAlert-icon': { color: colors.amber[800] },
         },
         outlinedInfo: {
@@ -1644,6 +1739,37 @@ const brandTheme = createTheme(baseTheme, {
     // (black-tinted Hover/Focus) — leaking one into the other would
     // regress whichever component didn't ask for the change.
     MuiListItem: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            // Components/List/ListItem/Hover (literal #000000 @ 4%)
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+          },
+          '&.Mui-focusVisible': {
+            // Components/List/ListItem/Focus (literal #000000 @ 12%)
+            backgroundColor: 'rgba(0, 0, 0, 0.12)',
+          },
+          '&.Mui-selected': {
+            // Components/List/ListItem/Selected, mirrors Brand/Primary/300
+            // (colors.edgeTurquoise[300]) at 8% opacity — MUI's own
+            // primary-scoped raw value, not the generic grey action.selected.
+            backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
+            '&:hover': {
+              backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
+            },
+          },
+        },
+      },
+    },
+    // No Figma-approved master exists for MuiListItemButton itself — added
+    // for NavigationMenu (src/components/NavigationMenu.tsx), which uses
+    // ListItemButton (the modern clickable-row API) rather than the legacy
+    // ListItem MuiListItem overrides above target. Mirrors MuiListItem's
+    // own Figma-approved values verbatim: NavigationMenu is a navigational
+    // list context (black-tinted Hover/Focus, teal-300-at-8% Selected),
+    // not a dropdown-menu context, so MuiMenuItem's different teal-300-at-4%
+    // Selected value is not the right precedent here.
+    MuiListItemButton: {
       styleOverrides: {
         root: {
           '&:hover': {
