@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Switch, Box, Typography, Stack, FormGroup, Tabs, Tab, Paper } from '@mui/material';
 import { grey } from '@mui/material/colors';
+import { useTheme } from '@mui/material/styles';
 import {
   PageHeader,
   DocSection,
@@ -37,6 +38,7 @@ function IndeterminateSwatch({
    * tri-state cycle in the "Base & Interactive States" card. */
   onActivate?: () => void;
 }) {
+  const theme = useTheme();
   const dims =
     size === 'small'
       ? { box: 44, height: 22, knob: 18, dashW: 9, dashH: 2 }
@@ -90,8 +92,7 @@ function IndeterminateSwatch({
           height: dims.knob,
           borderRadius: '50%',
           bgcolor: grey[50],
-          boxShadow:
-            '0 2px 1px -1px rgba(0,0,0,0.2), 0 1px 1px 0 rgba(0,0,0,0.14), 0 1px 3px 0 rgba(0,0,0,0.12)',
+          boxShadow: theme.shadows[1],
         }}
       >
         <Box

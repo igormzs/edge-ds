@@ -55,12 +55,12 @@ function ColorSwatch({ weight, hex }: SwatchProps) {
             transition: 'filter 0.2s'
           }}
         >
-          <Typography sx={{ color: isDark ? '#fff' : '#000', fontSize: 13, fontWeight: 700, fontFamily: '"Open Sans", monospace' }}>
+          <Typography sx={{ color: isDark ? '#fff' : '#000', fontSize: 13, fontWeight: 700, fontFamily: '"Open Sans"' }}>
             {weight}
           </Typography>
         </Box>
         <Box sx={{ width: 84, py: 0.75, bgcolor: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderBottomLeftRadius: 6, borderBottomRightRadius: 6, display: 'flex', justifyContent: 'center' }}>
-           <Typography sx={{ fontFamily: '"Open Sans", monospace', fontSize: 11, color: '#212121', fontWeight: 600 }}>
+           <Typography sx={{ fontFamily: '"Open Sans"', fontSize: 11, color: '#212121', fontWeight: 600 }}>
              {hex}
            </Typography>
         </Box>

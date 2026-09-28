@@ -20,6 +20,7 @@ export const navigation: NavGroup[] = [
     group: 'Navigation & Structure',
     items: [
       { label: 'Breadcrumbs', href: '/styleguide/navigation-structure/breadcrumbs' },
+      { label: 'Navigation Menu', href: '/styleguide/navigation-structure/navigation-menu' },
       { label: 'Pagination', href: '/styleguide/navigation-structure/pagination' },
     ],
   },

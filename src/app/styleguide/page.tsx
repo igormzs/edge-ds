@@ -56,7 +56,7 @@ function ColorSwatch({ name, token, color, textColor = '#fff' }: SwatchProps) {
             sx={{
               bgcolor: 'rgba(0,0,0,0.25)',
               color: textColor,
-              fontFamily: '"Open Sans", monospace',
+              fontFamily: '"Open Sans"',
               fontSize: 10,
               fontWeight: 600,
               letterSpacing: 0.5,

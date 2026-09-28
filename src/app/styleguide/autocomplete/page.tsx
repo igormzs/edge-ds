@@ -339,7 +339,7 @@ const statesSnippet = `// disabled
 
 // ─── Key Props ────────────────────────────────────────────────────────────
 // Matches the 8-row Key Props table built on the Autocomplete Figma
-// Documentation frame's Key Props Rows instance 1:1.
+// Documentation frame's Doc / Key Props Rows instance 1:1.
 
 const propRows: PropRow[] = [
   {
