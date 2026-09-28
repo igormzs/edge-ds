@@ -1,7 +1,7 @@
 # Pagination — Context & Progress Report
 
 **Date:** 2026-07-13
-**Status:** Locked / Complete
+**Status:** Superseded 2026-09-11 — see `docs/EDGE-DS-Migration-Status.md` ("Pagination — detail") for the current state. This report's "Locked/Complete" claim predated the Two-Frame Architecture ratification (2026-07-27) and a live re-audit found real residual token gaps (since closed); kept here for historical context only, not as a current source of truth.
 **Scope:** `<PaginationItem>` (84 variants) + `<Pagination>` (48 variants), Figma node-id 6598-49047
 
 ## Summary

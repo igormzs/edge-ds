@@ -166,3 +166,30 @@ Same standard as §8's color sweep, applied to typography itself: every text nod
 - Documentation section labels use a uniform muted-gray treatment where Button/Checkbox split muted-gray (preview sections) vs. teal (prescriptive sections like Usage Guidelines) — not aligned, since the reference set itself isn't fully consistent on this pattern.
 - **Button, Chip, and Checkbox's own doc-chrome text is only 41–81% bound to real Text Styles** (see §8a) — the same wordmark and dense-table/matrix gaps found and fixed in Typography exist in all three, untouched. Strong candidate for a dedicated file-wide sweep, same pattern as the 2026-08-07 documentation-chrome color sweep (7 pages in one pass) — not attempted here since it's out of scope for a single-component audit.
 - Code Connect (`Typography.figma.tsx`) not started.
+
+## 10. `body-xl` added (2026-09-23)
+
+- **Why:** the largest Regular body style was 16px (`body-lg` is SemiBold 18). Description paragraphs at 20–24px were borrowing heading styles (e.g. `heading-sm` overridden to Regular). Approved by Igor.
+- **Figma:** new text style `typography/body-xl`, Open Sans Regular 20 / 150% / 0px, placed between `heading-xs` and `body-lg`. Style description: "Lead / intro paragraphs, page and section descriptions".
+- **Typography page:** added a body-xl row to the Dev Handoff card and the Type Scale Reference card, and a body-xl specimen to the Gallery's Body column (all bound to real styles). "12 keys" became "13 keys" in both places.
+- **Code:** `edgeTypography['body-xl']` plus the three MUI module-augmentation entries in `src/theme/brandTheme.ts`. `npx tsc --noEmit` is clean. No existing key changed, so there's zero regression surface.
+- **Not done:** no `body-xl` variant was added to the 25-variant MUI-named `<Typography>` component set. It only carries MUI-named variants, and MUI has no body-xl equivalent.
+- **Related:** body-family weight variants are proposed from product-file evidence in [pay-tool-typography-audit.md](pay-tool-typography-audit.md) §5 (pending decision).
+
+## 11. Body weight variants + italic added (2026-09-23)
+
+Evidence: [pay-tool-typography-audit.md](pay-tool-typography-audit.md). Decisions by Igor: SemiBold 600 as the emphasis weight; add only the most-used variants; weight-literal names `-bold`/`-regular` (`-bold` means SemiBold 600, chosen for simplicity); add an italic style.
+
+| Key | Font | Size | Weight | LH | LS | Pay Tool evidence |
+|---|---|---|---|---|---|---|
+| `body-md-bold` | Open Sans | 16 | 600 | 1.5 | 0 | 148 unstyled SemiBold 16 |
+| `body-sm-bold` | Open Sans | 14 | 600 | 1.43 | 0.06 | 175 body-sm→Bold overrides + 39 unstyled |
+| `body-xs-regular` | Open Sans | 12 | 400 | 1.5 | 0.06 | 81 unstyled Regular 12 descriptions |
+| `body-xs-italic` | Open Sans | 12 | 600 italic | 1.5 | 0.06 | ~146 SemiBold Italic 12 (plus 73 Regular Italic 12) |
+
+Each copies its base style's line height and letter spacing. Not added: body-lg-regular (too little evidence).
+
+- **Figma:** 4 new `typography/*` text styles, each ordered right after its base. All 4 are documented on the Typography page (Dev Handoff, Type Scale Reference, Gallery Body column); "13 keys" became "17 keys".
+- **`<Typography>` component set:** 10 new variants, `body-xl` plus the 4 above, each at Gutter Bottom False/True. The gutter follows the existing precedent: raw bottom padding of round(0.35 × font size), so 7/6/5/4px. The set now has 35 variants, and the gallery subtitle and component description were updated.
+- **Code:** 4 new `edgeTypography` keys plus MUI module augmentation, so `<Typography variant="body-sm-bold">` works. `npx tsc --noEmit` is clean. No existing key changed.
+- **Pending (not done):** rebinding the Pay Tool file's overrides and unstyled text to the new styles. Also, the body-xs→Regular input labels should go to `input/label`, not `body-xs-regular`.
