@@ -1658,6 +1658,11 @@ const brandTheme = createTheme(baseTheme, {
           // colors.overlay.scrim, matching Components/Backdrop/Fill/Default
           // (aliasing Semantic/Overlay/Scrim) on the Figma side.
           backgroundColor: colors.overlay.scrim,
+          // Menu/Select/Popover render an *invisible* backdrop just to catch
+          // outside clicks. Stock MUI keeps it transparent, but the scrim
+          // above overrode that too and greyed out the page behind every
+          // dropdown (found 2026-09-29 while syncing <EmpowerAccountMenu>).
+          '&.MuiBackdrop-invisible': { backgroundColor: 'transparent' },
         },
       },
     },

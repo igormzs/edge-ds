@@ -1,17 +1,22 @@
 'use client';
 
 import React from 'react';
-import { Box, ButtonBase, IconButton, Typography } from '@mui/material';
+import { Box, ButtonBase, Typography } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { colors } from '@/theme/brandTheme';
+import { EmpowerAccountMenu } from './EmpowerAccountMenu';
 import { EmpowerLogo } from './EmpowerLogo';
 import { PlatformLogo, type Platform } from './PlatformLogo';
 
 /**
  * EDGE-DS `<EmpowerHeader>` — the Empower app header with the EDGE platform
- * switcher. Figma: Header & Footer page › `<EmpowerHeader>` (Selected
- * variant + Company/Period text) and `<EmpowerHeaderTab>` (State
- * Default/Hover/Selected).
+ * switcher. Figma: Header & Footer page › `<EmpowerHeader>` (Selected ×
+ * Account Menu Closed/Open variants + Company/Period text),
+ * `<EmpowerHeaderTab>` (State Default/Hover/Selected) and
+ * `<EmpowerAccountMenu>` (the dropdown opened from the Account area, whose
+ * chevron flips ExpandMore → ExpandLess while open).
  *
  * Token map (Figma `Components/Header/*` → code):
  *   BG               → Semantic/Surface/Paper   → background.paper
@@ -86,7 +91,17 @@ export interface EmpowerHeaderProps {
   /** Link for each platform tab. Omit to render buttons and use `onPlatformClick`. */
   getPlatformHref?: (platform: HeaderPlatform) => string;
   onPlatformClick?: (platform: HeaderPlatform) => void;
+  /** Called whenever the Account area is clicked, in addition to toggling the menu. */
   onAccountClick?: React.MouseEventHandler<HTMLButtonElement>;
+  /** Signed-in user's name, shown at the top of the account menu. */
+  userName?: string;
+  /** Role or secondary line under the user's name, e.g. "Admin". */
+  userRole?: string;
+  onFeedbackClick?: () => void;
+  onResetPasswordClick?: () => void;
+  onLogoutClick?: () => void;
+  /** Render with the account menu already open (Figma Account Menu=Open). */
+  defaultAccountMenuOpen?: boolean;
   /** Link for the Empower logo (usually the home page). */
   logoHref?: string;
 }
@@ -98,9 +113,26 @@ export function EmpowerHeader({
   getPlatformHref,
   onPlatformClick,
   onAccountClick,
+  userName = '',
+  userRole,
+  onFeedbackClick,
+  onResetPasswordClick,
+  onLogoutClick,
+  defaultAccountMenuOpen = false,
   logoHref,
 }: EmpowerHeaderProps) {
   const logo = <EmpowerLogo height={48} />;
+  // Figma: the menu hangs 4px below the header's bottom edge, right-aligned
+  // with the Account area. The Account area is vertically centred, so the
+  // header's bottom edge sits half the header + half the Account area below
+  // the Account area's top; the menu adds its own 4px gap.
+  const accountRef = React.useRef<HTMLButtonElement>(null);
+  const [menuOpen, setMenuOpen] = React.useState(defaultAccountMenuOpen);
+  // The anchor only exists after mount, so an initially-open menu waits for it.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  const menuId = React.useId();
+  const Chevron = menuOpen ? ExpandLessIcon : ExpandMoreIcon;
   return (
     <Box
       component="header"
@@ -142,7 +174,25 @@ export function EmpowerHeader({
           ))}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <ButtonBase
+          ref={accountRef}
+          onClick={(e) => {
+            setMenuOpen((o) => !o);
+            onAccountClick?.(e);
+          }}
+          aria-label="Account menu"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-controls={menuOpen ? menuId : undefined}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            textAlign: 'left',
+            borderRadius: 1,
+            '&.Mui-focusVisible': { outline: `2px solid ${colors.edgeTurquoise[500]}`, outlineOffset: 2 },
+          }}
+        >
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
             <Typography variant="body-sm-bold" sx={{ color: colors.edgeTurquoise[700] }}>
               {company}
@@ -153,10 +203,24 @@ export function EmpowerHeader({
               </Typography>
             )}
           </Box>
-          <IconButton onClick={onAccountClick} aria-label="Account" sx={{ p: 0, color: 'primary.main' }}>
-            <AccountCircleIcon sx={{ fontSize: 32 }} />
-          </IconButton>
-        </Box>
+          <Chevron sx={{ fontSize: 24, color: 'primary.main' }} />
+          <AccountCircleIcon sx={{ fontSize: 32, color: 'primary.main' }} />
+        </ButtonBase>
+        <EmpowerAccountMenu
+          id={menuId}
+          anchorEl={accountRef.current}
+          anchorOrigin={{
+            vertical: HEADER_HEIGHT / 2 + (accountRef.current?.offsetHeight ?? 0) / 2,
+            horizontal: 'right',
+          }}
+          open={menuOpen && mounted}
+          onClose={() => setMenuOpen(false)}
+          name={userName}
+          role={userRole}
+          onFeedbackClick={onFeedbackClick}
+          onResetPasswordClick={onResetPasswordClick}
+          onLogoutClick={onLogoutClick}
+        />
       </Box>
     </Box>
   );
