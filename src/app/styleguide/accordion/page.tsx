@@ -36,9 +36,15 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 </Accordion>
 
 // Filters Variant — same Accordion/AccordionSummary/AccordionDetails structure
-// as Standard, styled only by the "filters" variant's active-teal label color.
-// Content is two official <Chip variant="outlined"> instances, not a custom box.
+// as Standard; the "filters" variant styles the card, bold teal title and
+// brand chevron. Details list one group per filter category: a body-xs label
+// above a wrapping row of small, removable <Chip variant="outlined">.
 const [filtersExpanded, setFiltersExpanded] = useState(true);
+const filterGroups = [
+  { label: 'Department', values: ['Engineering'] },
+  { label: 'Employment Type', values: ['Full-time', 'Part-time'] },
+  { label: 'Region', values: ['EMEA', 'APAC', 'Americas', 'Remote'] },
+];
 
 <Accordion
   variant="filters"
@@ -49,10 +55,18 @@ const [filtersExpanded, setFiltersExpanded] = useState(true);
     <Typography>Filters applied</Typography>
   </AccordionSummary>
   <AccordionDetails>
-    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-      <Chip variant="outlined" label="Survey question" onDelete={() => {}} />
-      <Chip variant="outlined" label="Level of responsibility" onDelete={() => {}} />
-    </Box>
+    <Stack spacing={1}>
+      {filterGroups.map((group) => (
+        <Stack key={group.label} spacing={0.5} role="group" aria-label={group.label}>
+          <Typography variant="body-xs" color="text.secondary">{group.label}</Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {group.values.map((value) => (
+              <Chip key={value} size="small" color="primary" variant="outlined" label={value} onDelete={() => {}} />
+            ))}
+          </Box>
+        </Stack>
+      ))}
+    </Stack>
   </AccordionDetails>
 </Accordion>`;
 
@@ -69,6 +83,12 @@ const propRows: PropRow[] = [
     default: 'false',
     description: 'If true, the accordion cannot be toggled and uses disabled styling.',
   },
+];
+
+const filterGroups = [
+  { label: 'Department', values: ['Engineering'] },
+  { label: 'Employment Type', values: ['Full-time', 'Part-time'] },
+  { label: 'Region', values: ['EMEA', 'APAC', 'Americas', 'Remote'] },
 ];
 
 export default function AccordionPage() {
@@ -135,10 +155,27 @@ export default function AccordionPage() {
               <Typography>Filters applied</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip variant="outlined" label="Survey question" onDelete={() => {}} />
-                <Chip variant="outlined" label="Level of responsibility" onDelete={() => {}} />
-              </Box>
+              <Stack spacing={1}>
+                {filterGroups.map((group) => (
+                  <Stack key={group.label} spacing={0.5} role="group" aria-label={group.label}>
+                    <Typography variant="body-xs" color="text.secondary">
+                      {group.label}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {group.values.map((value) => (
+                        <Chip
+                          key={value}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                          label={value}
+                          onDelete={() => {}}
+                        />
+                      ))}
+                    </Box>
+                  </Stack>
+                ))}
+              </Stack>
             </AccordionDetails>
           </Accordion>
         </PreviewCanvas>

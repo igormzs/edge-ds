@@ -765,19 +765,33 @@ const brandTheme = createTheme(baseTheme, {
       },
       variants: [
         {
-          // "filters" is intentionally a thin variant: it inherits the exact same
-          // background, height, padding and border as a standard Accordion row
-          // (see MuiAccordion.styleOverrides.root above) — the only difference is
-          // the header label color, which uses the active brand teal token to
-          // signal an "applied" state. Do not reintroduce custom background/
-          // border/height overrides here; that was the legacy pattern this
-          // variant replaced (see the Figma Accordion doc's FILTERS VARIANT
-          // section, which is now built from the real Accordion + Chip
-          // components rather than a bespoke layout).
+          // Mirrors Figma <Accordion> | Filters: a 4px card with a 1px
+          // Semantic/Border/Subtle stroke, a 40px header (0 16px padding,
+          // Elevation 1) whose title is body-md-bold in Semantic/State/Active
+          // and whose chevron is Components/Icon/Fill/Brand. Details hold one
+          // group per filter category (body-xs label + small outlined chips),
+          // padded spacing 1 top / spacing 2 sides and bottom.
           props: { variant: 'filters' },
           style: {
+            borderRadius: 4,
+            backgroundColor: baseTheme.palette.surface.paper,
+            border: `1px solid ${colors.grey[100]}`, // Semantic/Border/Subtle
+            padding: 0,
+            overflow: 'hidden',
+            '& .MuiAccordionSummary-root': {
+              padding: baseTheme.spacing(0, 2),
+              minHeight: 40,
+              boxShadow: baseTheme.shadows[1],
+            },
             '& .MuiAccordionSummary-content .MuiTypography-root': {
+              ...edgeTypography['body-md-bold'],
               color: baseTheme.palette.primary.active,
+            },
+            '& .MuiAccordionSummary-expandIconWrapper': {
+              color: baseTheme.palette.primary.main,
+            },
+            '& .MuiAccordionDetails-root': {
+              padding: baseTheme.spacing(1, 2, 2),
             },
           },
         },
