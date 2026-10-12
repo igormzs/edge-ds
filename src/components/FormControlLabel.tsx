@@ -33,6 +33,13 @@ export interface FormControlLabelProps
   leftLabel?: React.ReactNode;
   /** Text or element rendered to the right of the control. Only used in `dual` layout. */
   rightLabel?: React.ReactNode;
+  /**
+   * Trailing count shown at the right edge of the row (e.g. the number of
+   * results behind a filter option). Mirrors Figma `Count?` / `↳ Count` on
+   * `<FormControlLabel> | Checkbox` and `| Radio` (End placement). The row
+   * stretches to its container's width when a count is set.
+   */
+  count?: React.ReactNode;
 }
 
 // Root used only for the `dual` placement. Mirrors MuiFormControlLabel's own
@@ -63,6 +70,22 @@ const DualLabel = styled('span', {
   userSelect: 'none',
 }));
 
+const CountLabel = styled('span')({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+});
+
+const CountText = styled('span', {
+  shouldForwardProp: (prop) => prop !== 'controlDisabled',
+})<{ controlDisabled?: boolean }>(({ theme, controlDisabled }) => ({
+  ...edgeTypography['body-xs-regular'],
+  color: controlDisabled ? theme.palette.text.disabled : theme.palette.text.secondary,
+  paddingLeft: theme.spacing(2),
+  flexShrink: 0,
+}));
+
 /**
  * EDGE-DS `<FormControlLabel>` — drop-in wrapper around MUI's
  * `FormControlLabel` that adds a `dual` label placement for switches which
@@ -85,6 +108,7 @@ export const FormControlLabel = React.forwardRef<HTMLLabelElement, FormControlLa
       label,
       leftLabel,
       rightLabel,
+      count,
       control,
       disabled,
       className,
@@ -121,17 +145,35 @@ export const FormControlLabel = React.forwardRef<HTMLLabelElement, FormControlLa
       );
     }
 
+    // Trailing count (End placement): the label slot grows to fill the row
+    // and the count sits at the right edge, like the Figma Count frame
+    // (16px left padding, body-xs-regular, Semantic/Text/Secondary, or
+    // Semantic/Text/Disabled when the row is disabled).
+    const hasCount = count != null;
+    const resolvedLabel = hasCount ? (
+      <CountLabel>
+        <span>{label}</span>
+        <CountText controlDisabled={Boolean(disabled)}>{count}</CountText>
+      </CountLabel>
+    ) : (
+      label
+    );
+
     // Standard single-label placements (`end` | `start` | `top` | `bottom`)
     // fall straight through to MUI's own FormControlLabel, unchanged.
     return (
       <MuiFormControlLabel
         ref={ref}
         control={control}
-        label={label}
+        label={resolvedLabel}
         labelPlacement={labelPlacement as MuiFormControlLabelProps['labelPlacement']}
         disabled={disabled}
         className={className}
-        sx={sx}
+        sx={
+          hasCount
+            ? [{ display: 'flex', width: '100%', mr: 0, '& .MuiFormControlLabel-label': { flex: 1 } }, ...(Array.isArray(sx) ? sx : [sx])]
+            : sx
+        }
         {...rest}
       />
     );
