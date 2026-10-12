@@ -8,7 +8,8 @@ import { colors } from '@/theme/brandTheme';
 /**
  * EDGE-DS `<StepperCard>` — card-style stepper where every step is a
  * clickable card. Figma: Stepper page › `Step | Card` (State Inactive / Hover /
- * Active / Complete) and `Stepper | Card` (3–5 steps with connectors).
+ * Active / Complete, optional Caption) and `Stepper | Card` (3–9 steps with
+ * connectors; inside the stepper each card flexes between 108 and 120px).
  *
  * Token map (Figma `Components/Stepper/Card/*` → code):
  *   BG/Active     → Brand/Primary/100 → edgeTurquoise 100
@@ -19,11 +20,14 @@ import { colors } from '@/theme/brandTheme';
  *   Icon/Number   → Brand/Primary/700 → edgeTurquoise 700 (4.6:1, AA at 12px)
  *   Label         → Semantic/Text/Primary → text.primary
  *   Connector     → Neutral/Grey/400 → grey 400
+ *   Caption       → Semantic/Text/Secondary → text.secondary (body-xs-regular)
  */
 
 export type StepCardState = 'inactive' | 'active' | 'complete';
 
 const CARD_WIDTH = 120;
+// Inside <StepperCard> each card flexes down to this width so up to 9 steps fit.
+const CARD_MIN_WIDTH = 108;
 const CIRCLE = 24;
 // Connector line sits on the circle's centre: 16px card padding + 12px half circle, minus half the 1px line.
 const CONNECTOR_OFFSET = 27.5;
@@ -31,13 +35,17 @@ const CONNECTOR_OFFSET = 27.5;
 export interface StepCardProps {
   number: number | string;
   label: string;
+  /** Optional secondary line under the label, e.g. "5 articles" (Figma `Caption?`). */
+  caption?: React.ReactNode;
   state?: StepCardState;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
+  /** Set by <StepperCard>: lets the card shrink from 120 to 108px. */
+  flexible?: boolean;
 }
 
 /** One step — `Step | Card`. Hover is the live interaction state. */
-export function StepCard({ number, label, state = 'inactive', onClick, disabled }: StepCardProps) {
+export function StepCard({ number, label, caption, state = 'inactive', onClick, disabled, flexible }: StepCardProps) {
   const filled = state !== 'inactive';
   return (
     <ButtonBase
@@ -45,8 +53,9 @@ export function StepCard({ number, label, state = 'inactive', onClick, disabled 
       disabled={disabled}
       aria-current={state === 'active' ? 'step' : undefined}
       sx={{
-        width: CARD_WIDTH,
-        flexShrink: 0,
+        ...(flexible
+          ? { flex: `1 1 ${CARD_WIDTH}px`, minWidth: CARD_MIN_WIDTH, maxWidth: CARD_WIDTH }
+          : { width: CARD_WIDTH, flexShrink: 0 }),
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -81,20 +90,29 @@ export function StepCard({ number, label, state = 'inactive', onClick, disabled 
           </Typography>
         )}
       </Box>
-      <Typography variant="body-xs" component="span" sx={{ color: 'text.primary', textAlign: 'center' }}>
-        {label}
-      </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+        <Typography variant="body-xs" component="span" sx={{ color: 'text.primary', textAlign: 'center' }}>
+          {label}
+        </Typography>
+        {caption != null && (
+          <Typography variant="body-xs-regular" component="span" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+            {caption}
+          </Typography>
+        )}
+      </Box>
     </ButtonBase>
   );
 }
 
 export interface StepperCardStep {
   label: string;
+  /** Optional secondary line under the label, e.g. "5 articles". */
+  caption?: React.ReactNode;
   completed?: boolean;
 }
 
 export interface StepperCardProps {
-  /** 3–5 steps, per the Figma component. */
+  /** 3–9 steps, per the Figma component. */
   steps: StepperCardStep[];
   /** Index of the current step (Active). */
   activeStep: number;
@@ -113,6 +131,8 @@ export function StepperCard({ steps, activeStep, onStepClick }: StepperCardProps
           <StepCard
             number={i + 1}
             label={step.label}
+            caption={step.caption}
+            flexible
             state={i === activeStep ? 'active' : step.completed ? 'complete' : 'inactive'}
             onClick={onStepClick ? () => onStepClick(i) : undefined}
           />
