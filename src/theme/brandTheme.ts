@@ -1718,9 +1718,11 @@ const brandTheme = createTheme(baseTheme, {
       },
       styleOverrides: {
         root: {
-          // Components/Link/Text/Primary, aliasing Brand/Primary/500
-          // (#009f9b, the same value as palette.primary.main).
-          color: baseTheme.palette.primary.main,
+          // Components/Link/Text/Primary, aliasing Brand/Primary/700
+          // (#0e837d, the same value as palette.primary.active). Re-aliased
+          // from 500 on 2026-10-12: 500 is 3.26:1 on white and fails AA for
+          // body-size link text, 700 is 4.6:1.
+          color: baseTheme.palette.primary.active,
         },
       },
       variants: [
