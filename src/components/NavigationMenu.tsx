@@ -188,9 +188,9 @@ function NavItemRow({ item, level, selectedId, expandedIds, activePathIds, onTog
   const isSelected = selectedId === item.id;
   // An ancestor of the selected page — colored to trace the path down to it,
   // distinct from (and visually subordinate to) the Selected row's own
-  // background tint. Matches the Components/Tab/Active/Primary precedent
-  // (Brand/Primary/500, i.e. `primary.main` here), not the darker
-  // `primary.active` used for Accordion's "filters applied" state.
+  // background tint. Components/NavigationMenu/Item/ActivePath →
+  // Brand/Primary/800 (`primary.selectedText`) since 2026-10-12: 500 was
+  // ~3.0:1 on the Selected tint and failed WCAG AA.
   const isActivePath = activePathIds.has(item.id);
   // The selected row itself also gets the ActivePath teal (on top of its
   // Selected background), per Figma 2026-09-24 — both signals on the
@@ -232,7 +232,7 @@ function NavItemRow({ item, level, selectedId, expandedIds, activePathIds, onTog
               // still reserve the icon-slot width so labels line up with
               // level-0 labels.
               opacity: isLevel0 && item.icon ? 1 : 0,
-              color: isTeal ? 'primary.main' : 'inherit',
+              color: isTeal ? 'primary.selectedText' : 'inherit',
               '& svg': { fontSize: ICON_SLOT_SIZE },
             }}
           >
@@ -250,7 +250,7 @@ function NavItemRow({ item, level, selectedId, expandedIds, activePathIds, onTog
               // gap: the source frame used Montserrat Bold anyway, which
               // this design system's typography policy already overrides.
               fontWeight: 600,
-              color: isTeal ? 'primary.main' : 'text.primary',
+              color: isTeal ? 'primary.selectedText' : 'text.primary',
             }}
           >
             {item.label}
@@ -259,9 +259,9 @@ function NavItemRow({ item, level, selectedId, expandedIds, activePathIds, onTog
         {/* Trailing chevron: present-but-invisible on leaf rows (any level) to keep alignment consistent across siblings. */}
         {hasChildren ? (
           isOpen ? (
-            <ExpandLessIcon sx={{ fontSize: ICON_SLOT_SIZE, flexShrink: 0, color: isTeal ? 'primary.main' : 'inherit' }} />
+            <ExpandLessIcon sx={{ fontSize: ICON_SLOT_SIZE, flexShrink: 0, color: isTeal ? 'primary.selectedText' : 'inherit' }} />
           ) : (
-            <ExpandMoreIcon sx={{ fontSize: ICON_SLOT_SIZE, flexShrink: 0, color: isTeal ? 'primary.main' : 'inherit' }} />
+            <ExpandMoreIcon sx={{ fontSize: ICON_SLOT_SIZE, flexShrink: 0, color: isTeal ? 'primary.selectedText' : 'inherit' }} />
           )
         ) : (
           <ExpandMoreIcon sx={{ fontSize: ICON_SLOT_SIZE, flexShrink: 0, opacity: 0 }} />

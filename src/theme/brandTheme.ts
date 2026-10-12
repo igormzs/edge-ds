@@ -180,10 +180,12 @@ declare module '@mui/material/styles' {
   interface PaletteColor {
     active: string;
     subtle: string;
+    selectedText: string;
   }
   interface SimplePaletteColorOptions {
     active?: string;
     subtle?: string;
+    selectedText?: string;
   }
 
   interface TypeAction {
@@ -380,6 +382,9 @@ const baseTheme = createTheme({
       dark: colors.edgeTurquoise[600],
       active: colors.edgeTurquoise.active,
       subtle: colors.edgeTurquoise.subtle,
+      // Components/List/ListItem/Selected/Text → Brand/Primary/800. Text on
+      // the selected-row tint: 5.4:1, where 700 would only reach ~4.3:1.
+      selectedText: colors.edgeTurquoise[800],
       contrastText: '#ffffff',
     },
     secondary: {
@@ -1775,6 +1780,10 @@ const brandTheme = createTheme(baseTheme, {
             // (colors.edgeTurquoise[300]) at 8% opacity — MUI's own
             // primary-scoped raw value, not the generic grey action.selected.
             backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
+            // Components/List/ListItem/Selected/Text (Brand/Primary/800)
+            // plus the SemiBold body style, same as the Figma Selected state.
+            color: colors.edgeTurquoise[800],
+            '& .MuiListItemText-primary': { fontWeight: 600 },
             '&:hover': {
               backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
             },
@@ -1806,6 +1815,10 @@ const brandTheme = createTheme(baseTheme, {
             // (colors.edgeTurquoise[300]) at 8% opacity — MUI's own
             // primary-scoped raw value, not the generic grey action.selected.
             backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
+            // Components/List/ListItem/Selected/Text (Brand/Primary/800)
+            // plus the SemiBold body style, same as the Figma Selected state.
+            color: colors.edgeTurquoise[800],
+            '& .MuiListItemText-primary': { fontWeight: 600 },
             '&:hover': {
               backgroundColor: alpha(colors.edgeTurquoise[300], 0.08),
             },
