@@ -170,6 +170,12 @@ declare module '@mui/material/Accordion' {
   }
 }
 
+declare module '@mui/material/Chip' {
+  interface ChipPropsVariantOverrides {
+    subtle: true;
+  }
+}
+
 declare module '@mui/material/Button' {
   interface ButtonPropsSizeOverrides {
     icon: true;
@@ -475,6 +481,44 @@ const baseTheme = createTheme({
   spacing: 8,
 });
 
+// <Chip> colour map, one entry per Figma Color, resolved from the
+// Components/Chip/<Color>/* tokens (Filled, Outlined, Subtle). Subtle reuses
+// the Outlined border and text tokens, as the Figma variants do.
+type ChipTone = {
+  filledBg: string; filledHover: string; filledText: string;
+  border: string; text: string; outlinedHover: string;
+  subtleBg: string; subtleHover: string;
+};
+const chipTones: Record<'Default' | 'Primary' | 'Secondary' | 'Error' | 'Warning' | 'Info' | 'Success', ChipTone> = {
+  Default: { filledBg: colors.grey[100], filledHover: colors.grey[200], filledText: colors.grey[900], border: colors.grey[300], text: colors.grey[900], outlinedHover: colors.grey[200], subtleBg: colors.grey[50], subtleHover: colors.grey[200] },
+  // Outlined/Text → Primary/700 (AA at 13px); Filled stays 500/600 (flagged, see docs).
+  Primary: { filledBg: colors.edgeTurquoise[500], filledHover: colors.edgeTurquoise[600], filledText: '#ffffff', border: colors.edgeTurquoise[500], text: colors.edgeTurquoise[700], outlinedHover: colors.edgeTurquoise[50], subtleBg: colors.edgeTurquoise[50], subtleHover: colors.edgeTurquoise[100] },
+  Secondary: { filledBg: colors.edgeBlue[500], filledHover: colors.edgeBlue[600], filledText: '#ffffff', border: colors.edgeBlue[500], text: colors.edgeBlue[500], outlinedHover: colors.edgeBlue[50], subtleBg: colors.edgeBlue[50], subtleHover: colors.edgeBlue[100] },
+  Error: { filledBg: colors.red[800], filledHover: colors.red[500], filledText: '#ffffff', border: colors.red[500], text: colors.red[900], outlinedHover: colors.red[100], subtleBg: colors.red[50], subtleHover: colors.red[100] },
+  Warning: { filledBg: colors.amber[800], filledHover: colors.amber[500], filledText: '#ffffff', border: colors.amber[500], text: colors.amber[900], outlinedHover: colors.amber[100], subtleBg: colors.amber[50], subtleHover: colors.amber[100] },
+  Info: { filledBg: colors.blue[800], filledHover: colors.blue[500], filledText: '#ffffff', border: colors.blue[500], text: colors.blue[900], outlinedHover: colors.blue[100], subtleBg: colors.blue[50], subtleHover: colors.blue[100] },
+  Success: { filledBg: colors.green[800], filledHover: colors.green[500], filledText: '#ffffff', border: colors.green[500], text: colors.green[900], outlinedHover: colors.green[100], subtleBg: colors.green[50], subtleHover: colors.green[100] },
+};
+const chipColor = (t: ChipTone) => ({
+  '&.MuiChip-filled': {
+    backgroundColor: t.filledBg,
+    color: t.filledText,
+    '&.MuiChip-clickable:hover, &.Mui-focusVisible': { backgroundColor: t.filledHover },
+  },
+  '&.MuiChip-outlined': {
+    borderColor: t.border,
+    borderWidth: '1px',
+    color: t.text,
+    '&.MuiChip-clickable:hover, &.Mui-focusVisible': { backgroundColor: t.outlinedHover },
+  },
+  '&.MuiChip-subtle': {
+    border: `1px solid ${t.border}`,
+    backgroundColor: t.subtleBg,
+    color: t.text,
+    '&.MuiChip-clickable:hover, &.Mui-focusVisible': { backgroundColor: t.subtleHover },
+  },
+});
+
 const brandTheme = createTheme(baseTheme, {
   components: {
     // Page-level scrollbar hiding, scoped to the two real scrolling
@@ -559,11 +603,16 @@ const brandTheme = createTheme(baseTheme, {
           padding: 0,
           '& > *:nth-of-type(1)': { fontSize: '1.5rem' },
         },
+        // Primary buttons sit one or more steps darker than primary.main so
+        // every label passes AA: Components/Button/Primary/BG/Default →
+        // Primary/700, BG/Hover → 800, BG/Active → 900; Outlined/Border,
+        // Outlined/Text and Text/Text → 700. primary.main (500) stays the
+        // brand colour for large titles, icons and indicators.
         containedPrimary: {
-          backgroundColor: baseTheme.palette.primary.main,
+          backgroundColor: colors.edgeTurquoise[700],
           color: baseTheme.palette.primary.contrastText,
-          '&:hover': { backgroundColor: baseTheme.palette.primary.dark },
-          '&:active': { backgroundColor: baseTheme.palette.primary.active },
+          '&:hover': { backgroundColor: colors.edgeTurquoise[800] },
+          '&:active': { backgroundColor: colors.edgeTurquoise[900] },
           '&.Mui-disabled': {
             backgroundColor: `${baseTheme.palette.action.disabledBackground} !important` as unknown as string,
             color: `${baseTheme.palette.text.disabled} !important` as unknown as string,
@@ -617,12 +666,12 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         outlinedPrimary: {
-          borderColor: baseTheme.palette.primary.main,
-          color: baseTheme.palette.primary.main,
+          borderColor: colors.edgeTurquoise[700],
+          color: colors.edgeTurquoise[700],
           borderWidth: '1px',
           '&:hover': {
             backgroundColor: baseTheme.palette.primary.subtle,
-            borderColor: baseTheme.palette.primary.dark,
+            borderColor: colors.edgeTurquoise[700],
             borderWidth: '1px',
           },
           '&:active': {
@@ -712,7 +761,7 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         textPrimary: {
-          color: baseTheme.palette.primary.main,
+          color: colors.edgeTurquoise[700],
           '&:hover': { backgroundColor: baseTheme.palette.primary.subtle },
           '&:active': { color: baseTheme.palette.primary.active },
           '&.Mui-disabled': { color: baseTheme.palette.text.disabled },
@@ -846,7 +895,8 @@ const brandTheme = createTheme(baseTheme, {
           },
         },
         indicator: {
-          backgroundColor: baseTheme.palette.primary.main,
+          // Components/Tab/Active/Primary → Primary/700 (shared with the label).
+          backgroundColor: baseTheme.palette.primary.active,
           height: 3,
         },
       },
@@ -868,7 +918,8 @@ const brandTheme = createTheme(baseTheme, {
             boxShadow: `inset 0 -1px 0 ${colors.grey[300]}`,
           },
           '&.Mui-selected': {
-            color: baseTheme.palette.primary.main,
+            // Components/Tab/Active/Primary → Primary/700 (AA at 14px).
+            color: baseTheme.palette.primary.active,
           },
           '&.Mui-disabled': {
             color: baseTheme.palette.text.disabled,
@@ -1357,103 +1408,39 @@ const brandTheme = createTheme(baseTheme, {
             paddingLeft: '8px',
           },
         },
-        // Per-color mapping. MUI v7's ChipClasses has no combined
-        // `filledError`/`outlinedError`-style slots beyond the deprecated
-        // filledPrimary/filledSecondary/outlinedPrimary/outlinedSecondary,
-        // so each color slot below targets both variants via the
-        // `.MuiChip-filled` / `.MuiChip-outlined` classes that are always
-        // present alongside it on the root element.
-        colorDefault: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.surface.subtle,
-            color: baseTheme.palette.text.primary,
-            '&:hover': { backgroundColor: baseTheme.palette.action.hover },
+        // Per-colour mapping from chipTones (Figma Components/Chip/<Color>/*).
+        // Each colour slot targets the variant classes (.MuiChip-filled /
+        // -outlined / -subtle) that sit on the root next to it.
+        colorDefault: chipColor(chipTones.Default),
+        colorPrimary: chipColor(chipTones.Primary),
+        colorSecondary: chipColor(chipTones.Secondary),
+        colorError: chipColor(chipTones.Error),
+        colorWarning: chipColor(chipTones.Warning),
+        colorInfo: chipColor(chipTones.Info),
+        colorSuccess: chipColor(chipTones.Success),
+        // Selected (Figma Selected=True on Outlined/Subtle): MUI Chip has no
+        // selected prop, so a toggle chip sets aria-pressed="true". Same look
+        // for every Color: Components/Chip/Selected/BG/Default (Primary/50),
+        // BG/Hover (100), Border (500), Text and Icon (Primary/900, AA on
+        // both tints). Placed after the colour slots so it wins.
+        clickable: {
+          '&[aria-pressed="true"]': {
+            backgroundColor: colors.edgeTurquoise[50],
+            border: `1px solid ${colors.edgeTurquoise[500]}`,
+            color: colors.edgeTurquoise[900],
+            '& .MuiChip-icon': { color: colors.edgeTurquoise[900] },
+            '&:hover, &.Mui-focusVisible': { backgroundColor: colors.edgeTurquoise[100] },
           },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.divider,
-            borderWidth: '1px',
-            color: baseTheme.palette.text.primary,
-            '&:hover': { backgroundColor: baseTheme.palette.action.hover },
-          },
-        },
-        colorPrimary: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.primary.main,
-            color: baseTheme.palette.primary.contrastText,
-            '&:hover': { backgroundColor: baseTheme.palette.primary.dark },
-          },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.primary.main,
-            borderWidth: '1px',
-            color: baseTheme.palette.primary.main,
-            '&:hover': { backgroundColor: baseTheme.palette.primary.subtle },
+          // Focused: Components/Chip/Shared/Focus (Semantic/Border/Focus,
+          // Primary/500) as a 2px outside ring, like Figma's Focused variants.
+          '&.Mui-focusVisible': {
+            outline: `2px solid ${colors.edgeTurquoise[500]}`,
+            outlineOffset: 0,
           },
         },
-        colorSecondary: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.secondary.main,
-            color: baseTheme.palette.secondary.contrastText,
-            '&:hover': { backgroundColor: baseTheme.palette.secondary.dark },
-          },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.secondary.main,
-            borderWidth: '1px',
-            color: baseTheme.palette.secondary.main,
-            '&:hover': { backgroundColor: alpha(baseTheme.palette.secondary.main, 0.08) },
-          },
-        },
-        colorError: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.error.main,
-            color: baseTheme.palette.error.contrastText,
-            '&:hover': { backgroundColor: baseTheme.palette.error.dark },
-          },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.error.main,
-            borderWidth: '1px',
-            color: baseTheme.palette.error.main,
-            '&:hover': { backgroundColor: alpha(baseTheme.palette.error.main, 0.08) },
-          },
-        },
-        colorWarning: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.warning.main,
-            color: baseTheme.palette.warning.contrastText,
-            '&:hover': { backgroundColor: baseTheme.palette.warning.dark },
-          },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.warning.main,
-            borderWidth: '1px',
-            color: baseTheme.palette.warning.main,
-            '&:hover': { backgroundColor: alpha(baseTheme.palette.warning.main, 0.08) },
-          },
-        },
-        colorInfo: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.info.main,
-            color: baseTheme.palette.info.contrastText,
-            '&:hover': { backgroundColor: baseTheme.palette.info.dark },
-          },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.info.main,
-            borderWidth: '1px',
-            color: baseTheme.palette.info.main,
-            '&:hover': { backgroundColor: alpha(baseTheme.palette.info.main, 0.08) },
-          },
-        },
-        colorSuccess: {
-          '&.MuiChip-filled': {
-            backgroundColor: baseTheme.palette.success.main,
-            color: baseTheme.palette.success.contrastText,
-            '&:hover': { backgroundColor: baseTheme.palette.success.dark },
-          },
-          '&.MuiChip-outlined': {
-            borderColor: baseTheme.palette.success.main,
-            borderWidth: '1px',
-            color: baseTheme.palette.success.main,
-            '&:hover': { backgroundColor: alpha(baseTheme.palette.success.main, 0.08) },
-          },
-        },
+        // Optional check (Figma Check?, off by default): consumers pass
+        // icon={<CheckIcon />}; it takes the label colour.
+        icon: { color: 'inherit' },
         // Disabled state intentionally has NO overrides here — per the Figma
         // gap analysis, Chip.Mui-disabled relies on MUI's native opacity
         // layer (action.disabledOpacity, 0.38) rather than swapped colors,
