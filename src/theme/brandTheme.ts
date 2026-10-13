@@ -1422,19 +1422,20 @@ const brandTheme = createTheme(baseTheme, {
         // Selected (Figma Selected=True on Outlined/Subtle): MUI Chip has no
         // selected prop, so a toggle chip sets aria-pressed="true". Same look
         // for every Color: Components/Chip/Selected/BG/Default (Primary/50),
-        // BG/Hover (100), Border (500), Text and Icon (Primary/900, AA on
-        // both tints). Placed after the colour slots so it wins.
+        // BG/Hover (100), Border (500), Text (Primary/900, AA on both tints),
+        // Icon (Primary/700). Placed after the colour slots so it wins.
         clickable: {
           '&[aria-pressed="true"]': {
             backgroundColor: colors.edgeTurquoise[50],
             border: `1px solid ${colors.edgeTurquoise[500]}`,
             color: colors.edgeTurquoise[900],
-            '& .MuiChip-icon': { color: colors.edgeTurquoise[900] },
-            // Delete icon also uses Selected/Icon at full strength, so it reads
-            // as clickable (stock MUI dims it to 26%).
+            // Check and delete icons: Components/Chip/Selected/Icon (Primary/700,
+            // icons need 3:1) at full strength, so the delete reads as
+            // clickable (stock MUI dims it to 26%). The label stays 900.
+            '& .MuiChip-icon': { color: colors.edgeTurquoise[700] },
             '& .MuiChip-deleteIcon': {
-              color: colors.edgeTurquoise[900],
-              '&:hover': { color: colors.edgeTurquoise[900] },
+              color: colors.edgeTurquoise[700],
+              '&:hover': { color: colors.edgeTurquoise[700] },
             },
             '&:hover, &.Mui-focusVisible': { backgroundColor: colors.edgeTurquoise[100] },
           },
