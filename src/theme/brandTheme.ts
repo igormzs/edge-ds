@@ -1430,6 +1430,12 @@ const brandTheme = createTheme(baseTheme, {
             border: `1px solid ${colors.edgeTurquoise[500]}`,
             color: colors.edgeTurquoise[900],
             '& .MuiChip-icon': { color: colors.edgeTurquoise[900] },
+            // Delete icon also uses Selected/Icon at full strength, so it reads
+            // as clickable (stock MUI dims it to 26%).
+            '& .MuiChip-deleteIcon': {
+              color: colors.edgeTurquoise[900],
+              '&:hover': { color: colors.edgeTurquoise[900] },
+            },
             '&:hover, &.Mui-focusVisible': { backgroundColor: colors.edgeTurquoise[100] },
           },
           // Focused: Components/Chip/Shared/Focus (Semantic/Border/Focus,
