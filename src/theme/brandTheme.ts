@@ -491,13 +491,14 @@ type ChipTone = {
 };
 const chipTones: Record<'Default' | 'Primary' | 'Secondary' | 'Error' | 'Warning' | 'Info' | 'Success', ChipTone> = {
   Default: { filledBg: colors.grey[100], filledHover: colors.grey[200], filledText: colors.grey[900], border: colors.grey[300], text: colors.grey[900], outlinedHover: colors.grey[200], subtleBg: colors.grey[50], subtleHover: colors.grey[200] },
-  // Outlined/Text → Primary/700 (AA at 13px); Filled stays 500/600 (flagged, see docs).
-  Primary: { filledBg: colors.edgeTurquoise[500], filledHover: colors.edgeTurquoise[600], filledText: '#ffffff', border: colors.edgeTurquoise[500], text: colors.edgeTurquoise[700], outlinedHover: colors.edgeTurquoise[50], subtleBg: colors.edgeTurquoise[50], subtleHover: colors.edgeTurquoise[100] },
-  Secondary: { filledBg: colors.edgeBlue[500], filledHover: colors.edgeBlue[600], filledText: '#ffffff', border: colors.edgeBlue[500], text: colors.edgeBlue[500], outlinedHover: colors.edgeBlue[50], subtleBg: colors.edgeBlue[50], subtleHover: colors.edgeBlue[100] },
-  Error: { filledBg: colors.red[800], filledHover: colors.red[500], filledText: '#ffffff', border: colors.red[500], text: colors.red[900], outlinedHover: colors.red[100], subtleBg: colors.red[50], subtleHover: colors.red[100] },
+  // Filled → Primary/700 (hover 800) and Outlined/Text → 800 so labels pass AA
+  // on white and on the teal 50 tint.
+  Primary: { filledBg: colors.edgeTurquoise[700], filledHover: colors.edgeTurquoise[800], filledText: '#ffffff', border: colors.edgeTurquoise[500], text: colors.edgeTurquoise[800], outlinedHover: colors.edgeTurquoise[50], subtleBg: colors.edgeTurquoise[50], subtleHover: colors.edgeTurquoise[100] },
+  Secondary: { filledBg: colors.edgeBlue[500], filledHover: colors.edgeBlue[600], filledText: '#ffffff', border: colors.edgeBlue[500], text: colors.edgeBlue[700], outlinedHover: colors.edgeBlue[50], subtleBg: colors.edgeBlue[50], subtleHover: colors.edgeBlue[100] },
+  Error: { filledBg: colors.red[800], filledHover: colors.red[900], filledText: '#ffffff', border: colors.red[500], text: colors.red[900], outlinedHover: colors.red[100], subtleBg: colors.red[50], subtleHover: colors.red[100] },
   Warning: { filledBg: colors.amber[800], filledHover: colors.amber[500], filledText: '#ffffff', border: colors.amber[500], text: colors.amber[900], outlinedHover: colors.amber[100], subtleBg: colors.amber[50], subtleHover: colors.amber[100] },
-  Info: { filledBg: colors.blue[800], filledHover: colors.blue[500], filledText: '#ffffff', border: colors.blue[500], text: colors.blue[900], outlinedHover: colors.blue[100], subtleBg: colors.blue[50], subtleHover: colors.blue[100] },
-  Success: { filledBg: colors.green[800], filledHover: colors.green[500], filledText: '#ffffff', border: colors.green[500], text: colors.green[900], outlinedHover: colors.green[100], subtleBg: colors.green[50], subtleHover: colors.green[100] },
+  Info: { filledBg: colors.blue[800], filledHover: colors.blue[900], filledText: '#ffffff', border: colors.blue[500], text: colors.blue[900], outlinedHover: colors.blue[100], subtleBg: colors.blue[50], subtleHover: colors.blue[100] },
+  Success: { filledBg: colors.green[800], filledHover: colors.green[900], filledText: '#ffffff', border: colors.green[500], text: colors.green[900], outlinedHover: colors.green[100], subtleBg: colors.green[50], subtleHover: colors.green[100] },
 };
 const chipColor = (t: ChipTone) => ({
   '&.MuiChip-filled': {
