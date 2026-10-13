@@ -22,7 +22,7 @@ import { colors } from '@/theme/brandTheme';
  *   Name           → Semantic/Text/Primary       → text.primary (body-sm-bold)
  *   Meta           → Semantic/Text/Secondary     → text.secondary (body-xs-regular)
  *   Divider        → Semantic/Border/Divider     → divider
- *   Remove glyph   → Semantic/Icon/Default       → rgba(0, 0, 0, 0.7)
+ *   Remove glyph   → Semantic/Icon/Default       → theme MuiIconButton default
  */
 
 export interface FileItemProps {
@@ -101,10 +101,7 @@ export function FileItem({
           Download
         </Button>
       ) : (
-        // Figma <IconButton> Default glyph: Components/Icon/Fill/Default →
-        // Semantic/Icon/Default (Neutral/Black/70). Set explicitly because the
-        // theme's palette.action.active (which stock IconButton uses) is teal.
-        <IconButton size="small" onClick={onRemove} aria-label={`Remove ${name}`} sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
+        <IconButton size="small" onClick={onRemove} aria-label={`Remove ${name}`}>
           <CloseIcon fontSize="small" />
         </IconButton>
       )}

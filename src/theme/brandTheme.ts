@@ -1712,6 +1712,22 @@ const brandTheme = createTheme(baseTheme, {
         },
       },
     },
+    // Figma's <IconButton> Color=Default glyph is Components/Icon/Fill/Default
+    // → Semantic/Icon/Default (Neutral/Black/70). Stock IconButton colors its
+    // default glyph with palette.action.active, which this theme keeps teal
+    // for other components, so the default color is set here instead.
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          variants: [
+            {
+              props: { color: 'default' },
+              style: { color: 'rgba(0, 0, 0, 0.70)' },
+            },
+          ],
+        },
+      },
+    },
     // Figma's <Link> master models Color=Primary*/Inherit as two real,
     // single-role tokens (no per-state color variation across
     // Enabled/Hovered/Focused) — see docs/Link_Figma_Web_Audit.md for the
