@@ -120,7 +120,9 @@ export function GatewayCard({
       )}
 
       {links.length > 0 && (
-        <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
+        // flex: 1 pushes Newest + Explore to the bottom when a GatewayRow
+        // stretches the card (Figma: Links frame Fill height).
+        <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, flex: 1 }}>
           {links.slice(0, 6).map((link, i) => (
             <Box component="li" key={i} sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <ButtonBase
