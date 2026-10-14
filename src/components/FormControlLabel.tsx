@@ -4,6 +4,7 @@ import React from 'react';
 import {
   FormControlLabel as MuiFormControlLabel,
   type FormControlLabelProps as MuiFormControlLabelProps,
+  Skeleton,
   styled,
 } from '@mui/material';
 import { edgeTypography } from '@/theme/brandTheme';
@@ -40,6 +41,11 @@ export interface FormControlLabelProps
    * stretches to its container's width when a count is set.
    */
   count?: React.ReactNode;
+  /**
+   * Shows a text skeleton in place of the count while results load. Mirrors
+   * Figma `Count Loading?` (turn `Count?` off). Also stretches the row.
+   */
+  countLoading?: boolean;
 }
 
 // Root used only for the `dual` placement. Mirrors MuiFormControlLabel's own
@@ -109,6 +115,7 @@ export const FormControlLabel = React.forwardRef<HTMLLabelElement, FormControlLa
       leftLabel,
       rightLabel,
       count,
+      countLoading,
       control,
       disabled,
       className,
@@ -149,11 +156,15 @@ export const FormControlLabel = React.forwardRef<HTMLLabelElement, FormControlLa
     // and the count sits at the right edge, like the Figma Count frame
     // (16px left padding, body-xs-regular, Semantic/Text/Secondary, or
     // Semantic/Text/Disabled when the row is disabled).
-    const hasCount = count != null;
+    // `countLoading` swaps the count for a 20 × 12 text skeleton
+    // (Figma Count Skeleton frame, <Skeleton> Shape=Text).
+    const hasCount = count != null || Boolean(countLoading);
     const resolvedLabel = hasCount ? (
       <CountLabel>
         <span>{label}</span>
-        <CountText controlDisabled={Boolean(disabled)}>{count}</CountText>
+        <CountText controlDisabled={Boolean(disabled)} aria-busy={countLoading || undefined}>
+          {countLoading ? <Skeleton variant="rounded" width={20} height={12} /> : count}
+        </CountText>
       </CountLabel>
     ) : (
       label
