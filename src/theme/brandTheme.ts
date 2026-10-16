@@ -431,7 +431,7 @@ const baseTheme = createTheme({
       secondary: 'rgba(0, 0, 0, 0.6)',
       disabled: colors.grey[500], // Semantic/Text/Disabled -> #9e9e9e (not part of the Neutral primitive pass; still borrows material/colors grey/500 in Figma)
       brand: colors.edgeTurquoise[500], // Semantic/Text/Brand -> Brand/Primary/500, ~3.3:1 on white, large text only
-      brandDark: colors.edgeTurquoise[800], // Semantic/Text/Brand Dark -> Brand/Primary/800, ~5.8:1 on white, non-clickable titles/headers at any size
+      brandDark: colors.edgeTurquoise[800], // Semantic/Text/BrandDark -> Brand/Primary/800, ~5.8:1 on white, non-clickable titles/headers at any size
     },
     background: {
       default: '#ffffff',
