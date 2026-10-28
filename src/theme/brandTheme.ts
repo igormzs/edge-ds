@@ -1718,7 +1718,16 @@ const brandTheme = createTheme(baseTheme, {
     // → Semantic/Icon/Default (Neutral/Black/70). Stock IconButton colors its
     // default glyph with palette.action.active, which this theme keeps teal
     // for other components, so the default color is set here instead.
+    // Hovered/Focused backgrounds are Components/IconButton/Hover/* (4%) and
+    // Components/IconButton/Focus/* (30%; Default/Inherit alias Neutral/Black/12).
+    // Figma paints focus as a flat overlay, so the stock currentColor focus
+    // ripple is disabled to avoid stacking a second tint on top. Warning uses
+    // amber/800, matching palette.warning.main and Components/IconButton/Icon/Warning.
+    // Figma's Inherit (white) has no code-side color prop and is not mapped.
     MuiIconButton: {
+      defaultProps: {
+        disableFocusRipple: true,
+      },
       styleOverrides: {
         root: {
           variants: [
@@ -1726,6 +1735,24 @@ const brandTheme = createTheme(baseTheme, {
               props: { color: 'default' },
               style: { color: 'rgba(0, 0, 0, 0.70)' },
             },
+            ...(
+              [
+                ['default', '#000000', 0.12],
+                ['inherit', '#000000', 0.12],
+                ['primary', colors.edgeTurquoise[300], 0.3],
+                ['secondary', colors.edgeBlue[500], 0.3],
+                ['error', colors.red[700], 0.3],
+                ['warning', colors.amber[800], 0.3],
+                ['info', '#0057b2', 0.3],
+                ['success', colors.green[800], 0.3],
+              ] as const
+            ).map(([color, hue, focusOpacity]) => ({
+              props: { color },
+              style: {
+                '&:hover': { backgroundColor: alpha(hue, 0.04) },
+                '&.Mui-focusVisible': { backgroundColor: alpha(hue, focusOpacity) },
+              },
+            })),
           ],
         },
       },
