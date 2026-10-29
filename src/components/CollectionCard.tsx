@@ -6,8 +6,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { colors } from '@/theme/brandTheme';
 
 /**
- * EDGE-DS `<GatewayCard>` — landing-page entry card for one product section
- * (e.g. the three EDGE Knowledge pillars). Figma: Card page › `<Card> | Gateway`.
+ * EDGE-DS `<CollectionCard>` — landing-page entry card for one product section
+ * (e.g. the three EDGE Knowledge pillars). Figma: Card page › `<Card> | Collection`.
  *
  * Token map (Figma → code), no new tokens:
  *   BG / Border      → Semantic/Surface/Paper / Semantic/Border/Default → background.paper / grey 300
@@ -21,7 +21,7 @@ import { colors } from '@/theme/brandTheme';
  * Layout: 378 wide, 32px padding, 24px gap, 16px radius.
  */
 
-export interface GatewayLink {
+export interface CollectionLink {
   label: React.ReactNode;
   /** Item count shown before the chevron. */
   count?: number | string;
@@ -29,7 +29,7 @@ export interface GatewayLink {
   onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
-export interface GatewayCardProps {
+export interface CollectionCardProps {
   icon: React.ReactNode;
   /** e.g. "30 articles". */
   count?: React.ReactNode;
@@ -39,14 +39,14 @@ export interface GatewayCardProps {
   intent?: React.ReactNode;
   description?: React.ReactNode;
   /** Up to 6 child links. */
-  links?: GatewayLink[];
+  links?: CollectionLink[];
   newest?: { meta: React.ReactNode; title: React.ReactNode; href?: string };
   actionLabel?: string;
   href?: string;
   onAction?: React.MouseEventHandler<HTMLElement>;
 }
 
-export function GatewayCard({
+export function CollectionCard({
   icon,
   count,
   eyebrow,
@@ -58,7 +58,7 @@ export function GatewayCard({
   actionLabel = 'Explore',
   href,
   onAction,
-}: GatewayCardProps) {
+}: CollectionCardProps) {
   return (
     <Box
       component="article"
@@ -120,7 +120,7 @@ export function GatewayCard({
       )}
 
       {links.length > 0 && (
-        // flex: 1 pushes Newest + Explore to the bottom when a GatewayRow
+        // flex: 1 pushes Newest + Explore to the bottom when a CollectionRow
         // stretches the card (Figma: Links frame Fill height).
         <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, flex: 1 }}>
           {links.slice(0, 6).map((link, i) => (
@@ -190,7 +190,7 @@ export function GatewayCard({
 }
 
 /** Landing row: cards side by side at equal widths, 24px gap. */
-export function GatewayRow({ children }: { children: React.ReactNode }) {
+export function CollectionRow({ children }: { children: React.ReactNode }) {
   return (
     <Box sx={{ display: 'grid', gridAutoColumns: 'minmax(0, 1fr)', gridAutoFlow: 'column', gap: 3, '& > article': { width: 'auto' } }}>
       {children}
@@ -198,4 +198,4 @@ export function GatewayRow({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default GatewayCard;
+export default CollectionCard;

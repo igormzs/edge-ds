@@ -1,13 +1,13 @@
-import { GatewayCard } from './GatewayCard';
+import { CollectionCard } from './CollectionCard';
 import figma from '@figma/code-connect';
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 
 /**
- * GatewayCard Connection
- * `<Card> | Gateway` (Card page, component 4164:1069) → <GatewayCard>.
+ * CollectionCard Connection
+ * `<Card> | Collection` (Card page, component 4164:1069) → <CollectionCard>.
  */
 figma.connect(
-  GatewayCard,
+  CollectionCard,
   'https://www.figma.com/design/fLQNXhHQhKBZzWnJGtUcwn/EDGE-Design-System---New?node-id=4164-1069',
   {
     props: {
@@ -18,7 +18,7 @@ figma.connect(
       description: figma.boolean('Description?', { true: figma.string('↳ Description'), false: undefined }),
     },
     example: ({ count, eyebrow, title, intent, description }) => (
-      <GatewayCard
+      <CollectionCard
         icon={<HandymanOutlinedIcon />}
         count={count}
         eyebrow={eyebrow}
