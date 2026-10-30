@@ -8,7 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { colors } from '@/theme/brandTheme';
 import { EmpowerAccountMenu } from './EmpowerAccountMenu';
 import { EmpowerLogo } from './EmpowerLogo';
-import { PlatformLogo, type Platform } from './PlatformLogo';
+import { PlatformIcon, type Platform } from './PlatformIcon';
 
 /**
  * EDGE-DS `<EmpowerHeader>` — the Empower app header with the EDGE platform
@@ -75,7 +75,7 @@ export function EmpowerHeaderTab({ platform, selected = false, href, onClick }: 
         '&.Mui-focusVisible': { outline: `2px solid ${colors.edgeTurquoise[500]}`, outlineOffset: -2 },
       }}
     >
-      <PlatformLogo platform={platform} size={24} />
+      <PlatformIcon platform={platform} size={24} />
       <Typography variant="body-xs" component="span" sx={{ color: 'text.primary', whiteSpace: 'pre-line', textAlign: 'left' }}>
         {label}
       </Typography>

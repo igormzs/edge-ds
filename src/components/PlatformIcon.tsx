@@ -2,9 +2,9 @@ import React from 'react';
 import { colors } from '@/theme/brandTheme';
 
 /**
- * EDGE-DS `<PlatformLogo>` — the logos of the other EDGE platforms.
+ * EDGE-DS `<PlatformIcon>` — the icons of the other EDGE platforms.
  *
- * Figma: Assets page › `<PlatformLogo>` (Size variant × Logo instance swap).
+ * Figma: Assets page › `<PlatformIcon>` (Size variant × Logo instance swap).
  * Paths are exported from the 64px Figma masters, whose strokes were outlined
  * into fills, so the SVG scales cleanly to any size.
  * Colors: `colors.platforms` (Figma `Platforms/Brand/*` + `Platforms/Glyph`).
@@ -19,11 +19,11 @@ export type Platform =
   | 'payTool';
 
 /** Sizes offered by the Figma `Size` variant. */
-export type PlatformLogoSize = 16 | 24 | 32 | 48 | 64 | 80 | 100;
+export type PlatformIconSize = 16 | 24 | 32 | 48 | 64 | 80 | 100;
 
-export interface PlatformLogoProps extends Omit<React.SVGProps<SVGSVGElement>, 'width' | 'height'> {
+export interface PlatformIconProps extends Omit<React.SVGProps<SVGSVGElement>, 'width' | 'height'> {
   platform: Platform;
-  size?: PlatformLogoSize;
+  size?: PlatformIconSize;
   /** Accessible name. Omit when the platform name is shown next to the logo. */
   title?: string;
 }
@@ -101,7 +101,7 @@ export const PLATFORM_NAMES: Record<Platform, string> = {
   payTool: 'EDGE Pay Tool',
 };
 
-export function PlatformLogo({ platform, size = 24, title, ...svgProps }: PlatformLogoProps) {
+export function PlatformIcon({ platform, size = 24, title, ...svgProps }: PlatformIconProps) {
   const brand = colors.platforms[platform];
   const glyph = colors.platforms.glyph;
   const { glyph: glyphPaths, cutout = [] } = GLYPHS[platform];
@@ -124,4 +124,4 @@ export function PlatformLogo({ platform, size = 24, title, ...svgProps }: Platfo
   );
 }
 
-export default PlatformLogo;
+export default PlatformIcon;

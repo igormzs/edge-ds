@@ -4,7 +4,7 @@ import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { colors } from '@/theme/brandTheme';
-import { PlatformLogo, type Platform } from './PlatformLogo';
+import { PlatformIcon, type Platform } from './PlatformIcon';
 
 /**
  * EDGE-DS `<HubAccessCard>` — the hub page's entry card for each EDGE
@@ -14,7 +14,7 @@ import { PlatformLogo, type Platform } from './PlatformLogo';
  *   BG / Border / Title → Surface/Paper / Border/Default / Text/Primary
  *   <Platform>/Text     → description colour
  *   <Platform>/Action   → ACCESS button background (white label)
- * Logos come from <PlatformLogo> (Platforms/Brand/*).
+ * Icons come from <PlatformIcon> (Platforms/Brand/*).
  */
 
 interface HubPlatform {
@@ -102,7 +102,7 @@ export function HubAccessCard({ platform, title, description, actionLabel = 'Acc
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <PlatformLogo platform={platform} size={80} />
+        <PlatformIcon platform={platform} size={80} />
         <Typography variant="heading-xs" component="h3" sx={{ color: 'text.primary', whiteSpace: 'pre-line' }}>
           {title ?? p.title}
         </Typography>

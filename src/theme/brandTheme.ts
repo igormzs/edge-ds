@@ -368,7 +368,7 @@ export const colors = {
   },
   // Figma `Platforms/Brand/*` + `Platforms/Glyph` — brand colors of the other
   // EDGE platforms. Deliberately raw values, not aliases of our own scales:
-  // they belong to other products. Only for <PlatformLogo>, never UI chrome.
+  // they belong to other products. Only for <PlatformIcon>, never UI chrome.
   platforms: {
     insights: '#00918c',
     knowledge: '#515f6c',
