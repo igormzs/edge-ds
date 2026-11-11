@@ -58,10 +58,10 @@ const exampleItems: NavigationMenuItemData[] = [
     label: 'Benchmarks',
     icon: <NavBenchmarksIcon />,
     children: [
-      { id: 'against-edge-standard', label: 'Agains EDGE standard' },
+      { id: 'against-edge-standard', label: 'Against EDGE standard' },
       {
         id: 'against-peers',
-        label: 'Agains peers',
+        label: 'Against peers',
         children: [
           { id: 'career-transitions', label: 'Career transitions' },
           { id: 'career-accelerators', label: 'Career accelerators' },
