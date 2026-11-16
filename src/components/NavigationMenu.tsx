@@ -79,10 +79,11 @@ export interface NavigationMenuProps {
   searchable?: boolean;
 }
 
-// Row height (40px) + horizontal padding (16px) shared by the collapse
+// Row min-height (40px) + horizontal padding (16px) shared by the collapse
 // toggle row, the collapsed-rail rows, and every expanded nav-item row.
+// Figma 2026-11-16 (<MenuBar> Hug, min 40): rows grow with the label, so a
+// long page name wraps onto a 2nd line (60px row) instead of truncating.
 const ROW_SX = {
-  height: 40,
   minHeight: 40,
   px: 2, // 16px
   py: 1, // 8px
@@ -239,10 +240,12 @@ function NavItemRow({ item, level, selectedId, expandedIds, activePathIds, onTog
             {isLevel0 ? item.icon : null}
           </Box>
           <Typography
-            noWrap
             sx={{
               fontFamily: OPEN_SANS,
               fontSize: 16,
+              // Figma label line = 22px, so a wrapped 2-line label makes a
+              // 60px row (8 + 22 + 22 + 8), matching <MenuBar> Hug.
+              lineHeight: '22px',
               // Open Sans 700 isn't loaded by this app's Google Fonts
               // stylesheet (only 400/600 are — see src/app/layout.tsx), so
               // 600 (SemiBold) is used here instead of the Figma source's
